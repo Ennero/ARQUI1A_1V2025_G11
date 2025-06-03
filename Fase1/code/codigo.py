@@ -1,0 +1,1 @@
+#Aquí creo que iria el código que se ejecuta al iniciar la raspberry pi
