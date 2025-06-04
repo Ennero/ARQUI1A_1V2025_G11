@@ -34,3 +34,8 @@
 ```shell
    pip3 freeze > requirements.txt --break-system-packages
 ```
+
+```shell
+    ssh fichaje@123.local
+    # password: fichaje
+```
