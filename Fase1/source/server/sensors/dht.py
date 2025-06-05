@@ -28,7 +28,7 @@ class DHT:
         
     @property
     def temperature(self):
-        temp = self.sensor.temperature
+        temp = self._sensor.temperature
         return float(temp) if temp else None
     
     @temperature.setter
@@ -40,18 +40,18 @@ class DHT:
         
     @property
     def humidity(self):
-        hum = self.sensor.humidity
+        hum = self._sensor.humidity
         return float(hum) if hum else None
     
     @humidity.setter
     def humidity(self, value):
         if isinstance(value, (int, float)):
-            self._humidity = value
+            self.humidity = value
         else:
             raise TypeError("La humedad debe ser un número")
     
     def __str__(self):
-        return f"Temperatura: {self.temperature:.1f} °C\nHumedad: {self.humidity:.1f} %"
+        return f"Temperatura: {self._temperature:.1f} °C\nHumedad: {self._humidity:.1f} %"
 
     # def read(self):
     #     try:
