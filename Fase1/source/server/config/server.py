@@ -42,4 +42,6 @@ class FlaskServer:
             return respond_with_internal_server_error(f"Internal server error {error}")
 
     def run(self):
-        self.app.run(host='0.0.0.0', port=3000, debug=True)
+        # self.app.run(host='0.0.0.0', port=3000, debug=True)
+        self.app.run(host='0.0.0.0', port=3000, debug=False)
+        return

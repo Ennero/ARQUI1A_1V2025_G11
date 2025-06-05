@@ -1,46 +1,98 @@
+import time
+import random
+from paho.mqtt import client as mqtt_client
+
+class SiepaMqttClient:
+    def __init__(self):
+        self._broker = "broker.emqx.io"
+        self._port = 1883
+        self._client_id = f'grupo11-mqtt-{int(time.time())}-{random.randint(0, 1000)}'
+        self._client = None
+        self._connected = False
+        self._topic = "fiusac/arqui1/g11/#"
+        # self._topic = "python/mqtt/Arqui1Grupo11"
+        # self._topic = "#"
+
+    def connect(self):
+        def on_connect(client, userdata, flags, rc):
+            if rc == 0:
+                print("Successfully connected to MQTT Broker!")
+                self._connected = True
+                # Subscribe to all topics with QoS 1
+                result = client.subscribe(self._topic, qos=1)
+                if result[0] == mqtt_client.MQTT_ERR_SUCCESS:
+                    print(f"Successfully subscribed to topics: {self._topic}")
+                else:
+                    print(f"Subscribe failed with result code: {result}")
+            else:
+                print(f"Failed to connect, return code {rc}\n")
+
+        def on_message(client, userdata, msg):
+            print(f"\nReceived message on [{msg.topic}]")
+            print(f"QoS: {msg.qos}")
+            print(f"Retained: {msg.retain}")
+            print(f"Payload: {msg.payload.decode()}")
+
+        def on_subscribe(client, userdata, mid, granted_qos):
+            print(f"Subscription acknowledged for MID: {mid}")
+            print(f"Granted QoS levels: {granted_qos}")
+
+        self._client = mqtt_client.Client(client_id=self._client_id)
+        self._client.on_connect = on_connect
+        self._client.on_message = on_message
+        # self._client.on_subscribe = on_subscribe
+        
+        # Enable additional logging
+        self._client.enable_logger()
+        
+        # Set last will and testament (optional)
+        self._client.will_set("clients/disconnect", payload="Client disconnected abruptly", qos=1)
+        
+        try:
+            self._client.connect(self._broker, self._port, keepalive=60)
+        except Exception as e:
+            print(f"Connection error: {str(e)}")
+
+    def run(self):
+        if not self._client:
+            print("Client not initialized!")
+            return
+        
+        print("Starting MQTT loop...")
+        try:
+            self._client.loop_forever(retry_first_connection=True)
+        except KeyboardInterrupt:
+            print("Disconnecting...")
+            self._client.disconnect()
+
+
+
+
 # import paho.mqtt.client as mqtt
-# import random
+# import time
 
-# class SiepaMqtt:
-#     broker = 'broker.emqx.io'
-#     port = 1883
-#     topic = "python/mqtt/Arqui1Grupo11"
+# def on_connect(client, userdata, flags, rc):
+#     print(f"Connected with code {rc}")
+#     # Subscribe to specific topics instead of wildcard
+#     client.subscribe("python/mqtt/Arqui1Grupo11", qos=1)
+#     client.subscribe("test/hello", qos=1)
+#     client.publish("test/hello", "Test message", qos=1)
 
-#     def __init__(self):
-#         self.client_id = f'python-mqtt-{random.randint(0, 1000)}'
+# def on_message(client, userdata, msg):
+#     print(f"\nReceived on [{msg.topic}]: {msg.payload.decode()}")
 
-#     def run(self):
-#         def on_connect(client, userdata, flags, reason_code, properties):
-#             print(f"Connected with result code {reason_code}")
-#             # Subscribing in on_connect() means that if we lose the connection and
-#             # reconnect then subscriptions will be renewed.
-#             self.client.subscribe("$SYS/#")
+# client = mqtt.Client(client_id=f"client-{int(time.time())}")
+# client.on_connect = on_connect
+# client.on_message = on_message
 
-#         # The callback for when a PUBLISH message is received from the server.
-#         def on_message(client, userdata, msg):
-#             print(msg.topic+" "+str(msg.payload))
+# # Try alternative broker if needed
+# client.connect("test.mosquitto.org", 1883, 60)
+# # client.connect("broker.emqx.io", 1883, 60)
 
-#         mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-#         mqttc.on_connect = on_connect
-#         mqttc.on_message = on_message
+# client.loop_start()
 
-
-# subscriber.py
-import paho.mqtt.client as mqtt
-
-broker = "broker.emqx.io"
-topic = "python/mqtt/Arqui1Grupo11"
-
-def on_connect(client, userdata, flags, rc):
-    print("Connected!")
-    client.subscribe(topic)
-
-def on_message(client, userdata, msg):
-    print(f"Received: {msg.payload.decode()}°C")
-
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-
-client.connect(broker, 1883, 60)
-client.loop_forever()  # Keeps listening
+# try:
+#     while True:
+#         time.sleep(1)
+# except KeyboardInterrupt:
+#     client.disconnect()
