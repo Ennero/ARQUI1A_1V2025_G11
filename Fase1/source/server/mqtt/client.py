@@ -10,6 +10,14 @@ class SiepaMqttClient:
         self._client = None
         self._connected = False
         self._topic = "fiusac/arqui1/g11/#"
+        self._nested_topics = [
+            'temperature', 
+            'humidity', 
+            'pressure', 
+            'Co2',
+            'proximity',
+            'brightness'
+        ]
         # self._topic = "python/mqtt/Arqui1Grupo11"
         # self._topic = "#"
 
