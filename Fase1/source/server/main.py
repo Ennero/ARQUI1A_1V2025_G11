@@ -2,6 +2,7 @@ import time
 import json
 from threading import Thread
 from config.server import FlaskServer
+from config.db import SeipaDB
 from mqtt.client import SiepaMqttClient
 
 from sensors.bmp import BMP
@@ -12,6 +13,7 @@ import board
 
 dht_sensor = None
 mqtt_client = None
+storage = []
 
 def run_flask():
     server = FlaskServer()
@@ -51,18 +53,29 @@ if __name__ == "__main__":
 
     try:
         while True:
-            # Interval (for waiting?) must come from env variables
-            # time.sleep(self.intervals["principal"]) 
-            dht_sensor.read()
-            dht_sensor.print_data()
+            seipa_DB = SeipaDB(
+                temperature=dht_sensor.temperature,
+                humidity=dht_sensor.humidity,
+                pressure=None
+            )
+            
             mqtt_client.publisher('temperature', json.dumps({
-                "temperature_c": dht_sensor.temperature_c,
-                "temperature_f": dht_sensor.temperature_f
+                "temperature": seipa_DB.temperature
             }))
+
             mqtt_client.publisher('humidity', json.dumps({
-                "humidity": dht_sensor.humidity,
+                "humidity": seipa_DB.humidity
             }))
-            time.sleep(2)
+
+            mqtt_client.publisher('pressure', json.dumps({
+                "pressure": seipa_DB.pressure
+            }))
+
+            print(seipa_DB)
+
+            storage.append(seipa_DB)
+
+            time.sleep(3)
 
     except KeyboardInterrupt:
         # Handle program interruption (Ctrl+C)
