@@ -69,35 +69,24 @@ class SiepaMqttClient(object):
         except Exception as e:
             print(f"Connection error: {str(e)}")
 
-    def publish_sensor_data(self):
-        pass
-        # sensor = Adafruit_DHT.DHT22
-        # pin = 4  # Use the correct GPIO pin connected to the sensor
 
-        # while True:
-        #     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
-        #     if humidity is not None and temperature is not None:
-        #         # Publish temperature
-        #         temp_payload = json.dumps({
-        #             "type": "temperature",
-        #             "value": round(temperature, 2),
-        #             "timestamp": time.time()
-        #         })
-        #         self._client.publish("grupo11/temperature", temp_payload, qos=1)
+    def publisher(self, topic: str, message: str, qos: int = 1):
+        if not self._connected:
+            print("MQTT client is not connected. Cannot publish.")
+            return
 
-        #         # Publish humidity
-        #         humidity_payload = json.dumps({
-        #             "type": "humidity",
-        #             "value": round(humidity, 2),
-        #             "timestamp": time.time()
-        #         })
-        #         self._client.publish("grupo11/humidity", humidity_payload, qos=1)
+        if topic not in self._allowed_topics:
+            print(f"Topic '{topic}' is not allowed. Allowed topics are: {self._allowed_topics}")
+            return
 
-        #         print("> Published sensor data")
-        #     else:
-        #         print("Sensor read failed")
+        full_topic = f"fiusac/arqui1/g11/{topic}"
 
-        #     time.sleep(10)  # Adjust the interval as needed
+        result = self._client.publish(full_topic, payload=message, qos=qos)
+
+        if result.rc == mqtt_client.MQTT_ERR_SUCCESS:
+            print(f"Published to {full_topic}: {message}")
+        else:
+            print(f"Failed to publish to {full_topic}. Error code: {result.rc}")
 
     def run(self):
         if not self._client:
