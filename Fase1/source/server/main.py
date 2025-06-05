@@ -1,4 +1,5 @@
 import time
+import json
 from threading import Thread
 from config.server import FlaskServer
 from mqtt.client import SiepaMqttClient
@@ -17,6 +18,7 @@ def run_flask():
     server.run()
 
 def run_mqtt():
+    global mqtt_client
     mqtt_client = SiepaMqttClient()
     mqtt_client.connect()
     mqtt_client.run()
@@ -46,14 +48,21 @@ if __name__ == "__main__":
     dht_sensor = DHT(board.D17, "DHT11")
 
     # Keep main thread alive
+
     try:
         while True:
             # Interval (for waiting?) must come from env variables
             # time.sleep(self.intervals["principal"]) 
             dht_sensor.read()
             dht_sensor.print_data()
-            mqtt_client.publish('temperature', f"{dht_sensor.temperature_c}-jaja")
-            time.sleep(1)
+            mqtt_client.publisher('temperature', json.dumps({
+                "temperature_c": dht_sensor.temperature_c,
+                "temperature_f": dht_sensor.temperature_f
+            }))
+            mqtt_client.publisher('humidity', json.dumps({
+                "humidity": dht_sensor.humidity,
+            }))
+            time.sleep(2)
 
     except KeyboardInterrupt:
         # Handle program interruption (Ctrl+C)

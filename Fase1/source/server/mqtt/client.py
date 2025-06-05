@@ -70,7 +70,7 @@ class SiepaMqttClient(object):
             print(f"Connection error: {str(e)}")
 
 
-    def publish(self, topic: str, message: str, qos: int = 1):
+    def publisher(self, topic: str, message: str, qos: int = 1):
         if not self._connected:
             print("MQTT client is not connected. Cannot publish.")
             return
