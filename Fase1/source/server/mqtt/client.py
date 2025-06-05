@@ -64,35 +64,3 @@ class SiepaMqttClient:
         except KeyboardInterrupt:
             print("Disconnecting...")
             self._client.disconnect()
-
-
-
-
-# import paho.mqtt.client as mqtt
-# import time
-
-# def on_connect(client, userdata, flags, rc):
-#     print(f"Connected with code {rc}")
-#     # Subscribe to specific topics instead of wildcard
-#     client.subscribe("python/mqtt/Arqui1Grupo11", qos=1)
-#     client.subscribe("test/hello", qos=1)
-#     client.publish("test/hello", "Test message", qos=1)
-
-# def on_message(client, userdata, msg):
-#     print(f"\nReceived on [{msg.topic}]: {msg.payload.decode()}")
-
-# client = mqtt.Client(client_id=f"client-{int(time.time())}")
-# client.on_connect = on_connect
-# client.on_message = on_message
-
-# # Try alternative broker if needed
-# client.connect("test.mosquitto.org", 1883, 60)
-# # client.connect("broker.emqx.io", 1883, 60)
-
-# client.loop_start()
-
-# try:
-#     while True:
-#         time.sleep(1)
-# except KeyboardInterrupt:
-#     client.disconnect()
