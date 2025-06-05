@@ -3,8 +3,8 @@ import board
 
 class DHT:
     def __init__(self, pin: board.pin, model: str = "DHT11"):
-        self._temperature = None
-        self._humidity = None
+        self._temperature = 0
+        self._humidity = 0
 
         model = model.upper()
 

@@ -71,7 +71,8 @@ if __name__ == "__main__":
                 "pressure": seipa_DB.pressure
             }))
 
-            print(seipa_DB)
+            # print(seipa_DB)
+            print(dht_sensor)
 
             storage.append(seipa_DB)
 

@@ -52,8 +52,15 @@ class SeipaDB:
         else:
             raise TypeError("La presión debe ser un número")
         
-    def __str__(self):
-        return (f"Timestamp: {self._timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                f"Temperatura: {self._temperature:.1f} °C\n"
-                f"Humedad: {self._humidity:.1f} %\n"
-                f"Presión: {self._pressure:.1f} hPa")
+    # def __str__(self):
+    #     return (f"Timestamp: {self._timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
+    #             f"Temperatura: {self._temperature:.1f} °C\n"
+    #             f"Humedad: {self._humidity:.1f} %\n"
+    #             f"Presión: {self._pressure:.1f} hPa")
+    
+    # def __str__(self):
+    #     timestamp_str = self._timestamp.strftime('%Y-%m-%d %H:%M:%S') if self._timestamp else "N/A"
+    #     return (f"Timestamp: {timestamp_str}\n"
+    #             f"Temperatura: {self._temperature:.1f} °C\n"
+    #             f"Humedad: {self._humidity:.1f} %\n"
+    #             f"Presión: {self._pressure:.1f || ''} hPa")
