@@ -4,8 +4,8 @@ import board
 class BMP:
     def __init__(self, address: int = 0x76):
         self._sensor = adafruit_bmp280.Adafruit_BMP280_I2C(board.I2C(), address=address)
-        self._temperature = None
-        self._pressure = None
+        self._temperature = 0
+        self._pressure = 0
 
     @property
     def sensor(self):

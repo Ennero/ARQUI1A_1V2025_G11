@@ -56,7 +56,7 @@ if __name__ == "__main__":
             seipa_DB = SeipaDB(
                 temperature=dht_sensor.temperature,
                 humidity=dht_sensor.humidity,
-                pressure=None
+                pressure=0
             )
             
             mqtt_client.publisher('temperature', json.dumps({
@@ -71,8 +71,8 @@ if __name__ == "__main__":
                 "pressure": seipa_DB.pressure
             }))
 
-            # print(seipa_DB)
-            print(dht_sensor)
+            print(seipa_DB)
+            # print(dht_sensor)
 
             storage.append(seipa_DB)
 
