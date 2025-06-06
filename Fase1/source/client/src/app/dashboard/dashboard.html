@@ -1,0 +1,128 @@
+<app-header></app-header>
+<div class="dashboard-bg">
+  <div class="dashboard-container">
+    <h1 class="dashboard-title">Datos en tiempo Real</h1>
+    <mat-card class="panel panel-top">
+      <!-- Panel Superior logo y título-->
+      <div class="dashboard-top-panel">
+        <img src="assets/sensor.png" alt="logo" class="dashboard-logo">
+        <h1 class="dashboard-title">Sensores  </h1>
+      </div>
+      <!-- Panel 1: Usuarios detectados-->  
+      <mat-card class="panel">
+        <h2>Usuarios detectados</h2>
+        <div class="usuarios-numero">5</div>
+      </mat-card>
+
+    <!-- Panel 2: Iluminación (3 subpaneles) -->
+    <div class="panel panel-segundo">
+      <mat-card class="subpanel">
+        <h3>Distancia</h3>
+        <div class="dato">350 lx</div>
+      </mat-card>
+      <mat-card class="subpanel">
+        <h3>Gas</h3>
+        <div class="dato">420 lx</div>
+      </mat-card>
+      <mat-card class="subpanel">
+        <h3>Iluminación</h3>
+        <div class="dato">390 lx</div>
+      </mat-card>
+    </div>
+
+    <!-- Panel 3: Distancia (3 subpaneles) -->
+    <div class="panel panel-tercero">
+      <mat-card class="subpanel">
+        <h3>Humedad</h3>
+        <div class="dato">{{ currentHumedad }}</div>
+      </mat-card>
+      <mat-card class="subpanel">
+        <h3>Temperatura</h3>
+        <div class="dato">0.9 m</div>
+      </mat-card>
+      <mat-card class="subpanel">
+        <h3>Actual</h3>
+        <div class="dato">1.5 m</div>
+      </mat-card>
+    </div>
+  </mat-card>
+
+  <mat-card class="panel panel-bottom">
+    <!-- Panel Superior logo y título-->
+      <div class="dashboard-top">
+        <img src="assets/sensor.png" alt="logo" class="dashboard-logo">
+        <h1 class="dashboard-title">Gráficas de los Sensores</h1>
+      </div>
+      <!-- Primer Panel -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <h3>Distancia</h3>
+        </mat-card>
+        <mat-card class="subpanel">
+          <h3>Gas</h3>
+        </mat-card>
+      </div>
+
+      <!-- Gráficas -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="distanciaChart"></canvas>
+          </div>
+        </mat-card>
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="gasChart"></canvas>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Segundo Panel -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <h3>Iluminacion</h3>
+        </mat-card>
+        <mat-card class="subpanel">
+          <h3>Humedad</h3>
+        </mat-card>
+      </div>
+
+      <!-- Gráficas -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="iluminacionChart"></canvas>
+          </div>
+        </mat-card>
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="humedadChart"></canvas>
+          </div>
+        </mat-card>
+      </div>
+
+      <!-- Tecer Panel -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <h3>Temperatura</h3>
+        </mat-card>
+        <mat-card class="subpanel">
+          <h3>Actual</h3>
+        </mat-card>
+      </div>
+
+      <!-- Gráficas -->
+      <div class="subpanel-row">
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="temperaturaChart"></canvas>
+          </div>
+        </mat-card>
+        <mat-card class="subpanel">
+          <div class="chart-placeholder">
+            <canvas id="actualChart"></canvas>
+          </div>
+        </mat-card>
+      </div>
+  </mat-card>
+</div>

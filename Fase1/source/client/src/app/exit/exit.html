@@ -1,0 +1,58 @@
+<app-header></app-header>
+<div class="dashboard-bg">
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Dispositivos de Salida</h1>
+        <mat-card class="panel panel-top">  
+            <div class="dashboard-top-panel">
+                <img src="assets/sensor.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Led de Advertencia  </h1>
+            </div>
+
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                    <h3>Temperatura</h3>
+                    <div class="led" [ngClass]="{'on': temperaturaCritica}" style="--led-color: #e53935"></div>
+                    <button *ngIf="temperaturaCritica" mat-icon-button color="warn" class="alert-btn" aria-label="Advertencia">
+                        <mat-icon>warning</mat-icon>
+                    </button>
+                    </div>
+                    <div class="dato">Indicará la calidad de la temperatura</div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                    <h3>Humedad</h3>
+                    <div class="led" [ngClass]="{'on': humedadCritica}" style="--led-color: #ffd600"></div>
+                    <button *ngIf="humedadCritica" mat-icon-button color="warn" class="alert-btn" aria-label="Advertencia">
+                        <mat-icon>warning</mat-icon>
+                    </button>
+                    </div>
+                    <div class="dato">Indicará la calidad de la humedad</div>
+                </mat-card>
+            </div>
+
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                    <h3>Iluminación</h3>
+                    <div class="led" [ngClass]="{'on': iluminacionCritica}" style="--led-color: #43a047"></div>
+                    <button *ngIf="iluminacionCritica" mat-icon-button color="warn" class="alert-btn" aria-label="Advertencia">
+                        <mat-icon>warning</mat-icon>
+                    </button>
+                    </div>
+                    <div class="dato">Indicará la calidad de la iluminación</div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                    <h3>Aire</h3>
+                    <div class="led" [ngClass]="{'on': aireCritico}" style="--led-color: #1e88e5"></div>
+                    <button *ngIf="aireCritico" mat-icon-button color="warn" class="alert-btn" aria-label="Advertencia">
+                        <mat-icon>warning</mat-icon>
+                    </button>
+                    </div>
+                    <div class="dato">Indicará la calidad del aire</div>
+                </mat-card>
+            </div>
+        </mat-card>
+    </div>
+</div>
