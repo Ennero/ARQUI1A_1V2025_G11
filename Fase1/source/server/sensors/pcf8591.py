@@ -5,7 +5,7 @@ class PCF8591:
         self.address = address
         self.bus = smbus.SMBus(bus)
 
-    def read(self, channel=0):
+    def read(self, channel):
         if channel < 0 or channel > 3:
             raise ValueError("El canal debe estar entre 0 y 3")
 
@@ -14,6 +14,7 @@ class PCF8591:
         value = self.bus.read_byte(self.address)
         return value
 
-    def analog_voltage(self, channel=0, vref=3.3):
-        raw = self.read(channel)
-        return (raw / 255.0) * vref
+    def read_voltage(self, channel, vref):
+        value = self.read(channel)
+        voltage = (value / 255.0) * vref
+        return voltage
