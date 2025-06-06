@@ -1,0 +1,233 @@
+<app-header></app-header>
+<div class="history-bg">
+  <div class="history-container">
+    <h1 class="history-title">Historial de todas las mediciones</h1>
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Distancia</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceDistancia" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- Distancia Columna-->
+                <ng-container matColumnDef="distancia">
+                  <th mat-header-cell *matHeaderCellDef> Distancia </th>
+                  <td mat-cell *matCellDef="let element">{{element.distancia}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsDistancia"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsDistancia;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="distanciaChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+
+
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Calidad del aire</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceair_quality" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- air_quality Columna-->
+                <ng-container matColumnDef="air_quality">
+                  <th mat-header-cell *matHeaderCellDef> CO2 </th>
+                  <td mat-cell *matCellDef="let element">{{element.air_quality}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsair_quality"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsair_quality;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="air_qualityChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Iluminación</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceIluminacion" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- Iluminación Columna-->
+                <ng-container matColumnDef="iluminacion">
+                  <th mat-header-cell *matHeaderCellDef> Iluminación </th>
+                  <td mat-cell *matCellDef="let element">{{element.iluminacion}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsIluminacion"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsIluminacion;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="iluminacionChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Humedad</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceHumedad" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- Humedad Columna-->
+                <ng-container matColumnDef="humidity">
+                  <th mat-header-cell *matHeaderCellDef> humidity </th>
+                  <td mat-cell *matCellDef="let element">{{element.humidity}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsHumedad"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsHumedad;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="humedadChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Temperatura</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceTemperatura" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- Temperatura Columna-->
+                <ng-container matColumnDef="temperatura">
+                  <th mat-header-cell *matHeaderCellDef> Temperatura </th>
+                  <td mat-cell *matCellDef="let element">{{element.temperatura}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsTemperatura"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsTemperatura;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="temperaturaChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paneles -->
+    <div class="history-panel">
+      <div class="history-panel-grid">
+        <!-- Izquierda: título y gráfica -->
+        <div class="history-panel-left">
+          <mat-card class="subpanel-title">
+            <h2>Actual</h2>
+          </mat-card>
+          <mat-card class="subpanel-graph">
+            <div class="table-scroll">
+              <table mat-table [dataSource]="dataSourceActual" class="mat-elevation-z1">
+                <!-- No Columna-->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef> No </th>
+                  <td mat-cell *matCellDef="let element">{{element.no}} </td>
+                </ng-container>
+
+                <!-- Actual Columna-->
+                <ng-container matColumnDef="actual">
+                  <th mat-header-cell *matHeaderCellDef> Actual </th>
+                  <td mat-cell *matCellDef="let element">{{element.actual}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsActual"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsActual;"></tr>
+              </table>
+            </div>
+          </mat-card>
+        </div>
+        <!-- Derecha: solo gráfica -->
+        <div class="history-panel-right">
+          <mat-card class="subpanel-graph">
+            <canvas id="actualChart"></canvas>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
