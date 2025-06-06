@@ -2,11 +2,12 @@ from datetime import datetime
 
 class SeipaDB:
 
-    def __init__(self, temperature, humidity, pressure):
+    def __init__(self, temperature, humidity, pressure, air_quality):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
         self._pressure = pressure
+        self._air_quality = air_quality
 
     @property
     def timestamp(self):
@@ -51,7 +52,18 @@ class SeipaDB:
             self._pressure = value
         else:
             raise TypeError("La presión debe ser un número")
-        
+
+    @property
+    def air_quality(self):
+        return self._air_quality
+
+    @air_quality.setter
+    def air_quality(self, value):
+        if isinstance(value, (int, float)):
+            self._air_quality = value
+        else:
+            raise TypeError("La calidad del aire debe ser un número")
+
     # def __str__(self):
     #     return (f"Timestamp: {self._timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
     #             f"Temperatura: {self._temperature:.1f} °C\n"

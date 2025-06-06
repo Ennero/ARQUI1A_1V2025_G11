@@ -24,7 +24,7 @@ class SiepaMqttClient(object):
             'temperature', 
             'humidity', 
             'pressure', 
-            'Co2',
+            'air_quality',
             'proximity',
             'brightness'
         ]
