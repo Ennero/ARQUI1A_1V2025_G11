@@ -27,24 +27,30 @@ import {
 
 
 export class History implements AfterViewInit, OnInit, OnDestroy{
+
+  // Definimos las columnas que se mostrarán en las tablas
   displayedColumnsHumedad: string[] = ['no', 'humidity'];
+  displayedColumnsAirQuality: string[] = ['no', 'air_quality'];
+  displayedColumnsDistancia: string[] = ['no', 'distancia'];
+  displayedColumnsIluminacion: string[] = ['no', 'iluminacion'];
+  displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
+  displayedColumnsActual: string[] = ['no', 'actual'];
+
+  // Copiamos los datos para que se muestren en las tablas
   dataSourceHumedad = dataHumedad;
+  dataSourceAirQuality = dataAirQuality;
+  dataSourceDistancia = dataDistancia;
+  dataSourceIluminacion = dataIluminacion;
+  dataSourceTemperatura = dataTemperatura;
+  dataSourceActual = dataActual;
 
   constructor(private mqttService: MqttService) {}
-    currentHumedad: string = '-';
-    currentTemperatura: string = '-';
-    currentDistancia: string = '-';
-    currentair_quality: string = '-';
-    currentIluminacion: string = '-';
-    currentActual: string = '-';
   
-    private mqttSub!: Subscription;
-    // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
-    private charts: { [key: string]: Chart } = {};
+  private mqttSub!: Subscription;
+  // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
+  private charts: { [key: string]: Chart } = {};
 
   ngOnInit(): void {
-    // Conectamos el broker
-    this.mqttService.connectClient();
 
     // Suscribirse a los mensajes
     this.mqttSub = this.mqttService.message$.subscribe(({ topic, value }) => {
@@ -53,76 +59,93 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
       console.log("Agregando valor del sensor:", sensor, "con valor:", value);
       switch (sensor) {
         case 'humidity':
-          // Imprimimos los valores de la lista
-          console.log("Valor de la lista de humedad:", dataHumedad);
-          dataHumedad.push({ no: dataHumedad.length + 1, humidity: `${value} %` });
-          if (dataHumedad.length > 20) dataHumedad.shift();
-          dataHumedad.forEach((item, idx) => item.no = idx + 1);
-          this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
-          this.currentHumedad = `${value} %`;
+          this.addValueToArrayToData(parseFloat(value), 'humidity', '%');
+          this.updateChart('humedadChart', dataHumedad, 'humidity');
           break;
         case 'temperatura':
-          this.addValueToArray(this.dataSourceTemperatura, parseFloat(value), 'temperatura', '°C');
-          this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
-          this.currentTemperatura = `${value} °C`;
+          this.addValueToArrayToData(parseFloat(value), 'temperatura', '°C');
+          this.updateChart('temperaturaChart', dataTemperatura, 'temperatura');
           break;
         case 'distancia':
-          this.addValueToArray(this.dataSourceDistancia, parseFloat(value), 'distancia', 'm');
-          this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
-          this.currentDistancia = `${value} m`;
+          this.addValueToArrayToData(parseFloat(value), 'distancia', 'm');
+          this.updateChart('distanciaChart', dataDistancia, 'distancia');
           break;
         case 'air_quality':
-          this.addValueToArray(this.dataSourceair_quality, parseFloat(value), 'air_quality', 'ppm');
-          this.updateChart('air_qualityChart', this.dataSourceair_quality, 'air_quality');
-          this.currentair_quality = `${value} ppm`;
+          this.addValueToArrayToData(parseFloat(value), 'air_quality', 'ppm');
+          this.updateChart('air_qualityChart', dataAirQuality, 'air_quality');
           break;
         case 'iluminacion':
-          this.addValueToArray(this.dataSourceIluminacion, parseFloat(value), 'iluminacion', 'lux');
-          this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
-          this.currentIluminacion = `${value} lux`;
+          this.addValueToArrayToData(parseFloat(value), 'iluminacion', 'lux');
+          this.updateChart('iluminacionChart', dataIluminacion, 'iluminacion');
           break;
         case 'actual':
-          this.addValueToArray(this.dataSourceActual, parseFloat(value), 'actual', '');
-          this.updateChart('actualChart', this.dataSourceActual, 'actual');
-          this.currentActual = `${value}`;
+          this.addValueToArrayToData(parseFloat(value), 'actual', '');
+          this.updateChart('actualChart', dataActual, 'actual');
           break;
       }
     })
-
-
   } 
 
-    ngAfterViewInit() {
-    this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', this.dataSourceDistancia, 'distancia', '#8d6748');
-    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceair_quality, 'air_quality', '#a8e6a3');
-    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');
-    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humedad', '#f5f3e7');
-    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748', 'line');
-    this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
+  ngAfterViewInit() {
+    this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', dataDistancia, 'distancia', '#8d6748');
+    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', dataAirQuality, 'air_quality', '#a8e6a3');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('air_qualityChart', dataAirQuality, 'air_quality');
+    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', dataIluminacion, 'iluminacion', '#22543d');
+    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', dataHumedad, 'humedad', '#f5f3e7');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('humedadChart', dataHumedad, 'humidity');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', dataTemperatura, 'temperatura', '#8d6748', 'line');
+    this.charts['actual'] = this.createChart('actualChart', 'Actual', dataActual, 'actual', '#a8e6a3');
   }
 
-  // Agregar un nuevo valor al array y mantener solo los últimos 20 VALORES
-  addValueToArray(array: any[], value: number, key: string, unit: string): void {
-    // Si ya hay 20 elementos, elimina el primero (el más antiguo)
-    if (array.length >= 20) {
-      array.shift();
+  // Método para agregar un valor al array de datos y actualizar la tabla correspondiente
+  addValueToArrayToData(value: number, key: string, unit: string): void {      
+    // Reasignar el array para forzar la detección de cambios
+    if (key === 'humidity') {
+      dataHumedad.push({ no: dataHumedad.length + 1, humidity: `${value} ${unit}` });
+      if (dataHumedad.length > 20) dataHumedad.shift();
+      dataHumedad.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceHumedad = [...dataHumedad];
     }
 
-    // Agrega el nuevo valor al final
-    array.push({ no: array.length + 1, [key]: unit ? `${value} ${unit}` : `${value}` });
+    if (key === 'air_quality') {
+      dataAirQuality.push({ no: dataAirQuality.length + 1, air_quality: `${value} ${unit}` });
+      if (dataAirQuality.length > 20) dataAirQuality.shift();
+      dataAirQuality.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceAirQuality = [...dataAirQuality];
+    }
 
-    // Reasigna los números para que siempre sea del 1 al array.length
-    array.forEach((item, index) => item.no = index+1);
+    if (key === 'temperatura') {
+      dataTemperatura.push({ no: dataTemperatura.length + 1, temperatura: `${value} ${unit}` });
+      if (dataTemperatura.length > 20) dataTemperatura.shift();
+      dataTemperatura.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceTemperatura = [...dataTemperatura];
+    } 
 
-    // Reasignar el array para forzar la detección de cambios
-    if (key === 'humidity') this.dataSourceHumedad = [...array];
-    if (key === 'temperatura') this.dataSourceTemperatura = [...array];
-    if (key === 'distancia') this.dataSourceDistancia = [...array];
-    if (key === 'air_quality') this.dataSourceair_quality = [...array];
-    if (key === 'iluminacion') this.dataSourceIluminacion = [...array];
-    if (key === 'actual') this.dataSourceActual = [...array];
+    if (key === 'distancia') {
+      dataDistancia.push({ no: dataDistancia.length + 1, distancia: `${value} ${unit}` });
+      if (dataDistancia.length > 20) dataDistancia.shift();
+      dataDistancia.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceDistancia = [...dataDistancia];
+    }
+
+    if (key === 'actual') {
+      dataActual.push({ no: dataActual.length + 1, actual: `${value} ${unit}` });
+      if (dataActual.length > 20) dataActual.shift();
+      dataActual.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceActual = [...dataActual];
+    }
+
+    if (key === 'iluminacion') {
+      dataIluminacion.push({ no: dataIluminacion.length + 1, iluminacion: `${value} ${unit}` });
+      if (dataIluminacion.length > 20) dataIluminacion.shift();
+      dataIluminacion.forEach((item, idx) => item.no = idx + 1);
+      this.dataSourceIluminacion = [...dataIluminacion];
+    }
   }
 
+  // Actualizar el gráfico con los nuevos datos
   updateChart(chartId: string, dataSource: any[], key: string) {
     const chart = Chart.getChart(chartId);
     if (chart) {
@@ -137,7 +160,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
     if (this.mqttSub) this.mqttSub.unsubscribe();
   }
 
-  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'bar'): Chart {
+  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
       return new Chart(canvasId, {
         type,
         data: {
@@ -151,22 +174,4 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
         options: { responsive: true }
       });
     }
-
-
-  displayedColumnsDistancia: string[] = ['no', 'distancia'];
-  dataSourceDistancia: { no: number, distancia: string }[] = [];
-
-  displayedColumnsair_quality: string[] = ['no', 'air_quality'];
-  dataSourceair_quality: { no: number, air_quality: string }[] = [];
-
-  displayedColumnsIluminacion: string[] = ['no', 'iluminacion'];
-  dataSourceIluminacion: { no: number, iluminacion: string }[] = [];
-
-  
-  displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
-  dataSourceTemperatura: { no: number, temperatura: string }[] = [];
-
-  displayedColumnsActual: string[] = ['no', 'actual'];
-  dataSourceActual: { no: number, actual: string }[] = [];
-
 }

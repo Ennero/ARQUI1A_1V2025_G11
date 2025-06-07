@@ -50,7 +50,7 @@
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
-              <table mat-table [dataSource]="dataSourceair_quality" class="mat-elevation-z1">
+              <table mat-table [dataSource]="dataSourceAirQuality" class="mat-elevation-z1">
                 <!-- No Columna-->
                 <ng-container matColumnDef="no">
                   <th mat-header-cell *matHeaderCellDef> No </th>
@@ -63,8 +63,8 @@
                   <td mat-cell *matCellDef="let element">{{element.air_quality}} </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsair_quality"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsair_quality;"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsAirQuality"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsAirQuality;"></tr>
               </table>
             </div>
           </mat-card>
