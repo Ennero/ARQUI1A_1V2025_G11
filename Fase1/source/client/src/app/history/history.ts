@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MqttService } from '../service/conexion.service';
-import { Subscription, throttleTime } from 'rxjs';
+import { Subscription } from 'rxjs';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -79,15 +79,23 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
 
   ngAfterViewInit() {
     this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', this.dataSourceDistancia, 'distancia', '#8d6748');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
     this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQuality, 'air_quality', '#a8e6a3');
     // Actualizar los datos de los gráficos con los datos iniciales
     this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
     this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');
-    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humedad', '#f5f3e7');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
+    this.charts['humidity'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humidity', '#f5f3e7');
     // Actualizar los datos de los gráficos con los datos iniciales
     this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
-    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748', 'line');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
     this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('actualChart', this.dataSourceActual, 'actual');
   }
 
   // Actualizar el gráfico con los nuevos datos
@@ -104,7 +112,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   ngOnDestroy(): void {
     if (this.mqttSub) this.mqttSub.unsubscribe();
   }
-  
+
     createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
       // Crear una nueva instancia de Chart.js
       return new Chart(canvasId, {

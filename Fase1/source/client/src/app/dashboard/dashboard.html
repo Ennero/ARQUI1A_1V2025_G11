@@ -11,22 +11,22 @@
       <!-- Panel 1: Usuarios detectados-->  
       <mat-card class="panel">
         <h2>Usuarios detectados</h2>
-        <div class="usuarios-numero">5</div>
+        <div class="usuarios-numero">1</div>
       </mat-card>
 
     <!-- Panel 2: Iluminación (3 subpaneles) -->
     <div class="panel panel-segundo">
       <mat-card class="subpanel">
         <h3>Distancia</h3>
-        <div class="dato">350 lx</div>
+        <div class="dato">{{ currentDistancia }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Gas</h3>
-        <div class="dato">420 lx</div>
+        <h3>Calidad del Aire</h3>
+        <div class="dato">{{ currentAirQuality }}</div>
       </mat-card>
       <mat-card class="subpanel">
         <h3>Iluminación</h3>
-        <div class="dato">390 lx</div>
+        <div class="dato">{{ currentIluminacion }}</div>
       </mat-card>
     </div>
 
@@ -38,11 +38,11 @@
       </mat-card>
       <mat-card class="subpanel">
         <h3>Temperatura</h3>
-        <div class="dato">0.9 m</div>
+        <div class="dato">{{ currentTemperatura }}</div>
       </mat-card>
       <mat-card class="subpanel">
         <h3>Actual</h3>
-        <div class="dato">1.5 m</div>
+        <div class="dato">{{ currentActual }}</div>
       </mat-card>
     </div>
   </mat-card>
@@ -59,7 +59,7 @@
           <h3>Distancia</h3>
         </mat-card>
         <mat-card class="subpanel">
-          <h3>Gas</h3>
+          <h3>Calidad del Aire</h3>
         </mat-card>
       </div>
 
@@ -72,7 +72,7 @@
         </mat-card>
         <mat-card class="subpanel">
           <div class="chart-placeholder">
-            <canvas id="gasChart"></canvas>
+            <canvas id="air_qualityChart"></canvas>
           </div>
         </mat-card>
       </div>

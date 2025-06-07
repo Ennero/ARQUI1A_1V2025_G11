@@ -16,12 +16,79 @@ import Chart from 'chart.js/auto';
 
 export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   constructor(private mqttService: MqttService) {}
-  currentHumedad: string = '-';
-  currentTemperatura: string = '-';
-  currentDistancia: string = '-';
-  currentGas: string = '-';
-  currentIluminacion: string = '-';
-  currentActual: string = '-';
+
+  // Definimos las columnas que se mostrarán en las tablas
+  displayedColumnHumedad: string[] = ['no', 'humidity'];
+  displayedColumnTemperatura: string[] = ['no', 'temperatura'];
+  displayedColumnDistancia: string[] = ['no', 'distancia'];
+  displayedColumnAirQuality: string[] = ['no', 'air_quality'];
+  displayedColumnIluminacion: string[] = ['no', 'iluminacion'];
+  displayedColumnActual: string[] = ['no', 'actual'];
+
+  // Acceder a los datos de los sensores a través del servicio MQTT
+  // Estos getters permiten acceder a los datos de los sensores desde la plantilla
+  get dataSourceHumedad() { return this.mqttService.dataHumedad; }
+  get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
+  get dataSourceDistancia() { return this.mqttService.dataDistancia; }
+  get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
+  get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
+  get dataSourceActual() { return this.mqttService.dataActual; }
+
+  // Estos getters permiten acceder a los valores actuales de los sensores desde la plantilla
+  // Accediendo al último elemento de cada array
+  get currentHumedad(): string {
+    const listaHumdedad = this.dataSourceHumedad;
+    if (listaHumdedad.length > 0) {
+      return listaHumdedad[listaHumdedad.length - 1].humidity;
+    } else {
+      return '-';
+    }
+  }
+
+  get currentTemperatura(): string {
+    const listaTemperatura = this.dataSourceTemperatura;
+    if (listaTemperatura.length > 0) {
+      return listaTemperatura[listaTemperatura.length - 1].temperatura;
+    } else {
+      return '-';
+    }
+  }
+
+  get currentDistancia(): string {
+    const listaDistancia = this.dataSourceDistancia;
+    if (listaDistancia.length > 0) {
+      return listaDistancia[listaDistancia.length - 1].distancia;
+    } else {
+      return '-';
+    }
+  }
+
+  get currentAirQuality(): string {
+    const listaAirQuality = this.dataSourceAirQuality;
+    if (listaAirQuality.length > 0) {
+      return listaAirQuality[listaAirQuality.length - 1].air_quality;
+    } else {
+      return '-';
+    }
+  }
+
+  get currentIluminacion(): string {
+    const listaIluminacion = this.dataSourceIluminacion;
+    if (listaIluminacion.length > 0) {
+      return listaIluminacion[listaIluminacion.length - 1].iluminacion;
+    } else {
+      return '-';
+    }
+  }
+
+  get currentActual(): string {
+    const listaActual = this.dataSourceActual;
+    if (listaActual.length > 0) {
+      return listaActual[listaActual.length - 1].actual;
+    } else {
+      return '-';
+    }
+  }
 
   private mqttSub!: Subscription;
   // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor e sun Chart
@@ -36,49 +103,26 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
         switch (sensor) {
           case 'humidity':
             this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
-            this.currentHumedad = `${value} %`;
             break;
           case 'temperatura':
-            this.addValueToArray(this.dataSourceTemperatura, parseFloat(value), 'temperatura', '°C');
             this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
-            this.currentTemperatura = `${value} °C`;
             break;
           case 'distancia':
-            this.addValueToArray(this.dataSourceDistancia, parseFloat(value), 'distancia', 'm');
             this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
-            this.currentDistancia = `${value} m`;
             break;
-          case 'gas':
-            this.addValueToArray(this.dataSourceGas, parseFloat(value), 'gas', 'ppm');
-            this.updateChart('gasChart', this.dataSourceGas, 'gas');
-            this.currentGas = `${value} ppm`;
+            break;
+          case 'air_quality':
+            this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
             break;
           case 'iluminacion':
-            this.addValueToArray(this.dataSourceIluminacion, parseFloat(value), 'iluminacion', 'lux');
             this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
-            this.currentIluminacion = `${value} lux`;
             break;
           case 'actual':
-            this.addValueToArray(this.dataSourceActual, parseFloat(value), 'actual', '');
             this.updateChart('actualChart', this.dataSourceActual, 'actual');
             break;
         }
       });
   }
-
-  // Agregar un nuevo valor al array y mantener solo los últimos 20 valores
-  addValueToArray(array: any[], value: number, key: string, unit: string) {
-    // Si ya hay 20 elementos, elimina el primero (el más antiguo)
-    if (array.length >= 20){
-      array.shift();
-    } 
-    // Agrega el nuevo valor al final
-    array.push({ no: array.length + 1, [key]: unit ? `${value} ${unit}` : `${value}` });
-
-    // Reasigna los números para que siempre sea den 1 al array.length
-    array.forEach((item, index) => item.no = index + 1);
-  }
-
   // Actualizar el gráfico con los nuevos datos
   updateChart(chartId: string, dataSource: any[], key: string) {
     const chart = Chart.getChart(chartId);
@@ -97,44 +141,85 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   // Inicializar los gráficos después de que la vista se haya inicializado
   ngAfterViewInit() {
     this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', this.dataSourceDistancia, 'distancia', '#8d6748');
-    this.charts['gas'] = this.createChart('gasChart', 'Gas (ppm)', this.dataSourceGas, 'gas', '#a8e6a3');
+    this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
+    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQuality, 'air_quality', '#a8e6a3');
+    this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
     this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');
-    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humedad', '#f5f3e7');
-    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748', 'line');
+    this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
+    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humidity', '#f5f3e7');
+    this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748');
+    this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
     this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
+    this.updateChart('actualChart', this.dataSourceActual, 'actual');
   }
 
   // Método para crear un gráfico
-  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'bar'): Chart {
+  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+    // Crear una nueva instancia de Chart.js
     return new Chart(canvasId, {
       type,
       data: {
+        // Asignar las etiquetas de los datos, en este caso los números de los registros
         labels: dataSource.map(d => d.no),
         datasets: [{
-          label,
-          data: dataSource.map(d => parseFloat(d[key])),
-          backgroundColor: color
+          label, // La etiqueta del dataset
+          data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
+          borderColor: color,
+          backgroundColor: (ctx: { chart: any; }) => {
+            const chart = ctx.chart;
+            const {ctx: canvas, chartArea} = chart;
+            if (!chartArea) return color;
+            // Degradado vertical
+            const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, color + 'BB'); // más opaco arriba
+            gradient.addColorStop(1, color + '11'); // más transparente abajo
+            return gradient;
+          },
+          pointBackgroundColor: color,
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.4, // curva suave
+          borderWidth: 3,
         }]
       },
-      options: { responsive: true }
+      options: {
+        responsive: true, // Hacer el gráfico responsivo
+        plugins: {
+          legend: {
+            display: true, // Mostrar la leyenda
+            labels: {
+              color: '#22543d',
+              font: { weight: 'bold', size: 14 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0bab64',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#22543d',
+            borderWidth: 1,
+            padding: 12
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          },
+          y: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
+        }
+      }
     });
   }
   
-  displayedColumnsDistancia: string[] = ['no', 'distancia'];
-  dataSourceDistancia = [];
-
-  displayedColumnsGas: string[] = ['no', 'gas'];
-  dataSourceGas = [];
-
-  displayedColumnsIluminacion: string[] = ['no', 'iluminacion'];
-  dataSourceIluminacion = [];
-
-  displayedColumnsHumedad: string[] = ['no', 'humidity'];
-  dataSourceHumedad = [];
-  
-  displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
-  dataSourceTemperatura = [];
-
-  displayedColumnsActual: string[] = ['no', 'actual'];
-  dataSourceActual = [];
 }
