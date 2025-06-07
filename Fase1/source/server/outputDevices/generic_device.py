@@ -5,7 +5,7 @@ import time
 # 1. pin -> stablish the pin of the LED in the raspberry
 # 2. mode -> determines if a led is on or off (true = on, false = off)
 
-class GenericDevice:
+class GenericOutputDevice:
   
   def __init__(self, noPin):
     self._pin = noPin
