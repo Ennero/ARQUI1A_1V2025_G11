@@ -5,17 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MqttService } from '../service/conexion.service';
-import { Subscription } from 'rxjs';
+import { Subscription, throttleTime } from 'rxjs';
 import Chart from 'chart.js/auto';
-import {
-  dataHumedad,
-  dataTemperatura,
-  dataDistancia,
-  dataAirQuality,
-  dataIluminacion,
-  dataActual
-} from '../data/datos';
-
 
 @Component({
   selector: 'app-history',
@@ -24,7 +15,6 @@ import {
   templateUrl: './history.html',
   styleUrls: ['./history.css']
 })
-
 
 export class History implements AfterViewInit, OnInit, OnDestroy{
 
@@ -36,113 +26,68 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
   displayedColumnsActual: string[] = ['no', 'actual'];
 
-  // Copiamos los datos para que se muestren en las tablas
-  dataSourceHumedad = dataHumedad;
-  dataSourceAirQuality = dataAirQuality;
-  dataSourceDistancia = dataDistancia;
-  dataSourceIluminacion = dataIluminacion;
-  dataSourceTemperatura = dataTemperatura;
-  dataSourceActual = dataActual;
-
   constructor(private mqttService: MqttService) {}
-  
+
+  // Acceder a los datos de los sensores a través del servicio MQTT
+  // Estos getters permiten acceder a los datos de los sensores desde la plantilla
+  get dataSourceHumedad() { return this.mqttService.dataHumedad; }
+  get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
+  get dataSourceDistancia() { return this.mqttService.dataDistancia; }
+  get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
+  get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
+  get dataSourceActual() { return this.mqttService.dataActual; }
+
   private mqttSub!: Subscription;
   // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
   private charts: { [key: string]: Chart } = {};
 
   ngOnInit(): void {
 
-    // Suscribirse a los mensajes
+    // En el componente, al suscribirte:
+    // this.mqttService.message$
+    //   .pipe(throttleTime(1000)) // máximo una actualización por segundo
+    //   .subscribe(({ topic, value }) => {
+    //     // tu lógica...
+    //   });
+    // Suscribirse a los mensajes WebSocket
     this.mqttSub = this.mqttService.message$.subscribe(({ topic, value }) => {
       // Extraer el tipo de sensor del topic
       const sensor = topic.split('/').pop();
-      console.log("Agregando valor del sensor:", sensor, "con valor:", value);
+      // Inicializar los valores de las fuentes de datos
       switch (sensor) {
         case 'humidity':
-          this.addValueToArrayToData(parseFloat(value), 'humidity', '%');
-          this.updateChart('humedadChart', dataHumedad, 'humidity');
+          this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
           break;
         case 'temperatura':
-          this.addValueToArrayToData(parseFloat(value), 'temperatura', '°C');
-          this.updateChart('temperaturaChart', dataTemperatura, 'temperatura');
+          this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
           break;
         case 'distancia':
-          this.addValueToArrayToData(parseFloat(value), 'distancia', 'm');
-          this.updateChart('distanciaChart', dataDistancia, 'distancia');
+          this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
           break;
         case 'air_quality':
-          this.addValueToArrayToData(parseFloat(value), 'air_quality', 'ppm');
-          this.updateChart('air_qualityChart', dataAirQuality, 'air_quality');
+          this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
           break;
         case 'iluminacion':
-          this.addValueToArrayToData(parseFloat(value), 'iluminacion', 'lux');
-          this.updateChart('iluminacionChart', dataIluminacion, 'iluminacion');
+          this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
           break;
         case 'actual':
-          this.addValueToArrayToData(parseFloat(value), 'actual', '');
-          this.updateChart('actualChart', dataActual, 'actual');
+          this.updateChart('actualChart', this.dataSourceActual, 'actual');
           break;
       }
     })
   } 
 
   ngAfterViewInit() {
-    this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', dataDistancia, 'distancia', '#8d6748');
-    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', dataAirQuality, 'air_quality', '#a8e6a3');
+    this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', this.dataSourceDistancia, 'distancia', '#8d6748');
+    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQuality, 'air_quality', '#a8e6a3');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('air_qualityChart', dataAirQuality, 'air_quality');
-    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', dataIluminacion, 'iluminacion', '#22543d');
-    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', dataHumedad, 'humedad', '#f5f3e7');
+    this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
+    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');
+    this.charts['humedad'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humedad', '#f5f3e7');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('humedadChart', dataHumedad, 'humidity');
-    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', dataTemperatura, 'temperatura', '#8d6748', 'line');
-    this.charts['actual'] = this.createChart('actualChart', 'Actual', dataActual, 'actual', '#a8e6a3');
-  }
-
-  // Método para agregar un valor al array de datos y actualizar la tabla correspondiente
-  addValueToArrayToData(value: number, key: string, unit: string): void {      
-    // Reasignar el array para forzar la detección de cambios
-    if (key === 'humidity') {
-      dataHumedad.push({ no: dataHumedad.length + 1, humidity: `${value} ${unit}` });
-      if (dataHumedad.length > 20) dataHumedad.shift();
-      dataHumedad.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceHumedad = [...dataHumedad];
-    }
-
-    if (key === 'air_quality') {
-      dataAirQuality.push({ no: dataAirQuality.length + 1, air_quality: `${value} ${unit}` });
-      if (dataAirQuality.length > 20) dataAirQuality.shift();
-      dataAirQuality.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceAirQuality = [...dataAirQuality];
-    }
-
-    if (key === 'temperatura') {
-      dataTemperatura.push({ no: dataTemperatura.length + 1, temperatura: `${value} ${unit}` });
-      if (dataTemperatura.length > 20) dataTemperatura.shift();
-      dataTemperatura.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceTemperatura = [...dataTemperatura];
-    } 
-
-    if (key === 'distancia') {
-      dataDistancia.push({ no: dataDistancia.length + 1, distancia: `${value} ${unit}` });
-      if (dataDistancia.length > 20) dataDistancia.shift();
-      dataDistancia.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceDistancia = [...dataDistancia];
-    }
-
-    if (key === 'actual') {
-      dataActual.push({ no: dataActual.length + 1, actual: `${value} ${unit}` });
-      if (dataActual.length > 20) dataActual.shift();
-      dataActual.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceActual = [...dataActual];
-    }
-
-    if (key === 'iluminacion') {
-      dataIluminacion.push({ no: dataIluminacion.length + 1, iluminacion: `${value} ${unit}` });
-      if (dataIluminacion.length > 20) dataIluminacion.shift();
-      dataIluminacion.forEach((item, idx) => item.no = idx + 1);
-      this.dataSourceIluminacion = [...dataIluminacion];
-    }
+    this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748', 'line');
+    this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
   }
 
   // Actualizar el gráfico con los nuevos datos
@@ -159,19 +104,71 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   ngOnDestroy(): void {
     if (this.mqttSub) this.mqttSub.unsubscribe();
   }
-
-  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+  
+    createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+      // Crear una nueva instancia de Chart.js
       return new Chart(canvasId, {
         type,
         data: {
+          // Asignar las etiquetas de los datos, en este caso los números de los registros
           labels: dataSource.map(d => d.no),
           datasets: [{
-            label,
-            data: dataSource.map(d => parseFloat(d[key])),
-            backgroundColor: color
+            label, // La etiqueta del dataset
+            data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
+            borderColor: color,
+            backgroundColor: (ctx: { chart: any; }) => {
+              const chart = ctx.chart;
+              const {ctx: canvas, chartArea} = chart;
+              if (!chartArea) return color;
+              // Degradado vertical
+              const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, color + 'BB'); // más opaco arriba
+              gradient.addColorStop(1, color + '11'); // más transparente abajo
+              return gradient;
+            },
+            pointBackgroundColor: color,
+            pointBorderColor: '#fff',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.4, // curva suave
+            borderWidth: 3,
           }]
         },
-        options: { responsive: true }
+        options: {
+          responsive: true, // Hacer el gráfico responsivo
+          plugins: {
+            legend: {
+              display: true, // Mostrar la leyenda
+              labels: {
+                color: '#22543d',
+                font: { weight: 'bold', size: 14 }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#0bab64',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: '#22543d',
+              borderWidth: 1,
+              padding: 12
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#e3e8ee' },
+              ticks: { color: '#22543d', font: { weight: 'bold' } }
+            },
+            y: {
+              grid: { color: '#e3e8ee' },
+              ticks: { color: '#22543d', font: { weight: 'bold' } }
+            }
+          },
+          animation: {
+            duration: 900,
+            easing: 'easeOutQuart'
+          }
+        }
       });
-    }
+  }
 }

@@ -11,6 +11,14 @@ export class MqttService {
   private messageSubject = new Subject<{ topic: string, value: string }>();
   public message$ = this.messageSubject.asObservable();
 
+  // Arrays públicos para compartir entre componentes
+  public dataHumedad: { no: number, humidity: string }[] = [];
+  public dataTemperatura: { no: number, temperatura: string }[] = [];
+  public dataDistancia: { no: number, distancia: string }[] = [];
+  public dataAirQuality: { no: number, air_quality: string }[] = [];
+  public dataIluminacion: { no: number, iluminacion: string }[] = [];
+  public dataActual: { no: number, actual: string }[] = [];
+
   constructor() {
     this.connectClient();
   }
@@ -35,8 +43,54 @@ export class MqttService {
             const sensor = topic.split('/').pop();
             // Obetener el valor usando la clave dinámica
             const value = data[sensor!];
-            console.log("El sensor es:", sensor);
-            console.log("El valor es:", value);
+            console.log(`📬 Mensaje recibido en el topic: ${topic} con valor: ${value}`);
+            switch (sensor) {
+              case 'humidity':
+                // Actualizar el array de humedad, manteniendo solo los últimos 20 valores, de lo contrario elimina el primero
+                if (this.dataHumedad.length >= 20) this.dataHumedad.shift();
+                // Agregar el nuevo valor al array
+                this.dataHumedad.push({ no: this.dataHumedad.length + 1, humidity: `${value} %` });
+                // Actualizar el índice 'no' de cada elemento, por si se borra algún elemento
+                this.dataHumedad.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataHumedad = [...this.dataHumedad];
+                break;
+              case 'temperatura':
+                if (this.dataTemperatura.length >= 20) this.dataTemperatura.shift();
+                this.dataTemperatura.push({ no: this.dataTemperatura.length + 1, temperatura: `${value} °C` });
+                this.dataTemperatura.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataTemperatura = [...this.dataTemperatura];
+                break;
+              case 'distancia':
+                if (this.dataDistancia.length >= 20) this.dataDistancia.shift();
+                this.dataDistancia.push({ no: this.dataDistancia.length + 1, distancia: `${value} m` });
+                this.dataDistancia.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataDistancia = [...this.dataDistancia];
+                break;
+              case 'air_quality':
+                if (this.dataAirQuality.length >= 20) this.dataAirQuality.shift();
+                this.dataAirQuality.push({ no: this.dataAirQuality.length + 1, air_quality: `${value} ppm` });
+                this.dataAirQuality.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataAirQuality = [...this.dataAirQuality];
+                break;
+              case 'iluminacion':
+                if (this.dataIluminacion.length >= 20) this.dataIluminacion.shift();
+                this.dataIluminacion.push({ no: this.dataIluminacion.length + 1, iluminacion: `${value} lux` });
+                this.dataIluminacion.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataIluminacion = [...this.dataIluminacion];
+                break;
+              case 'actual':
+                if (this.dataActual.length >= 20) this.dataActual.shift();
+                this.dataActual.push({ no: this.dataActual.length + 1, actual: `${value}` });
+                this.dataActual.forEach((item, idx) => item.no = idx + 1);
+                // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
+                this.dataActual = [...this.dataActual];
+                break;
+            }
             if (typeof value === 'number' || typeof value === 'string') {
                 this.messageSubject.next({ topic, value: value.toString() });
             }
