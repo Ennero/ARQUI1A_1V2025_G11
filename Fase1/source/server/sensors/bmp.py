@@ -3,29 +3,22 @@ import board
 
 class BMP:
     def __init__(self, address: int = 0x76):
-        i2c = board.I2C()
-        self.sensor = adafruit_bmp280.Adafruit_BMP280_I2C(i2c, address=address)
-        self.temperature = None
-        self.pressure = None
+        self._sensor = adafruit_bmp280.Adafruit_BMP280_I2C(board.I2C(), address=address)
 
-    def read(self):
+    @property
+    def temperature(self):
         try:
-            temp = self.sensor.temperature
-            pres = self.sensor.pressure
-            if temp is not None:
-                self.temperature = float(temp)
-            if pres is not None:
-                self.pressure = float(pres)
+            temp = self._sensor.temperature
+            return float(temp) if temp else None
         except Exception as e:
-            print(f"[BMP280] Error al leer el sensor: {e}")
-
-    def print_data(self):
-        if self.temperature is not None:
-            print(f"Temperatura: {self.temperature:.1f} °C")
-        else:
-            print("Temperatura: no disponible")
-
-        if self.pressure is not None:
-            print(f"Presión: {self.pressure:.1f} hPa")
-        else:
-            print("Presión: no disponible")
+            print(f"[BMP] Error al leer temperatura: {e}")
+            return None
+    
+    @property
+    def pressure(self):
+        try:
+            pres = self._sensor.pressure
+            return float(pres) if pres else None
+        except Exception as e:
+            print(f"[BMP] Error al leer presión: {e}")
+            return None
