@@ -198,25 +198,25 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Actual</h2>
+            <h2>Presion</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
-              <table mat-table [dataSource]="dataSourceActual" class="mat-elevation-z1">
+              <table mat-table [dataSource]="dataSourcePresion" class="mat-elevation-z1">
                 <!-- No Columna-->
                 <ng-container matColumnDef="no">
                   <th mat-header-cell *matHeaderCellDef> No </th>
                   <td mat-cell *matCellDef="let element">{{element.no}} </td>
                 </ng-container>
 
-                <!-- Actual Columna-->
-                <ng-container matColumnDef="actual">
-                  <th mat-header-cell *matHeaderCellDef> Actual </th>
-                  <td mat-cell *matCellDef="let element">{{element.actual}} </td>
+                <!-- Presión Columna-->
+                <ng-container matColumnDef="presion">
+                  <th mat-header-cell *matHeaderCellDef> Presion </th>
+                  <td mat-cell *matCellDef="let element">{{element.presion}} </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsActual"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsActual;"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsPresion"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsPresion;"></tr>
               </table>
             </div>
           </mat-card>
@@ -224,7 +224,7 @@
         <!-- Derecha: solo gráfica -->
         <div class="history-panel-right">
           <mat-card class="subpanel-graph">
-            <canvas id="actualChart"></canvas>
+            <canvas id="presionChart"></canvas>
           </mat-card>
         </div>
       </div>

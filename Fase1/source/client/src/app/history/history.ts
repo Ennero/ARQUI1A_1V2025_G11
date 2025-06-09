@@ -24,7 +24,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   displayedColumnsDistancia: string[] = ['no', 'distancia'];
   displayedColumnsIluminacion: string[] = ['no', 'iluminacion'];
   displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
-  displayedColumnsActual: string[] = ['no', 'actual'];
+  displayedColumnsPresion: string[] = ['no', 'presion'];
 
   constructor(private mqttService: MqttService) {}
 
@@ -35,7 +35,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   get dataSourceDistancia() { return this.mqttService.dataDistancia; }
   get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
   get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
-  get dataSourceActual() { return this.mqttService.dataActual; }
+  get dataSourcePresion() { return this.mqttService.dataPresion; }
 
   private mqttSub!: Subscription;
   // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
@@ -70,8 +70,8 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
         case 'iluminacion':
           this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
           break;
-        case 'actual':
-          this.updateChart('actualChart', this.dataSourceActual, 'actual');
+        case 'presion':
+          this.updateChart('presionChart', this.dataSourcePresion, 'presion');
           break;
       }
     })
@@ -93,9 +93,9 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
     this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748');
     // Actualizar los datos de los gráficos con los datos iniciales
     this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
-    this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
+    this.charts['presion'] = this.createChart('presionChart', 'Presion (hPa)', this.dataSourcePresion, 'presion', '#a8e6a3');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('actualChart', this.dataSourceActual, 'actual');
+    this.updateChart('presionChart', this.dataSourcePresion, 'presion');
   }
 
   // Actualizar el gráfico con los nuevos datos

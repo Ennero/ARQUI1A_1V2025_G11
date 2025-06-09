@@ -41,8 +41,8 @@
         <div class="dato">{{ currentTemperatura }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Actual</h3>
-        <div class="dato">{{ currentActual }}</div>
+        <h3>Presion</h3>
+        <div class="dato">{{ currentPresion }}</div>
       </mat-card>
     </div>
   </mat-card>
@@ -50,7 +50,7 @@
   <mat-card class="panel panel-bottom">
     <!-- Panel Superior logo y título-->
       <div class="dashboard-top">
-        <img src="assets/sensor.png" alt="logo" class="dashboard-logo">
+        <img src="assets/graficas.png" alt="logo" class="dashboard-logo">
         <h1 class="dashboard-title">Gráficas de los Sensores</h1>
       </div>
       <!-- Primer Panel -->
@@ -107,7 +107,7 @@
           <h3>Temperatura</h3>
         </mat-card>
         <mat-card class="subpanel">
-          <h3>Actual</h3>
+          <h3>Presion</h3>
         </mat-card>
       </div>
 
@@ -120,7 +120,7 @@
         </mat-card>
         <mat-card class="subpanel">
           <div class="chart-placeholder">
-            <canvas id="actualChart"></canvas>
+            <canvas id="presionChart"></canvas>
           </div>
         </mat-card>
       </div>

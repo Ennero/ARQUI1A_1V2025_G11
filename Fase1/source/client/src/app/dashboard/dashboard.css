@@ -115,15 +115,9 @@
   color: #22543d;
 }
 
-.panel-bottom {
-  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
-  border-bottom: 2px solid #e0e0e0;
-}
-
 .panel-top {
   background: #fff;
 }
-
 
 .panel-bottom {
   background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
@@ -131,13 +125,6 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-}
-
-.dashboard-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
 }
 
 .panel-title {

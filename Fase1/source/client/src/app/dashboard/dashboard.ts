@@ -23,7 +23,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   displayedColumnDistancia: string[] = ['no', 'distancia'];
   displayedColumnAirQuality: string[] = ['no', 'air_quality'];
   displayedColumnIluminacion: string[] = ['no', 'iluminacion'];
-  displayedColumnActual: string[] = ['no', 'actual'];
+  displayedColumnPresion: string[] = ['no', 'actual'];
 
   // Acceder a los datos de los sensores a través del servicio MQTT
   // Estos getters permiten acceder a los datos de los sensores desde la plantilla
@@ -32,7 +32,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   get dataSourceDistancia() { return this.mqttService.dataDistancia; }
   get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
   get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
-  get dataSourceActual() { return this.mqttService.dataActual; }
+  get dataSourcePresion() { return this.mqttService.dataPresion; }
 
   // Estos getters permiten acceder a los valores actuales de los sensores desde la plantilla
   // Accediendo al último elemento de cada array
@@ -81,10 +81,10 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  get currentActual(): string {
-    const listaActual = this.dataSourceActual;
-    if (listaActual.length > 0) {
-      return listaActual[listaActual.length - 1].actual;
+  get currentPresion(): string {
+    const listaPresion = this.dataSourcePresion;
+    if (listaPresion.length > 0) {
+      return listaPresion[listaPresion.length - 1].presion;
     } else {
       return '-';
     }
@@ -117,8 +117,8 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
           case 'iluminacion':
             this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
             break;
-          case 'actual':
-            this.updateChart('actualChart', this.dataSourceActual, 'actual');
+          case 'presion':
+            this.updateChart('presionChart', this.dataSourcePresion, 'presion');
             break;
         }
       });
@@ -150,8 +150,8 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
     this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
     this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748');
     this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
-    this.charts['actual'] = this.createChart('actualChart', 'Actual', this.dataSourceActual, 'actual', '#a8e6a3');
-    this.updateChart('actualChart', this.dataSourceActual, 'actual');
+    this.charts['presion'] = this.createChart('presionChart', 'Presion (hPa)', this.dataSourcePresion, 'presion', '#a8e6a3');
+    this.updateChart('presionChart', this.dataSourcePresion, 'presion');
   }
 
   // Método para crear un gráfico

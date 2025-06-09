@@ -17,7 +17,7 @@ export class MqttService {
   public dataDistancia: { no: number, distancia: string }[] = [];
   public dataAirQuality: { no: number, air_quality: string }[] = [];
   public dataIluminacion: { no: number, iluminacion: string }[] = [];
-  public dataActual: { no: number, actual: string }[] = [];
+  public dataPresion: { no: number, presion: string }[] = [];
 
   constructor() {
     this.connectClient();
@@ -83,12 +83,12 @@ export class MqttService {
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataIluminacion = [...this.dataIluminacion];
                 break;
-              case 'actual':
-                if (this.dataActual.length >= 20) this.dataActual.shift();
-                this.dataActual.push({ no: this.dataActual.length + 1, actual: `${value}` });
-                this.dataActual.forEach((item, idx) => item.no = idx + 1);
+              case 'presion':
+                if (this.dataPresion.length >= 20) this.dataPresion.shift();
+                this.dataPresion.push({ no: this.dataPresion.length + 1, presion: `${value} hPa` });
+                this.dataPresion.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
-                this.dataActual = [...this.dataActual];
+                this.dataPresion = [...this.dataPresion];
                 break;
             }
             if (typeof value === 'number' || typeof value === 'string') {
