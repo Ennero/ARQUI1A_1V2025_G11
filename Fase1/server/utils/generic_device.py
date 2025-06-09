@@ -1,34 +1,38 @@
 import RPi.GPIO as GPIO
 import time
 
-# Atributes:
-# 1. pin -> stablish the pin of the LED in the raspberry
-# 2. mode -> determines if a led is on or off (true = on, false = off)
-
 class GenericOutputDevice:
+    """
+    Generic class to control output devices like LEDs using Raspberry Pi GPIO.
+
+    Attributes:
+        pin (int): GPIO pin used.
+        mode (bool): Device state. True = ON, False = OFF.
+    """
   
-  def __init__(self, noPin):
-    self._pin = noPin
-    self._mode = False
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(self.pin, GPIO.OUT)
+    def __init__(self, noPin):
+        self._pin = noPin
+        self._mode = False
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self._pin, GPIO.OUT)
     
-  def turn_on_device(self):
-    GPIO.output(self.pin, GPIO.HIGH)
-    self.mode = True
-    print("The device is on")
+    def turn_on_device(self):
+        GPIO.output(self._pin, GPIO.HIGH)
+        self._mode = True
+        print("The device is on")
   
-  def turn_off_device(self):
-    GPIO.output(self.pin, GPIO.LOW)
-    self.mode = False
-    print("The device is off")
+    def turn_off_device(self):
+        GPIO.output(self._pin, GPIO.LOW)
+        self._mode = False
+        print("The device is off")
+    
+    def cleanup(self):
+        GPIO.cleanup()
   
-  #Getter of mode
-  @property
-  def mode(self):
-    return self._mode
+    @property
+    def mode(self):
+        return self._mode
   
-  #Getter or pin
-  @property
-  def pin(self):
-    return self._pin
+    @property
+    def pin(self):
+        return self._pin
