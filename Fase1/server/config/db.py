@@ -1,13 +1,14 @@
 from datetime import datetime
 
-class SeipaDB:
+class SiepaDB:
 
-    def __init__(self, temperature, humidity, pressure, air_quality):
+    def __init__(self, temperature, humidity, pressure, air_quality, brightness):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
         self._pressure = pressure
         self._air_quality = air_quality
+        self._brightness = brightness
 
     @property
     def timestamp(self):
@@ -41,6 +42,17 @@ class SeipaDB:
             self._humidity = value
         else:
             raise TypeError("La humedad debe ser un número")
+    
+    @property
+    def brightness(self):
+        return self._brightness
+    
+    @brightness.setter
+    def brightness(self, value):
+        if isinstance(value, (int, float)):
+            self._brightness = value
+        else:
+            raise TypeError("La luminiosidad debe ser un número")
         
     @property
     def pressure(self):
