@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException, BadRequest
-from controllers.siepa_controller_controller import siepa_blueprint
+from controllers.siepa_app_controller import siepa_blueprint
 
 from utils.http_responder import respond_with_success, respond_with_error, respond_with_not_found, respond_with_internal_server_error
 
