@@ -1,4 +1,4 @@
-class LightSensor:
+class Photoresistor:
     def __init__(self, adc, channel=0, vref=5.0, r_fixed=10000):
         self.adc = adc
         self.channel = channel

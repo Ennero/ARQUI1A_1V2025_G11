@@ -2,7 +2,7 @@ import time
 import json
 from threading import Thread
 from config.server import FlaskServer
-from config.db import SeipaDB
+from config.db import SiepaDB
 from mqtt.client import SiepaMqttClient
 
 from sensors.bmp import BMP
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            seipa_DB = SeipaDB(
+            siepa_DB = SiepaDB(
                 temperature=0,
                 humidity=0,
                 pressure=0,
@@ -68,27 +68,35 @@ if __name__ == "__main__":
             )
             
             # mqtt_client.publisher('temperature', json.dumps({
-            #     "temperature": seipa_DB.temperature
+            #     "temperature": siepa_DB.temperature
             # }))
 
             # mqtt_client.publisher('humidity', json.dumps({
-            #     "humidity": seipa_DB.humidity
+            #     "humidity": siepa_DB.humidity
             # }))
 
             # mqtt_client.publisher('pressure', json.dumps({
-            #     "pressure": seipa_DB.pressure
+            #     "pressure": siepa_DB.pressure
             # }))
 
             mqtt_client.publisher('air_quality', json.dumps({
-                "air_quality": seipa_DB.air_quality
+                "air_quality": siepa_DB.air_quality
             }))
 
-            print(seipa_DB)
+            print(siepa_DB)
 
-            storage.append(seipa_DB)
+            storage.append(siepa_DB)
 
             time.sleep(3)
 
     except KeyboardInterrupt:
         # Handle program interruption (Ctrl+C)
         print("Shutting down...")
+
+
+# from app import SiepaG11App
+
+
+# if __name__ == "__main__":
+#     app = SiepaG11App()
+#     app.perform()
