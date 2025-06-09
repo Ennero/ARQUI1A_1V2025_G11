@@ -118,24 +118,38 @@ class SiepaG11App(object):
                 # Red LED (temperature >= 28)
                 if siepa_data.temperature >= 28 and not self.red_led.mode:
                     self.red_led.turn_on_device()
+                    self.mqtt_client.publish('humidity/temperature', json.dumps({
+                        'message': 'High temperature detected! Turning on red LED.'
+                    }))
                 elif siepa_data.temperature < 28 and self.red_led.mode:
                     self.red_led.turn_off_device()
                 
                 # Yellow LED (humidity >= 70)
                 if siepa_data.humidity >= 70 and not self.yellow_led.mode:
                     self.yellow_led.turn_on_device()
+
+                    self.mqtt_client.publish('humidity/danger', json.dumps({
+                        'message': 'High humidity detected! Turning on yellow LED.'
+                    }))
+
                 elif siepa_data.humidity < 70 and self.yellow_led.mode:
                     self.yellow_led.turn_off_device()
                 
                 # Green LED (pressure <= 1000)
                 if siepa_data.brightness <= 1000 and not self.green_led.mode:
                     self.green_led.turn_on_device()
+                    self.mqtt_client.publish('brightness/danger', json.dumps({
+                        'message': 'Low brightness detected! Turning on green LED.'
+                    }))
                 elif siepa_data.brightness > 1000 and self.green_led.mode:
                     self.green_led.turn_off_device()
                 
                 # Blue LED (air quality <= 100)
                 if siepa_data.air_quality <= 100 and not self.blue_led.mode:
                     self.blue_led.turn_on_device()
+                    self.mqtt_client.publish('air_quality/danger', json.dumps({
+                        'message': 'Low air_quality detected! Turning on blue LED.'
+                    }))
                 elif siepa_data.air_quality > 100 and self.blue_led.mode:
                     self.blue_led.turn_off_device()
 

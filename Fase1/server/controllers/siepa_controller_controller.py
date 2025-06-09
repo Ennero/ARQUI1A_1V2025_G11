@@ -1,31 +1,11 @@
 from flask import Blueprint, request
 from models.siepa_db import SiepaDB
-from utils.http_responder import respond_with_success
+from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
+from app import SiepaG11App
 
 siepa_blueprint = Blueprint('siepa_controller', __name__)
 
-@siepa_blueprint.route('/siepa', methods=['GET'])
-def get_siepa_data():
-    """
-    Endpoint to get the current sensor data.
-    """
-    # Here you would typically fetch data from your sensors or database
-    # For demonstration, we return a static SiepaDB object
-    siepa_data = SiepaDB(
-        temperature=22.5,
-        humidity=45.0,
-        pressure=1013.25,
-        air_quality=150
-    )
-    
-    return {
-        "timestamp": siepa_data.timestamp.isoformat(),
-        "temperature": siepa_data.temperature,
-        "humidity": siepa_data.humidity,
-        "pressure": siepa_data.pressure,
-        "air_quality": siepa_data.air_quality
-    }, 200
 
 @siepa_blueprint.route('/siepa/settings', methods=['GET'])
 def get_siepa_settings():
@@ -39,5 +19,47 @@ def get_siepa_settings():
 
 @siepa_blueprint.route('/siepa/settings', methods=['PUT'])
 def put_siepa_settings():
+    data = request.get_json()
+
+    if not data:
+        return respond_with_error("Missing JSON body")
+    
+    mode = data.get('mode')
+
+    if not mode:
+        return respond_with_error("Missing mode")
+    
+    if mode not in ['automatic', 'manual']:
+        return respond_with_error("Invalid mode. Must be 'automatic' or 'manual'.")
+    
+    # Update the app settings
+    AppSettings().mode = mode
     
     return respond_with_success({"message": "Settings updated successfully."})
+
+@siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
+def put_siepa_settings(device_name):
+    data = request.get_json()
+
+    if not data:
+        return respond_with_error("Missing JSON body")
+    
+    status = data.get('status')
+
+    if not status:
+        return respond_with_error("Missing status")
+    
+    if status.lower() not in ['on', 'off']:
+        return respond_with_error("Invalid status. Must be 'ON' or 'OFF'.")
+    
+    if device_name not in ['lighting', 'fan', 'buzzer']:
+        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer'.")
+    
+    if device_name == 'lighting':
+        SiepaG11App().lighting_device.mode = True if status.lower() == 'on' else False
+    elif device_name == 'fan':
+        SiepaG11App().fan.mode = True if status.lower() == 'on' else False
+    elif device_name == 'buzzer':
+        SiepaG11App().buzzer.mode = True if status.lower() == 'on' else False
+    
+    return respond_with_success({"message": f"Device {device_name} is {status.upper()}."})
