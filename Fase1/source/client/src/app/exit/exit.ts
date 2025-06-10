@@ -6,17 +6,18 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { NgClass, NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MqttService } from '../service/conexion.service';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-exit',
   standalone: true,
-  imports: [Header, MatCardModule, NgClass, NgIf, MatIconModule, FormsModule, MatSlideToggleModule],
+  imports: [Header, MatCardModule, NgClass, NgIf, MatIconModule, FormsModule, MatSlideToggleModule, HttpClientModule],
   templateUrl: './exit.html',
   styleUrls: ['./exit.css'],
 })
 export class Exit {
-  constructor(private mqttService: MqttService) {}
+  constructor(private mqttService: MqttService, private http: HttpClient) {}
 
   // false = automático, true = manual
   modoManual = false;
@@ -64,7 +65,6 @@ export class Exit {
 
   // Simulación para encender las leds
   ngOnInit() {
-
     // Suscribirse a los mensajes WebSocket
     this.mqttService.message$.subscribe(({ topic, value}) => {
       // Extraer el tipo de sensor del topic
@@ -92,9 +92,8 @@ export class Exit {
       this.humedadCritica = this.dataSourceHumedad > humedadMaxima;
 
       const iluminacionMaxima = 1000; // Simulación de iluminación
-      this.iluminacionCritica = this.dataSourceIluminacion < iluminacionMaxima;
-
-      console.log('Temperatura:', this.dataSourceTemperatura);
+      this.iluminacionCritica = this.mqttService.dataIluminacion.length > 0 && this.dataSourceIluminacion < iluminacionMaxima;
+      console.log('Iluminación:', this.dataSourceIluminacion);
 
       const aireMaximo = 1500; // Simulación de aire
       this.aireCritico = this.dataSourceAire > aireMaximo;
@@ -124,4 +123,19 @@ export class Exit {
     confirmButtonColor: '#e53935'
   });
 }
+
+  enviarComando(actuador: string) {
+    // Url del servidor al que se enviará el comando
+    const url = 'http://localhost:3000/actuador'; // Backend
+    this.http.post(url, { actuador }).subscribe({
+      next: (response) => {
+        console.log('Comando enviado exitosamente:', response);
+        Swal.fire('Éxito', `El comando para el actuador ${actuador} se ha enviado correctamente.`, 'success');
+      },
+      error: (error) => {
+        console.error('Error al enviar el comando:', error);
+        Swal.fire('Error', 'No se pudo enviar el comando. Inténtelo de nuevo más tarde.', 'error');
+      }
+    });
+  }
 }

@@ -51,6 +51,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
     //   });
     // Suscribirse a los mensajes WebSocket
     this.mqttSub = this.mqttService.message$.subscribe(({ topic, value }) => {
+      
       // Extraer el tipo de sensor del topic
       const sensor = topic.split('/').pop();
       // Inicializar los valores de las fuentes de datos

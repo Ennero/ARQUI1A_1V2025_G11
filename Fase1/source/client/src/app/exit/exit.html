@@ -94,7 +94,11 @@
                         <h3>Controles sobre el ventilador</h3>
                         </div>
                         <div class="actuador-body">
-                        <button mat-raised-button color="primary" class="actuador-btn btn-ventilador"
+                        <button 
+                            mat-raised-button 
+                            color="primary" 
+                            class="actuador-btn btn-ventilador"
+                            (click)="enviarComando('ventilador')"
                             [disabled]="!modoManual || !temperaturaCritica">
                             <!-- Deshabilitar el botón si no está en modo manual o si la temperatura no es crítica -->
                             Encender Ventilador
@@ -112,7 +116,11 @@
                         <h3>Controles sobre el buzzer</h3>
                         </div>
                         <div class="actuador-body">
-                        <button mat-raised-button color="warn" class="actuador-btn btn-buzzer"
+                        <button 
+                            mat-raised-button 
+                            color="warn" 
+                            class="actuador-btn btn-buzzer"
+                            (click)="enviarComando('buzzer')"
                             [disabled]="!modoManual || !aireCritico">
                             Encender Buzzer
                         </button>
@@ -131,7 +139,11 @@
                         <h3>Controles sobre la iluminacion</h3>
                         </div>
                         <div class="actuador-body">
-                        <button mat-raised-button color="primary" class="actuador-btn btn-iluminacion"
+                        <button 
+                            mat-raised-button 
+                            color="primary" 
+                            class="actuador-btn btn-iluminacion"
+                            (click)="enviarComando('iluminacion')"
                             [disabled]="!modoManual || !iluminacionCritica">
                             Encender Iluminación
                         </button>
