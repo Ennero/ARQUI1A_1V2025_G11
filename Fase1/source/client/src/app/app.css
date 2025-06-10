@@ -1,0 +1,15 @@
+.toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.alerta-global {
+  position: static !important;
+  pointer-events: auto;
+}

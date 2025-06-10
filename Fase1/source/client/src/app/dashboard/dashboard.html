@@ -17,31 +17,31 @@
     <!-- Panel 2: Iluminación (3 subpaneles) -->
     <div class="panel panel-segundo">
       <mat-card class="subpanel">
-        <h3>Distancia</h3>
-        <div class="dato">{{ currentDistancia }}</div>
+        <h3><i class="bi bi-rulers"></i> Proximidad</h3>
+        <div class="dato">{{ currentProximidad }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Calidad del Aire</h3>
+        <h3><i class="bi bi-fan"></i> Calidad del Aire</h3>
         <div class="dato">{{ currentAirQuality }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Iluminación</h3>
+        <h3><i class="bi bi-lightbulb-fill"></i> Iluminación</h3>
         <div class="dato">{{ currentIluminacion }}</div>
       </mat-card>
     </div>
 
-    <!-- Panel 3: Distancia (3 subpaneles) -->
+    <!-- Panel 3: Proximidad (3 subpaneles) -->
     <div class="panel panel-tercero">
       <mat-card class="subpanel">
-        <h3>Humedad</h3>
+        <h3><i class="bi bi-droplet-fill"></i> Humedad</h3>
         <div class="dato">{{ currentHumedad }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Temperatura</h3>
+        <h3><i class="bi bi-thermometer-low"></i>Temperatura</h3>
         <div class="dato">{{ currentTemperatura }}</div>
       </mat-card>
       <mat-card class="subpanel">
-        <h3>Presion</h3>
+        <h3><i class="bi bi-speedometer2"></i> Presion</h3>
         <div class="dato">{{ currentPresion }}</div>
       </mat-card>
     </div>
@@ -56,10 +56,10 @@
       <!-- Primer Panel -->
       <div class="subpanel-row">
         <mat-card class="subpanel">
-          <h3>Distancia</h3>
+          <h3><i class="bi bi-rulers"></i> Proximidad</h3>
         </mat-card>
         <mat-card class="subpanel">
-          <h3>Calidad del Aire</h3>
+          <h3><i class="bi bi-fan"></i> Calidad del Aire</h3>
         </mat-card>
       </div>
 
@@ -67,7 +67,7 @@
       <div class="subpanel-row">
         <mat-card class="subpanel">
           <div class="chart-placeholder">
-            <canvas id="distanciaChart"></canvas>
+            <canvas id="proximidadChart"></canvas>
           </div>
         </mat-card>
         <mat-card class="subpanel">
@@ -80,10 +80,10 @@
       <!-- Segundo Panel -->
       <div class="subpanel-row">
         <mat-card class="subpanel">
-          <h3>Iluminacion</h3>
+          <h3><i class="bi bi-lightbulb-fill"></i> Iluminacion</h3>
         </mat-card>
         <mat-card class="subpanel">
-          <h3>Humedad</h3>
+          <h3><i class="bi bi-droplet-fill"></i>Humedad</h3>
         </mat-card>
       </div>
 
@@ -104,10 +104,11 @@
       <!-- Tecer Panel -->
       <div class="subpanel-row">
         <mat-card class="subpanel">
-          <h3>Temperatura</h3>
+          <h3><i class="bi bi-thermometer-low"></i>Temperatura</h3>
         </mat-card>
         <mat-card class="subpanel">
-          <h3>Presion</h3>
+          <h3><i class="bi bi-speedometer2"></i>
+             Presion</h3>
         </mat-card>
       </div>
 

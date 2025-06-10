@@ -20,7 +20,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   // Definimos las columnas que se mostrarán en las tablas
   displayedColumnHumedad: string[] = ['no', 'humidity'];
   displayedColumnTemperatura: string[] = ['no', 'temperatura'];
-  displayedColumnDistancia: string[] = ['no', 'distancia'];
+  displayedColumnProximidad: string[] = ['no', 'proximidad'];
   displayedColumnAirQuality: string[] = ['no', 'air_quality'];
   displayedColumnIluminacion: string[] = ['no', 'iluminacion'];
   displayedColumnPresion: string[] = ['no', 'actual'];
@@ -29,7 +29,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
   // Estos getters permiten acceder a los datos de los sensores desde la plantilla
   get dataSourceHumedad() { return this.mqttService.dataHumedad; }
   get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
-  get dataSourceDistancia() { return this.mqttService.dataDistancia; }
+  get dataSourceProximidad() { return this.mqttService.dataProximidad; }
   get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
   get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
   get dataSourcePresion() { return this.mqttService.dataPresion; }
@@ -54,10 +54,10 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  get currentDistancia(): string {
-    const listaDistancia = this.dataSourceDistancia;
-    if (listaDistancia.length > 0) {
-      return listaDistancia[listaDistancia.length - 1].distancia;
+  get currentProximidad(): string {
+    const listaProximidad = this.dataSourceProximidad;
+    if (listaProximidad.length > 0) {
+      return listaProximidad[listaProximidad.length - 1].proximidad;
     } else {
       return '-';
     }
@@ -107,8 +107,8 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
           case 'temperatura':
             this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
             break;
-          case 'distancia':
-            this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
+          case 'proximidad':
+            this.updateChart('proximidadChart', this.dataSourceProximidad, 'proximidad');
             break;
             break;
           case 'air_quality':
@@ -140,8 +140,8 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
 
   // Inicializar los gráficos después de que la vista se haya inicializado
   ngAfterViewInit() {
-    this.charts['distancia'] = this.createChart('distanciaChart', 'Distancia (m)', this.dataSourceDistancia, 'distancia', '#8d6748');
-    this.updateChart('distanciaChart', this.dataSourceDistancia, 'distancia');
+    this.charts['proximidad'] = this.createChart('proximidadChart', 'Proximidad (m)', this.dataSourceProximidad, 'proximidad', '#8d6748');
+    this.updateChart('proximidadChart', this.dataSourceProximidad, 'proximidad');
     this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQuality, 'air_quality', '#a8e6a3');
     this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
     this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');

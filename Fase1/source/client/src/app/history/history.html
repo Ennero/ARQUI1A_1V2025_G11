@@ -8,25 +8,25 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Distancia</h2>
+            <h2><i class="bi bi-rulers"></i> Proximidad</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
-              <table mat-table [dataSource]="dataSourceDistancia" class="mat-elevation-z1">
+              <table mat-table [dataSource]="dataSourceProximidad" class="mat-elevation-z1">
                 <!-- No Columna-->
                 <ng-container matColumnDef="no">
                   <th mat-header-cell *matHeaderCellDef> No </th>
                   <td mat-cell *matCellDef="let element">{{element.no}} </td>
                 </ng-container>
 
-                <!-- Distancia Columna-->
-                <ng-container matColumnDef="distancia">
-                  <th mat-header-cell *matHeaderCellDef> Distancia </th>
-                  <td mat-cell *matCellDef="let element">{{element.distancia}} </td>
+                <!-- Proximidad Columna-->
+                <ng-container matColumnDef="proximidad">
+                  <th mat-header-cell *matHeaderCellDef> Proximidad </th>
+                  <td mat-cell *matCellDef="let element">{{element.proximidad}} </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumnsDistancia"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumnsDistancia;"></tr>
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsProximidad"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsProximidad;"></tr>
               </table>
             </div>
           </mat-card>
@@ -34,7 +34,7 @@
         <!-- Derecha: solo gráfica -->
         <div class="history-panel-right">
           <mat-card class="subpanel-graph">
-            <canvas id="distanciaChart"></canvas>
+            <canvas id="proximidadChart"></canvas>
           </mat-card>
         </div>
       </div>
@@ -46,7 +46,7 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Calidad del aire</h2>
+            <h2><i class="bi bi-fan"></i> Calidad del aire</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
@@ -84,7 +84,7 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Iluminación</h2>
+            <h2><i class="bi bi-lightbulb"></i> Iluminación</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
@@ -122,7 +122,7 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Humedad</h2>
+            <h2><i class="bi bi-moisture"></i> Humedad</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
@@ -160,7 +160,7 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Temperatura</h2>
+            <h2><i class="bi bi-thermometer-half"></i> Temperatura</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">
@@ -198,7 +198,7 @@
         <!-- Izquierda: título y gráfica -->
         <div class="history-panel-left">
           <mat-card class="subpanel-title">
-            <h2>Presion</h2>
+            <h2><i class="bi bi-speedometer"></i> Presion</h2>
           </mat-card>
           <mat-card class="subpanel-graph">
             <div class="table-scroll">

@@ -11,7 +11,7 @@
             <div class="panel panel-segundo">
                 <mat-card class="subpanel">
                     <div class="subpanel-header">
-                    <h3>Temperatura</h3>
+                    <h3><i class="bi bi-thermometer-sun"></i> Temperatura</h3>
                     <div class="led" [ngClass]="{'on': temperaturaCritica}" style="--led-color: #e53935"></div>
                     <button *ngIf="temperaturaCritica" 
                             mat-icon-button 
@@ -26,7 +26,7 @@
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-header">
-                    <h3>Humedad</h3>
+                    <h3><i class="bi bi-moisture"></i> Humedad</h3>
                     <div class="led" [ngClass]="{'on': humedadCritica}" style="--led-color: #ffd600"></div>
                     <button *ngIf="humedadCritica" 
                             mat-icon-button 
@@ -44,7 +44,7 @@
             <div class="panel panel-segundo">
                 <mat-card class="subpanel">
                     <div class="subpanel-header">
-                    <h3>Iluminación</h3>
+                    <h3><i class="bi bi-lightbulb"></i> Iluminación</h3>
                     <div class="led" [ngClass]="{'on': iluminacionCritica}" style="--led-color: #43a047"></div>
                     <button *ngIf="iluminacionCritica"
                             mat-icon-button 
@@ -59,7 +59,7 @@
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-header">
-                    <h3>Aire</h3>
+                    <h3><i class="bi bi-cloud-fill"></i> Aire</h3>
                     <div class="led" [ngClass]="{'on': aireCritico}" style="--led-color: #1e88e5"></div>
                     <button *ngIf="aireCritico" 
                             mat-icon-button 
@@ -80,9 +80,10 @@
                 <img src="assets/actuadores.png" alt="logo" class="dashboard-logo">
                 <h1 class="dashboard-title">Actuadores del sistema</h1>
                 <mat-slide-toggle
-                [(ngModel)]="modoManual"
-                color="primary"
-                class="modo-toggle"
+                    [(ngModel)]="modoManual"
+                    color="primary"
+                    class="modo-toggle"
+                    (change)="cambiarModoManual()"
                 >Modo Manual</mat-slide-toggle>
             </div>
             <!-- Panel para los actuadores-->

@@ -14,7 +14,7 @@ export class MqttService {
   // Arrays públicos para compartir entre componentes
   public dataHumedad: { no: number, humidity: string }[] = [];
   public dataTemperatura: { no: number, temperatura: string }[] = [];
-  public dataDistancia: { no: number, distancia: string }[] = [];
+  public dataProximidad: { no: number, proximidad: string }[] = [];
   public dataAirQuality: { no: number, air_quality: string }[] = [];
   public dataIluminacion: { no: number, iluminacion: string }[] = [];
   public dataPresion: { no: number, presion: string }[] = [];
@@ -62,12 +62,12 @@ export class MqttService {
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataTemperatura = [...this.dataTemperatura];
                 break;
-              case 'distancia':
-                if (this.dataDistancia.length >= 20) this.dataDistancia.shift();
-                this.dataDistancia.push({ no: this.dataDistancia.length + 1, distancia: `${value} m` });
-                this.dataDistancia.forEach((item, idx) => item.no = idx + 1);
+              case 'proximidad':
+                if (this.dataProximidad.length >= 20) this.dataProximidad.shift();
+                this.dataProximidad.push({ no: this.dataProximidad.length + 1, proximidad: `${value} m` });
+                this.dataProximidad.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
-                this.dataDistancia = [...this.dataDistancia];
+                this.dataProximidad = [...this.dataProximidad];
                 break;
               case 'air_quality':
                 if (this.dataAirQuality.length >= 20) this.dataAirQuality.shift();

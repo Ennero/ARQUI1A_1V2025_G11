@@ -1,0 +1,10 @@
+<div *ngIf='visible' class="alerta-global" [ngClass]="tipo">
+    <mat-icon *ngIf="tipo === 'danger'">warning</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning'">report_problem</mat-icon>
+    <mat-icon *ngIf="tipo === 'info'">info</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning_1'">warning</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning_2'">warning</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning_3'">warning</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning_4'">warning</mat-icon>
+    <span>{{ mensaje }}</span>
+</div>

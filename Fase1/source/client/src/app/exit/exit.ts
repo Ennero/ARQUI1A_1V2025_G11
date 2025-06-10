@@ -115,14 +115,28 @@ export class Exit {
   }
 
   mostrarAlertaPeligro(titulo: string) {
-  Swal.fire({
-    icon: 'warning',
-    title: '¡Peligro!',
-    text: `La ${titulo} ha superado el límite seguro. Por favor, revise los actuadores del sistema.`,
-    confirmButtonText: 'Entendido',
-    confirmButtonColor: '#e53935'
-  });
-}
+    Swal.fire({
+      icon: 'warning',
+      title: '¡Peligro!',
+      text: `La ${titulo} ha superado el límite seguro. Por favor, revise los actuadores del sistema.`,
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#e53935'
+    });
+  }
+
+  cambiarModoManual() {
+    const url = 'http://localhost:3000/mode'; // Backend
+    this.http.post(url, { modo: this.modoManual ? 'manual' : 'automatico' }).subscribe({
+      next: (response) => {
+        console.log('Modo cambiado exitosamente:', response);
+        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${this.modoManual ? 'manual' : 'automático'}.`, 'success');
+      },
+      error: (error) => {
+        console.error('Error al cambiar el modo:', error);
+        Swal.fire('Error', 'No se pudo cambiar el modo del sistema. Inténtelo de nuevo más tarde.', 'error');
+      }
+    });
+  }
 
   enviarComando(actuador: string) {
     // Url del servidor al que se enviará el comando
