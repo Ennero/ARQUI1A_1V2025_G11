@@ -23,7 +23,7 @@ class Display_LCD:
             f"Humedad: {seipa.humidity:.1f} %",
             f"Presión: {seipa.pressure:.1f} hPa",
             f"CO2: {seipa.air_quality:.1f} ppm",
-            f"Luminocidad: {seipa.iluminity:.1f} lux"
+            f"Lux: {seipa.iluminity:.1f} lux"
         ]
 
         for i in range(len(lines) - 1):
