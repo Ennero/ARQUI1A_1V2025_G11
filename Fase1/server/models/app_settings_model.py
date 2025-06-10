@@ -5,11 +5,11 @@ class AppSettings(object):
             cls.instance = super(AppSettings, cls).__new__(cls)
         return cls.instance
     
-    def __init__(self, app_name: str = 'DefaultApp', version: str = '1.0.0', debug: bool = False):
+    def __init__(self, app_name: str = 'DefaultApp', version: str = '1.0.0', debug: bool = False, mode: str = 'automatic'):
         self._app_name = app_name
         self._version = version
         self._debug = debug
-        self._mode = "automatic"
+        self._mode = mode
 
     def __repr__(self):
         return f"AppSettings(app_name={self._app_name}, version={self._version}, debug={self._debug})"
