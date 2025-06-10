@@ -2,6 +2,7 @@ from bmp import BMP
 from dht import DHT
 from pcf8591 import PCF8591
 from mq135 import MQ135
+from bh1750 import BH1750
 from ultrasonic import Ultrasonic
 import RPi.GPIO as GPIO
 import board
@@ -23,14 +24,20 @@ def main():
     #     print(f"CO2 (estimado): {ppm:.2f} ppm")
     #     time.sleep(2)
 
-    ultra_sonic = Ultrasonic(trigger_pin=23, echo_pin=24, detection_range_cm=50.0)
+    # ultra_sonic = Ultrasonic(trigger_pin=23, echo_pin=24, detection_range_cm=50.0)
 
+    # while True:
+    #     if ultra_sonic.motion_detected:
+    #         print("✅ Objeto detectado dentro del rango")
+    #     else:
+    #         print("⛔ Nada detectado en el rango")
+    #     time.sleep(1)
+
+    light_sensor = BH1750()
     while True:
-        if ultra_sonic.motion_detected:
-            print("✅ Objeto detectado dentro del rango")
-        else:
-            print("⛔ Nada detectado en el rango")
+        print(f"Luminosidad: {light_sensor.brightness:.2f} lux")
         time.sleep(1)
+
 
 if __name__ == "__main__":
     try:

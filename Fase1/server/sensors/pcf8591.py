@@ -1,7 +1,7 @@
 import smbus
 
 class PCF8591:
-    def __init__(self, address=0x48, bus=1):
+    def __init__(self, address: int = 0x48, bus: int = 1):
         self.address = address
         self.bus = smbus.SMBus(bus)
 
