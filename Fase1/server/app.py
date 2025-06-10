@@ -15,7 +15,7 @@ import RPi.GPIO as GPIO
 import time
 import json
 # from dotenv import load_dotenv
-import os
+# import os
 
 
 class SiepaG11App(object):
@@ -95,7 +95,8 @@ class SiepaG11App(object):
                     temperature=dht_data['temperature'],
                     humidity=dht_data['humidity'],
                     pressure=bmp_data['pressure'],
-                    air_quality=mq_data['air_quality']
+                    air_quality=mq_data['air_quality'],
+                    brightness=None
                 )
 
                 # Store data

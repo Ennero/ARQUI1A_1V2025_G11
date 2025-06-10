@@ -1,6 +1,4 @@
 import RPi.GPIO as GPIO
-import time
-
 class GenericOutputDevice:
     """
     Generic class to control output devices like LEDs using Raspberry Pi GPIO.

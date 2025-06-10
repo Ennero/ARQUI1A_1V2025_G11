@@ -5,7 +5,7 @@ class AppSettings(object):
             cls.instance = super(AppSettings, cls).__new__(cls)
         return cls.instance
     
-    def __init__(self, app_name: str, version: str, debug: bool):
+    def __init__(self, app_name: str = 'DefaultApp', version: str = '1.0.0', debug: bool = False):
         self._app_name = app_name
         self._version = version
         self._debug = debug

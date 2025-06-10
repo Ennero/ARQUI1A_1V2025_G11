@@ -2,7 +2,7 @@ from datetime import datetime
 
 class SiepaDB:
 
-    def __init__(self, temperature, humidity, pressure, air_quality, brightness):
+    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, brightness=0):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
