@@ -18,15 +18,15 @@ class SiepaMqttClient(object):
         self._client = None
         self._connected = False
         self._topic = "fiusac/arqui1/g11/#"
-        # self._topic = "python/mqtt/Arqui1Grupo11"
-        # self._topic = "#"
+        # self._topic = "GRUPO11/sensores/rasp01/#"
+
         self._allowed_topics = [
             'temperature', 
             'humidity', 
             'pressure', 
             'air_quality',
             'proximity',
-            'brightness'
+            'iluminity'
         ]
 
     def connect(self):
