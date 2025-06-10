@@ -119,7 +119,7 @@ class SiepaG11App(object):
                 # Red LED (temperature >= 28)
                 if siepa_data.temperature >= 28 and not self.red_led.mode:
                     self.red_led.turn_on_device()
-                    self.mqtt_client.publish('humidity/temperature', json.dumps({
+                    self.mqtt_client.publish('temperature/danger', json.dumps({
                         'message': 'High temperature detected! Turning on red LED.'
                     }))
                 elif siepa_data.temperature < 28 and self.red_led.mode:
