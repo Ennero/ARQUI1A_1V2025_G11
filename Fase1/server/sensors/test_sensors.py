@@ -9,6 +9,7 @@ import board
 import time
 
 def main():
+    pass
     # adc = PCF8591()
 
     # digital_value = adc.read(channel=0)

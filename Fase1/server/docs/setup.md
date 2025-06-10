@@ -39,3 +39,15 @@
     ssh fichaje@123.local
     # password: fichaje
 ```
+
+#### Credentials
+
+
+```env
+MODE=automatic
+DHT_PIN=
+BMP_PIN=
+MQTT_BROKER=localhost
+MQTT_PORT=1883
+MQTT_TOPIC_PREFIX=
+```

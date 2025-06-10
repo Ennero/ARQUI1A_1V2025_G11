@@ -1,9 +1,9 @@
+
 from rpi_lcd import LCD
 import time
-
-class Display_LCD:
+class DisplayLCD:
     def __init__(self):
-        self.lcd = LCD(0x27, 1, 16, 2, True)
+        self.lcd = LCD()
         self.lcd.clear()
         self.lcd.backlight(True)
 

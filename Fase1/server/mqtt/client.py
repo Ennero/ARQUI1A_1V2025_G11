@@ -70,7 +70,7 @@ class SiepaMqttClient(object):
             print(f"Connection error: {str(e)}")
 
 
-    def publisher(self, topic: str, message: str, qos: int = 1):
+    def publish(self, topic: str, message: str, qos: int = 1):
         if not self._connected:
             print("MQTT client is not connected. Cannot publish.")
             return
@@ -88,6 +88,14 @@ class SiepaMqttClient(object):
         else:
             print(f"Failed to publish to {full_topic}. Error code: {result.rc}")
 
+    def disconnect(self):
+        if self._client:
+            print("Disconnecting MQTT client...")
+            self._client.disconnect()
+            self._connected = False
+        else:
+            print("MQTT client is not initialized.")
+
     def run(self):
         if not self._client:
             print("Client not initialized!")
@@ -99,3 +107,4 @@ class SiepaMqttClient(object):
         except KeyboardInterrupt:
             print("Disconnecting...")
             self._client.disconnect()
+            

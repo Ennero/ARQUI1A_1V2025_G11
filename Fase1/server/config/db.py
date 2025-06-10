@@ -1,8 +1,8 @@
 from datetime import datetime
 
-class SeipaDB:
+class SiepaDB:
 
-    def __init__(self, temperature, humidity, pressure, air_quality, iluminity):
+    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, iluminity=0):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
@@ -42,7 +42,7 @@ class SeipaDB:
             self._humidity = value
         else:
             raise TypeError("La humedad debe ser un número")
-        
+    
     @property
     def pressure(self):
         return self._pressure

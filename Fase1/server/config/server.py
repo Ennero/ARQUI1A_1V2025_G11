@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException, BadRequest
+from controllers.siepa_app_controller import siepa_blueprint
 
-from utils.responder import respond_with_success, respond_with_error, respond_with_not_found, respond_with_internal_server_error
+from utils.http_responder import respond_with_success, respond_with_error, respond_with_not_found, respond_with_internal_server_error
 
 class FlaskServer:
 
@@ -14,8 +15,7 @@ class FlaskServer:
         self.setup_routes()
 
     def register_blueprints(self):
-        # self.app.register_blueprint(<YOUR_BLUEPRINT>)
-        pass
+        self.app.register_blueprint(siepa_blueprint)
 
     def setup_routes(self):
 
