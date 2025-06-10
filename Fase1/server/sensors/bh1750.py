@@ -20,7 +20,7 @@ class BH1750:
         self.bus.write_byte(self.ADDRESS, self.RESET)
 
     @property
-    def brightness(self):
+    def luminosity(self):
         self.bus.write_byte(self.ADDRESS, self.CONT_H_RES_MODE)
         time.sleep(0.2)
 
