@@ -1,7 +1,7 @@
 import adafruit_bmp280
 import board
 
-class BMP:
+class BMP280:
     def __init__(self, address: int = 0x76):
         self._sensor = adafruit_bmp280.Adafruit_BMP280_I2C(board.I2C(), address=address)
 

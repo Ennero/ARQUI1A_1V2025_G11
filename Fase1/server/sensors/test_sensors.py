@@ -1,13 +1,15 @@
-from bmp import BMP
+from bmp280 import BMP280
 from dht import DHT
 from pcf8591 import PCF8591
 from mq135 import MQ135
+from bh1750 import BH1750
 from ultrasonic import Ultrasonic
 import RPi.GPIO as GPIO
 import board
 import time
 
 def main():
+    pass
     # adc = PCF8591()
 
     # digital_value = adc.read(channel=0)
@@ -23,14 +25,25 @@ def main():
     #     print(f"CO2 (estimado): {ppm:.2f} ppm")
     #     time.sleep(2)
 
-    ultra_sonic = Ultrasonic(trigger_pin=23, echo_pin=24, detection_range_cm=50.0)
+    # ultra_sonic = Ultrasonic(trigger_pin=23, echo_pin=24, detection_range_cm=50.0)
 
-    while True:
-        if ultra_sonic.motion_detected:
-            print("✅ Objeto detectado dentro del rango")
-        else:
-            print("⛔ Nada detectado en el rango")
-        time.sleep(1)
+    # while True:
+    #     if ultra_sonic.motion_detected:
+    #         print("✅ Objeto detectado dentro del rango")
+    #     else:
+    #         print("⛔ Nada detectado en el rango")
+    #     time.sleep(1)
+
+    # light_sensor = BH1750()
+    # while True:
+    #     print(f"Luminosidad: {light_sensor.luminosity:.2f} lux")
+    #     time.sleep(1)
+
+    # bmp_sensor = BMP280()
+    # while True:
+    #     print(f"Temp: {bmp_sensor.temperature:.1f}°C")
+    #     print(f"Presión: {bmp_sensor.pressure:.1f}hPa")
+    #     time.sleep(1)
 
 if __name__ == "__main__":
     try:

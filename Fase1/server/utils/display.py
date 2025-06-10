@@ -19,50 +19,29 @@ class DisplayLCD:
     def __init__(self):
         self.lcd = LCD()
         self.lcd.clear()
-        self.messages = []  # Lista compartida de mensajes
-        self.lock = threading.Lock()
-        self.running = True
+        self.lcd.backlight(True)
 
-        # Iniciar el hilo que rota mensajes
-        self.thread = threading.Thread(target=self._rotate_messages)
-        self.thread.start()
+    def display_centered(self, message: str, line: int):
+        message = message.strip()
+        if len(message) > 16:
+            message = message[:16]
+        padding = (16 - len(message)) // 2
+        centered_message = " " * padding + message
+        self.lcd.text(centered_message, line)
 
-    def show_message(self, message: str, line: int):
-        self.lcd.clear()
-        self.lcd.text(message[:16], line)
+    def scroll_data(self, seipa: 'SeipaDB', delay=2):
+        lines = [
+            f"--- Nueva lectura ---",
+            f"Hora: {seipa.timestamp.strftime('%H:%M:%S')}",
+            f"Temp: {seipa.temperature:.1f} °C",
+            f"Humedad: {seipa.humidity:.1f} %",
+            f"Presión: {seipa.pressure:.1f} hPa",
+            f"CO2: {seipa.air_quality:.1f} ppm",
+            f"Lux: {seipa.iluminity:.1f} lux"
+        ]
 
-    # def _rotate_messages(self, delay: float = 3.0):
-    #     index = 0
-    #     while self.running:
-    #         with self.lock:
-    #             if self.messages:
-    #                 msg = self.messages[index % len(self.messages)]
-    #                 self.show_message(msg, 1)
-    #                 index += 1
-    #         time.sleep(delay)
-    def _rotate_messages(self, delay: float = 3.0):
-        shown = set()
-        while self.running:
-            with self.lock:
-                pending = [msg for msg in self.messages if msg not in shown]
-
-                if not pending:
-                    # Todos los mensajes ya fueron mostrados
-                    self.running = False
-                    break
-
-                msg = pending[0]
-                shown.add(msg)
-                self.show_message(msg, 1)
-
+        for i in range(len(lines) - 1):
+            self.lcd.clear()
+            self.display_centered(lines[i], 1)
+            self.display_centered(lines[i + 1], 2)
             time.sleep(delay)
-
-
-    def add_message(self, message: str):
-        with self.lock:
-            self.messages.append(message)
-
-    def stop(self):
-        self.running = False
-        self.thread.join()
-        self.lcd.clear()

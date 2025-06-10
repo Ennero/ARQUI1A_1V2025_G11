@@ -17,7 +17,7 @@ class Ultrasonic:
     def motion_detected(self):
         try:
             distance = self.sensor.distance
-            print(f"[Ultrasonic] Distancia: {distance*100:.1f} cm")  # Agregado para depuración
+            print(f"[Ultrasonic] Distancia: {distance*100:.1f} cm")
             return distance <= self.detection_range
         except Exception as e:
             print(f"[Ultrasonic] Error al leer: {e}")

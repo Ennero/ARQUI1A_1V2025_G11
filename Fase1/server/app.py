@@ -96,7 +96,7 @@ class SiepaG11App(object):
                     humidity=dht_data['humidity'],
                     pressure=bmp_data['pressure'],
                     air_quality=mq_data['air_quality'],
-                    brightness=None
+                    iluminity=None
                 )
 
                 # Store data
@@ -108,7 +108,7 @@ class SiepaG11App(object):
                 self.mqtt_client.publish('pressure', json.dumps({'pressure': siepa_data.pressure}))
                 self.mqtt_client.publish('air_quality', json.dumps({'air_quality': siepa_data.air_quality}))
                 self.mqtt_client.publish('proximity', json.dumps({'distance': ultrasonic_data['distance']}))
-                self.mqtt_client.publish('brightness', json.dumps({'brightness': mq_data['brightness']}))
+                self.mqtt_client.publish('iluminity', json.dumps({'iluminity': mq_data['iluminity']}))
 
                 # Check if we should stop
                 if self.stop_event.is_set():
@@ -137,12 +137,12 @@ class SiepaG11App(object):
                     self.yellow_led.turn_off_device()
                 
                 # Green LED (pressure <= 1000)
-                if siepa_data.brightness <= 1000 and not self.green_led.mode:
+                if siepa_data.iluminity <= 1000 and not self.green_led.mode:
                     self.green_led.turn_on_device()
-                    self.mqtt_client.publish('brightness/danger', json.dumps({
-                        'message': 'Low brightness detected! Turning on green LED.'
+                    self.mqtt_client.publish('iluminity/danger', json.dumps({
+                        'message': 'Low iluminity detected! Turning on green LED.'
                     }))
-                elif siepa_data.brightness > 1000 and self.green_led.mode:
+                elif siepa_data.iluminity > 1000 and self.green_led.mode:
                     self.green_led.turn_off_device()
                 
                 # Blue LED (air quality <= 100)
@@ -165,10 +165,10 @@ class SiepaG11App(object):
                         self.buzzer.turn_on_device()
                     elif siepa_data.air_quality > 50 and self.buzzer.mode:
                         self.buzzer.turn_off_device()
-                    # Lighting device (brightness <= 200)
-                    if siepa_data.brightness <= 200 and not self.lighting_device.mode:
+                    # Lighting device (iluminity <= 200)
+                    if siepa_data.iluminity <= 200 and not self.lighting_device.mode:
                         self.lighting_device.turn_on_device()
-                    elif siepa_data.brightness > 200 and self.lighting_device.mode:
+                    elif siepa_data.iluminity > 200 and self.lighting_device.mode:
                         self.lighting_device.turn_off_device()
 
                 # Sleep for a while before the next reading
