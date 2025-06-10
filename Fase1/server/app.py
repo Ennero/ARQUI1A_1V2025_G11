@@ -41,15 +41,15 @@ class SiepaG11App(object):
 
         # Define output devices
         self.display_lcd = DisplayLCD()
-        self.red_led = GenericOutputDevice("D22")
-        self.green_led = GenericOutputDevice("D23")
-        self.yellow_led = GenericOutputDevice("D25")
-        self.blue_led = GenericOutputDevice("D26")
+        self.red_led = GenericOutputDevice(22)
+        self.green_led = GenericOutputDevice(23)
+        self.yellow_led = GenericOutputDevice(25)
+        self.blue_led = GenericOutputDevice(26)
         
         # Actuators
-        self.fan = GenericOutputDevice("D19")
-        self.buzzer = GenericOutputDevice("D24")
-        self.lighting_device = GenericOutputDevice("D21")
+        self.fan = GenericOutputDevice(19)
+        self.buzzer = GenericOutputDevice(24)
+        self.lighting_device = GenericOutputDevice(21)
 
         # Define storage
         self.storage = [] # We will implement MongoDB later
