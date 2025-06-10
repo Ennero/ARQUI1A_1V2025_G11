@@ -12,9 +12,10 @@ class GenericOutputDevice:
         mode (bool): Device state. True = ON, False = OFF.
     """
 
-    def __init__(self, pin):
+    def __init__(self, pin, control="automatic"):
         self._pin = pin
         self._mode = False
+        self._control = control
         GPIO.setup(self._pin, GPIO.OUT)
 
     def turn_on_device(self):
@@ -43,3 +44,14 @@ class GenericOutputDevice:
     @property
     def pin(self):
         return self._pin
+    
+    @property
+    def control(self):
+        return self._control
+
+    @control.setter
+    def control(self, value):
+        if value in ["automatic", "manual"]:
+            self._control = value
+        else:
+            print('Control must be "automatic" or "manual"')
