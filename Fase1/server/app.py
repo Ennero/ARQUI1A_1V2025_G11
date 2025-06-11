@@ -37,10 +37,10 @@ class SiepaG11App(object):
 
         # Define sensors
         self.dht_sensor = DHT(board.D17, "DHT11")
-        self.bmp_sensor = BMP(board.D4)
+        self.bmp_sensor = BMP280()
         self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=10.0)
         self.bh_sensor = BH1750(bus=1)
-        self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
+        # self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -71,10 +71,10 @@ class SiepaG11App(object):
 
         # App settings
         self.config = AppSettings(
-            app_name="SiepaG11App",
-            version="1.0.0",
-            debug=True,
-            mode="automatic"  # Default mode
+            "SiepaG11App",
+            "1.0.0",
+            True,
+            "automatic"  # Default mode
         )
 
     def run_flask(self):
@@ -107,8 +107,8 @@ class SiepaG11App(object):
                 self.mqtt_client.publish('humidity', json.dumps({'humidity': siepa_data.humidity}))
                 self.mqtt_client.publish('pressure', json.dumps({'pressure': siepa_data.pressure}))
                 self.mqtt_client.publish('air_quality', json.dumps({'air_quality': siepa_data.air_quality}))
-                self.mqtt_client.publish('proximity', json.dumps({'distance': ultrasonic_data['distance']}))
-                self.mqtt_client.publish('iluminity', json.dumps({'iluminity': mq_data['iluminity']}))
+                # self.mqtt_client.publish('proximity', json.dumps({'distance': ultrasonic_data['distance']}))
+                self.mqtt_client.publish('iluminity', json.dumps({'iluminity': siepa_data.iluminity}))
 
                 # Check if we should stop
                 if self.stop_event.is_set():
@@ -173,11 +173,13 @@ class SiepaG11App(object):
                     elif siepa_data.iluminity > 200 and self.lighting_device.mode:
                         self.lighting_device.turn_off_device()
 
-                # Display data on LCD
+                # for line in siepa_data.to_display_lines():
+                #     self.display_queue.put(line)
+
                 for line in siepa_data.to_display_lines():
+                    print(f"Adding to display queue: {line}")  # Debug print
                     self.display_queue.put(line)
 
-                # Sleep for a while before the next reading
                 time.sleep(5)
 
             except Exception as e:
@@ -192,18 +194,19 @@ class SiepaG11App(object):
             try:
                 new_line = self.display_queue.get(timeout=1)
 
-                # Shift current line to line 1
                 previous_line = current_line
                 current_line = new_line
 
-                self.display_lcd.clear()
+                print(f"LCD displaying:\n 1: {previous_line}\n 2: {current_line}")
 
-                # Write shifted lines
+                self.display_lcd.clear()
                 self.display_lcd.write_centered(previous_line, 1)
                 self.display_lcd.write_centered(current_line, 2)
+                time.sleep(4)  # Increased from 1 to 4 seconds
 
             except queue.Empty:
                 continue
+
 
     def start(self):
         """Start all threads"""
@@ -279,7 +282,7 @@ class SiepaG11App(object):
             
             # Main thread can do other work here or just wait
             while self.running:
-                time.sleep(1)
+                time.sleep(4)
                 
         except KeyboardInterrupt:
             print("\nReceived keyboard interrupt, stopping...")

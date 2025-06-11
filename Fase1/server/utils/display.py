@@ -1,10 +1,11 @@
-
 from rpi_lcd import LCD
-import time
 
 class DisplayLCD:
     def __init__(self):
-        self.lcd = LCD()
+        # self.lcd = LCD()
+        # self.lcd.clear()
+        # self.lcd.backlight(True)
+        self.lcd = LCD(address=0x27)  # Common address for I2C LCDs
         self.lcd.clear()
         self.lcd.backlight(True)
 

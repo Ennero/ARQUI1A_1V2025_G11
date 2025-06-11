@@ -17,8 +17,8 @@ def get_siepa_settings():
         "mode": AppSettings().mode
     })
 
-@siepa_blueprint.route('/siepa/devises/<devise_name>', methods=['PUT'])
-def put_siepa_settings(devise_name):
+@siepa_blueprint.route('/siepa/devises/<device_name>/control', methods=['PUT'])
+def put_siepa_device_control(devise_name):
     data = request.get_json()
 
     if not data:
@@ -46,7 +46,7 @@ def put_siepa_settings(devise_name):
     return respond_with_success({"message": "Settings updated successfully."})
 
 @siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
-def put_siepa_settings(device_name):
+def put_siepa_device_mode(device_name):
     data = request.get_json()
 
     if not data:
