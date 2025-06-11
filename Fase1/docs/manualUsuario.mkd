@@ -1,0 +1,141 @@
+# Manual de Usuario - Proyecto SIEPA (Fase 1)
+
+## Índice
+
+- [Manual de Usuario - Proyecto SIEPA (Fase 1)](#manual-de-usuario---proyecto-siepa-fase-1)
+  - [Índice](#índice)
+  - [Objetivos](#objetivos)
+    - [Objetivo General](#objetivo-general)
+    - [Objetivos Específicos](#objetivos-específicos)
+  - [Introducción](#introducción)
+  - [Requisitos del Sistema](#requisitos-del-sistema)
+  - [Guía de Uso del Sistema](#guía-de-uso-del-sistema)
+    - [1. Puesta en Marcha y Conexión](#1-puesta-en-marcha-y-conexión)
+    - [2. Acceso al Dashboard (Login)](#2-acceso-al-dashboard-login)
+    - [3. Explorando el Dashboard Web](#3-explorando-el-dashboard-web)
+      - [Panel General (Datos en Tiempo Real)](#panel-general-datos-en-tiempo-real)
+      - [Reportes Históricos](#reportes-históricos)
+      - [Control Remoto de Actuadores](#control-remoto-de-actuadores)
+    - [4. Comprender los Indicadores Físicos del Prototipo](#4-comprender-los-indicadores-físicos-del-prototipo)
+      - [Pantalla LCD](#pantalla-lcd)
+      - [LEDs de Alerta](#leds-de-alerta)
+      - [Actuadores Físicos (Respuesta Automática)](#actuadores-físicos-respuesta-automática)
+    - [Flujo de Uso Típico (Ejemplo Práctico)](#flujo-de-uso-típico-ejemplo-práctico)
+
+## Objetivos
+
+### Objetivo General
+
+* Explicar de manera clara y detallada el funcionamiento y el modo de uso del Sistema Inteligente de Evaluación y Predicción Ambiental (SIEPA).
+
+### Objetivos Específicos
+
+* Facilitar una comprensión clara de la interacción entre el usuario (a través del Dashboard Web) y el prototipo físico (maqueta con Raspberry Pi, sensores y actuadores).
+* Detallar las funciones del dashboard, los indicadores del prototipo y cómo controlar el sistema de forma remota.
+* Resolver posibles dudas sobre la operativa del sistema y el significado de las alertas visuales y sonoras.
+
+## Introducción
+
+¡Bienvenido al manual de usuario del sistema SIEPA! Este documento te guiará a través de todo lo necesario para utilizar este sistema de monitoreo ambiental para un vivero o jardín automatizado. A diferencia de una simple aplicación, interactuarás con un prototipo físico que incluye sensores, luces indicadoras (LEDs), actuadores (ventilador, buzzer) y una pantalla LCD, todo ello gestionado y visualizado desde un Dashboard Web accesible desde tu navegador.
+
+## Requisitos del Sistema
+
+* **Prototipo Físico SIEPA:** El dispositivo completo que incluye la maqueta, la Raspberry Pi, todos los sensores (temperatura, humedad, luz, presión, etc.), los LEDs indicadores, el ventilador, el buzzer y la pantalla LCD.
+* **Dispositivo de Usuario:** Un ordenador, tablet o teléfono móvil con un navegador web moderno (como Chrome, Firefox, Safari o Edge).
+* **Conexión de Red:** El dispositivo de usuario y el prototipo SIEPA deben estar conectados a la misma red local (WiFi o Ethernet) para poder comunicarse.
+
+## Guía de Uso del Sistema
+
+### 1. Puesta en Marcha y Conexión
+
+* **Encender el Prototipo:** Asegúrate de que el prototipo físico SIEPA esté conectado a la corriente y encendido. Al arrancar, la pantalla LCD mostrará un mensaje de bienvenida, como "Bienvenido a SIEPA".
+* **Conectar a la Red:** Verifica que tu ordenador o dispositivo móvil esté conectado a la misma red WiFi que la Raspberry Pi del prototipo.
+* **Acceder al Dashboard Web:** Abre tu navegador web y dirígete a la dirección IP o el enlace proporcionado para el Dashboard del sistema SIEPA.
+
+### 2. Acceso al Dashboard (Login)
+
+* Se te presentará una pantalla de inicio de sesión.
+* Ingresa las credenciales de administrador para acceder al panel de control principal del sistema.
+
+\[Imagen de la pantalla de Login del Dashboard]
+
+### 3. Explorando el Dashboard Web
+
+Una vez dentro, tendrás acceso a todas las funcionalidades del sistema. El dashboard se divide en varias secciones clave:
+
+#### Panel General (Datos en Tiempo Real)
+
+Esta es la pantalla principal, donde podrás ver el estado actual del vivero.
+
+* **Visualización de Sensores:** Verás medidores, tarjetas o valores numéricos que muestran en tiempo real las lecturas de cada sensor:
+    * **Temperatura:** En grados Celsius (°C).
+    * **Humedad:** En porcentaje (%).
+    * **Iluminación:** En Lux (lx).
+    * **Presión Barométrica:** En hectopascales (hPa) o la unidad configurada.
+    * **Calidad del Aire:** Un valor que indica la concentración de gases.
+    * **Presencia:** Indica si se ha detectado movimiento recientemente.
+* **Estado de los Actuadores:** Podrás ver si el ventilador, la iluminación adicional o el buzzer están actualmente activos o inactivos.
+
+\[Imagen del Dashboard Principal con datos en tiempo real]
+
+#### Reportes Históricos
+
+* En esta sección, podrás visualizar los datos que el sistema ha ido almacenando a lo largo del tiempo.
+* **Gráficas de Datos:** Se presentarán gráficas de línea que te permitirán observar las tendencias de temperatura, humedad, luz, etc., durante las últimas horas o días. Esto es útil para detectar patrones ambientales.
+
+\[Imagen de la sección de Reportes Históricos con gráficas]
+
+#### Control Remoto de Actuadores
+
+* Esta sección te da el control manual sobre los dispositivos del vivero.
+* Encontrarás botones o interruptores para:
+    * **Activar/Desactivar el Ventilador:** Independientemente de la temperatura, puedes encender o apagar el ventilador.
+    * **Activar/Desactivar la Luz Adicional:** Puedes forzar el encendido o apagado del sistema de iluminación.
+    * **Probar el Buzzer:** Un botón para probar la alerta sonora.
+* Al accionar un control, el comando se envía inmediatamente al prototipo físico, que responderá a tu acción.
+
+\[Imagen del panel de Control Remoto de Actuadores]
+
+### 4. Comprender los Indicadores Físicos del Prototipo
+
+El prototipo físico te dará información instantánea a través de sus componentes visuales y sonoros:
+
+#### Pantalla LCD
+
+* **Información Rotativa:** Durante el funcionamiento normal, la pantalla LCD irá mostrando de forma secuencial los valores actuales de cada sensor (ej. "Temp: 25.5C", "Hum: 60%", "Luz: 850 lx").
+* **Mensajes de Alerta:** Si se detecta una condición crítica, la pantalla mostrará un mensaje de alerta prioritario, como "ALERTA: TEMP ALTA!" o "PELIGRO: GASES!".
+
+#### LEDs de Alerta
+
+Cada LED de color indica un tipo de alerta específica:
+
+* **LED Rojo:** Se enciende cuando la **temperatura es demasiado alta**.
+* **LED Amarillo:** Se enciende cuando la **humedad está fuera del rango ideal** (demasiado alta o baja).
+* **LED Verde:** Se enciende para indicar una **iluminación anormal** (generalmente, demasiado baja para las plantas).
+* **LED Azul:** Se enciende cuando la **calidad del aire es mala**.
+
+#### Actuadores Físicos (Respuesta Automática)
+
+Además del control manual, el sistema reacciona por sí solo:
+
+* **Ventilador (Motor DC):** Se activará automáticamente si la temperatura supera el umbral crítico.
+* **Buzzer:** Sonará automáticamente si el sensor de calidad del aire detecta niveles peligrosos.
+* **Luz Adicional:** Se puede configurar para que se encienda automáticamente si la luz natural es insuficiente.
+
+### Flujo de Uso Típico (Ejemplo Práctico)
+
+Imagina que es un día muy caluroso y la temperatura dentro del vivero empieza a subir peligrosamente.
+
+1.  **Detección:** El sensor de temperatura (DHT11) detecta que se ha superado el umbral (ej. 30°C).
+2.  **Respuesta Local Automática:**
+    * El **LED Rojo** del prototipo se enciende de inmediato.
+    * El **Ventilador (motor DC)** se activa para empezar a circular el aire y bajar la temperatura.
+    * La **Pantalla LCD** muestra el mensaje "ALERTA: TEMP ALTA!".
+3.  **Comunicación y Visualización Remota:**
+    * La Raspberry Pi envía el nuevo valor de temperatura y el estado de alerta al **Broker MQTT**.
+    * El **Dashboard Web**, que está suscrito a estos datos, recibe la información instantáneamente.
+    * En el panel del dashboard, verás que el medidor de temperatura se pone en rojo y el indicador del ventilador muestra que está "Activo".
+4.  **Intervención del Usuario (Opcional):**
+    * Al ver la alerta en el dashboard desde tu ordenador, decides que quieres apagar el ventilador manually por un momento.
+    * Vas a la sección "Control Remoto de Actuadores" y pulsas el botón para **desactivar el ventilador**.
+    * El comando viaja por MQTT hasta la Raspberry Pi, y el ventilador físico se detiene, aunque el LED rojo y la alerta de temperatura sigan activos hasta que la condición mejore.
