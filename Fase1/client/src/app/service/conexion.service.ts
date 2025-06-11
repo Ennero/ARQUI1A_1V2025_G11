@@ -76,7 +76,7 @@ export class MqttService {
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataAirQuality = [...this.dataAirQuality];
                 break;
-              case 'iluminity':
+              case 'luminosity':
                 this.dataIluminacion.push({ no: this.dataIluminacion.length + 1, iluminacion: `${valueFormatFixed} lux` });
                 this.dataIluminacion.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio

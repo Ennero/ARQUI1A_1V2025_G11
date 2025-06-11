@@ -99,7 +99,7 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
         case 'air_quality':
           this.updateChart('air_qualityChart', this.dataSourceAirQualityGrafica, 'air_quality');
           break;
-        case 'iluminity':
+        case 'luminosity':
           this.updateChart('iluminacionChart', this.dataSourceIluminacionGrafica, 'iluminacion');
           break;
         case 'pressure':

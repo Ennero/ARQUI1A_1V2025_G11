@@ -137,7 +137,7 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
           case 'air_quality':
             this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
             break;
-          case 'iluminity':
+          case 'luminosity':
             this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
             break;
           case 'pressure':

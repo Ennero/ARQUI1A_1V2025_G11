@@ -77,7 +77,7 @@ export class Exit {
         case 'temperature':
           this.dataSourceTemperatura;
           break;
-        case 'iluminity':
+        case 'luminosity':
           this.dataSourceIluminacion;
           break;
         case 'air_quality':
