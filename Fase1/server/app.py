@@ -2,6 +2,7 @@ from sensors.dht import DHT
 from sensors.mq135 import MQ135
 from sensors.pcf8591 import PCF8591
 from sensors.bmp import BMP
+from sensors.bh1750 import BH1750
 from sensors.ultrasonic import Ultrasonic
 from config.db import SiepaDB
 from config.server import FlaskServer
@@ -14,6 +15,7 @@ import board
 import RPi.GPIO as GPIO
 import time
 import json
+import queue
 # from dotenv import load_dotenv
 # import os
 
@@ -37,6 +39,7 @@ class SiepaG11App(object):
         self.dht_sensor = DHT(board.D17, "DHT11")
         self.bmp_sensor = BMP(board.D4)
         self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=10.0)
+        self.bh_sensor = BH1750(bus=1)
         self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
 
         # Define output devices
@@ -53,6 +56,8 @@ class SiepaG11App(object):
 
         # Define storage
         self.storage = [] # We will implement MongoDB later
+        self.display_queue = queue.Queue()
+
         
         # Define Flask server and MQTT client
         self.server = FlaskServer()
@@ -62,6 +67,7 @@ class SiepaG11App(object):
         self.flask_thread = None
         self.mqtt_thread = None
         self.sensor_thread = None
+        self.display_thread = None
 
         # App settings
         self.config = AppSettings(
@@ -84,19 +90,13 @@ class SiepaG11App(object):
         """Run sensor reading loop in a separate thread"""
         while not self.stop_event.is_set():
             try:
-                # Read sensors
-                dht_data = self.dht_sensor.read()
-                bmp_data = self.bmp_sensor.read()
-                mq_data = self.mq_sensor.read()
-                ultrasonic_data = self.ultrasonic_sensor.read()
-
                 # Create a siepaDB instance
                 siepa_data = SiepaDB(
-                    temperature=dht_data['temperature'],
-                    humidity=dht_data['humidity'],
-                    pressure=bmp_data['pressure'],
-                    air_quality=mq_data['air_quality'],
-                    iluminity=None
+                    temperature=self.dht_sensor.temperature,
+                    humidity=self.dht_sensor.humidity,
+                    pressure=self.bmp_sensor.pressure,
+                    air_quality=self.mq_sensor.ppm,
+                    iluminity=self.bh_sensor.luminosity
                 )
 
                 # Store data
@@ -171,12 +171,37 @@ class SiepaG11App(object):
                     elif siepa_data.iluminity > 200 and self.lighting_device.mode:
                         self.lighting_device.turn_off_device()
 
+                # Display data on LCD
+                for line in siepa_data.to_display_lines():
+                    self.display_queue.put(line)
+
                 # Sleep for a while before the next reading
                 time.sleep(5)
 
             except Exception as e:
                 print(f"Error in sensor tasks: {e}")
                 time.sleep(1)  # Prevent tight loop on error
+
+    def run_display(self):
+        previous_line = ""
+        current_line = ""
+
+        while not self.stop_event.is_set():
+            try:
+                new_line = self.display_queue.get(timeout=1)
+
+                # Shift current line to line 1
+                previous_line = current_line
+                current_line = new_line
+
+                self.display_lcd.clear()
+
+                # Write shifted lines
+                self.display_lcd.write_centered(previous_line, 1)
+                self.display_lcd.write_centered(current_line, 2)
+
+            except queue.Empty:
+                continue
 
     def start(self):
         """Start all threads"""
@@ -199,7 +224,16 @@ class SiepaG11App(object):
         self.sensor_thread = Thread(target=self.run_sensor_tasks, daemon=True)
         self.sensor_thread.start()
 
+        # Start display thread
+        self.display_thread = Thread(target=self.run_display, daemon=True)
+        self.display_thread.start()
+
         print("All threads started")
+
+    def display_storage(self):
+        if not self.storage:
+            print("No data in storage")
+            return
 
     def stop(self):
         """Stop all threads gracefully"""
@@ -227,6 +261,12 @@ class SiepaG11App(object):
             
         if self.flask_thread and self.flask_thread.is_alive():
             self.flask_thread.join(timeout=5)
+
+        if self.display_thread and self.display_thread.is_alive():
+            self.display_thread.join(timeout=5)
+
+        # Cleanup GPIO pins
+        GPIO.cleanup()
 
         print("All threads stopped")
 

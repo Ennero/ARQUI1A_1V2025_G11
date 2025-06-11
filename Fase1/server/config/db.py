@@ -76,15 +76,34 @@ class SiepaDB:
         else:
             raise TypeError("La iluminidad debe ser un número")
 
-    # def __str__(self):
-    #     return (f"Timestamp: {self._timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
-    #             f"Temperatura: {self._temperature:.1f} °C\n"
-    #             f"Humedad: {self._humidity:.1f} %\n"
-    #             f"Presión: {self._pressure:.1f} hPa")
-    
-    def __str__(self):
-        timestamp_str = self._timestamp.strftime('%Y-%m-%d %H:%M:%S') if self._timestamp else "N/A"
-        return (
-                f"Temperatura: {self._temperature:.1f} °C\n"
-                f"Humedad: {self._humidity:.1f} %\n"
-                f"Presión: {self._pressure:.1f} hPa")
+    def to_display_lines(self):
+        timestamp_str = self._timestamp.strftime('%H:%M:%S') if self._timestamp else "N/A"
+        lines = ["Nueva lectura"]
+        
+        lines.append(f"Hora: {timestamp_str}")
+        lines.append(f"Temp: {self._temperature:.1f} °C")
+        # 🚨 Agrega advertencias si los valores están fuera de rangos
+        if self._temperature > 30:
+            lines.append("Temperatura alta")
+        elif self._temperature < 10:
+            lines.append("Temperatura baja")
+
+        lines.append(f"Humedad: {self._humidity:.1f} %")
+
+        if self._humidity < 30:
+            lines.append("Humedad baja")
+        elif self._humidity > 70:
+            lines.append("Humedad alta")
+
+        lines.append(f"Presión: {self._pressure:.1f} hPa")
+        lines.append(f"CO2: {self._air_quality:.1f} ppm")
+
+        if self._air_quality > 1000:
+            lines.append("Aire contaminado")
+
+        lines.append(f"Lux: {self._iluminity:.1f} lux")
+
+        if self._iluminity < 50:
+            lines.append("Poca luz")
+
+        return lines
