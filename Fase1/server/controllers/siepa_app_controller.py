@@ -17,8 +17,8 @@ def get_siepa_settings():
         "mode": AppSettings().mode
     })
 
-@siepa_blueprint.route('/siepa/settings', methods=['PUT'])
-def put_siepa_settings():
+@siepa_blueprint.route('/siepa/devises/<devise_name>', methods=['PUT'])
+def put_siepa_settings(devise_name):
     data = request.get_json()
 
     if not data:
@@ -32,8 +32,16 @@ def put_siepa_settings():
     if mode not in ['automatic', 'manual']:
         return respond_with_error("Invalid mode. Must be 'automatic' or 'manual'.")
     
-    # Update the app settings
-    AppSettings().mode = mode
+    if not hasattr(SiepaG11App(), f"{devise_name}_device"):
+        return respond_with_error(f"Invalid device name: {devise_name}. Must be 'lighting', 'fan', or 'buzzer'.")
+
+    # Update the device settings
+    if devise_name == 'lighting':
+        SiepaG11App().lighting_device.control = mode
+    elif devise_name == 'fan':
+        SiepaG11App().fan_device.control = mode
+    elif devise_name == 'buzzer':
+        SiepaG11App().buzzer_device.control = mode
     
     return respond_with_success({"message": "Settings updated successfully."})
 
