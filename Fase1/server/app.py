@@ -9,7 +9,7 @@ from config.server import FlaskServer
 from mqtt.client import SiepaMqttClient
 from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
-from Fase1.server.models.app_settings_model import AppSettings
+from models.app_settings_model import AppSettings
 from threading import Thread, Event
 import board
 import RPi.GPIO as GPIO

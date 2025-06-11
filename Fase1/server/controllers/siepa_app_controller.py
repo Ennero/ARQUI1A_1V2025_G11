@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from config.db import SiepaDB
 from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
-from app import SiepaG11App
+# from app import SiepaG11App
 
 siepa_blueprint = Blueprint('siepa_controller', __name__)
 
@@ -32,16 +32,16 @@ def put_siepa_settings(devise_name):
     if mode not in ['automatic', 'manual']:
         return respond_with_error("Invalid mode. Must be 'automatic' or 'manual'.")
     
-    if not hasattr(SiepaG11App(), f"{devise_name}_device"):
-        return respond_with_error(f"Invalid device name: {devise_name}. Must be 'lighting', 'fan', or 'buzzer'.")
+    # if not hasattr(SiepaG11App(), f"{devise_name}_device"):
+    #     return respond_with_error(f"Invalid device name: {devise_name}. Must be 'lighting', 'fan', or 'buzzer'.")
 
-    # Update the device settings
-    if devise_name == 'lighting':
-        SiepaG11App().lighting_device.control = mode
-    elif devise_name == 'fan':
-        SiepaG11App().fan_device.control = mode
-    elif devise_name == 'buzzer':
-        SiepaG11App().buzzer_device.control = mode
+    # # Update the device settings
+    # if devise_name == 'lighting':
+    #     SiepaG11App().lighting_device.control = mode
+    # elif devise_name == 'fan':
+    #     SiepaG11App().fan_device.control = mode
+    # elif devise_name == 'buzzer':
+    #     SiepaG11App().buzzer_device.control = mode
     
     return respond_with_success({"message": "Settings updated successfully."})
 
@@ -63,11 +63,11 @@ def put_siepa_settings(device_name):
     if device_name not in ['lighting', 'fan', 'buzzer']:
         return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer'.")
     
-    if device_name == 'lighting':
-        SiepaG11App().lighting_device.mode = True if status.lower() == 'on' else False
-    elif device_name == 'fan':
-        SiepaG11App().fan.mode = True if status.lower() == 'on' else False
-    elif device_name == 'buzzer':
-        SiepaG11App().buzzer.mode = True if status.lower() == 'on' else False
+    # if device_name == 'lighting':
+    #     SiepaG11App().lighting_device.mode = True if status.lower() == 'on' else False
+    # elif device_name == 'fan':
+    #     SiepaG11App().fan.mode = True if status.lower() == 'on' else False
+    # elif device_name == 'buzzer':
+    #     SiepaG11App().buzzer.mode = True if status.lower() == 'on' else False
     
     return respond_with_success({"message": f"Device {device_name} is {status.upper()}."})
