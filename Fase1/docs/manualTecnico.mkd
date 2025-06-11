@@ -181,7 +181,7 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
 
 ### Diagrama de Flujo de Arquitectura
 
-![0](/img/0.png)
+![0](/imgs/0.png)
 
 ### Funcionamiento y Lógica Software/Hardware
 
