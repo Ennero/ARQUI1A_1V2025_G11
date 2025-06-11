@@ -1,5 +1,5 @@
 import time
-from pcf8591 import PCF8591
+# from pcf8591 import PCF8591
 
 class MQ135:
     def __init__(self, adc, channel=0, vref=5.0, load_resistance=10.0, r0=10.0):

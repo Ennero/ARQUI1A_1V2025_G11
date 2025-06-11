@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from models.siepa_db import SiepaDB
+from config.db import SiepaDB
 from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
 from app import SiepaG11App
