@@ -50,8 +50,8 @@ class SiepaG11App(object):
         self.blue_led = GenericOutputDevice(26)
         
         # Actuators
-        self.fan = GenericOutputDevice(19)
-        self.buzzer = GenericOutputDevice(24)
+        self.fan_device = GenericOutputDevice(19)
+        self.buzzer_device = GenericOutputDevice(24)
         self.lighting_device = GenericOutputDevice(21)
 
         # Define storage
@@ -154,18 +154,20 @@ class SiepaG11App(object):
                 elif siepa_data.air_quality > 100 and self.blue_led.mode:
                     self.blue_led.turn_off_device()
 
-                if self.config.mode == "automatic":
-                    # Fan (temperature >= 28)
-                    if siepa_data.temperature >= 28 and not self.fan.mode:
-                        self.fan.turn_on_device()
-                    elif siepa_data.temperature < 28 and self.fan.mode:
-                        self.fan.turn_off_device()
-                    # Buzzer (air quality <= 50)
-                    if siepa_data.air_quality <= 50 and not self.buzzer.mode:
-                        self.buzzer.turn_on_device()
-                    elif siepa_data.air_quality > 50 and self.buzzer.mode:
-                        self.buzzer.turn_off_device()
-                    # Lighting device (iluminity <= 200)
+                if self.fan_device.control == 'automatic':
+                    # Manual control of fan
+                    if siepa_data.temperature >= 28 and not self.fan_device.mode:
+                        self.fan_device.turn_on_device()
+                    elif siepa_data.temperature < 28 and self.fan_device.mode:
+                        self.fan_device.turn_off_device()
+                if self.buzzer_device.control == 'automatic':
+                    # Manual control of buzzer
+                    if siepa_data.air_quality <= 50 and not self.buzzer_device.mode:
+                        self.buzzer_device.turn_on_device()
+                    elif siepa_data.air_quality > 50 and self.buzzer_device.mode:
+                        self.buzzer_device.turn_off_device()
+                if self.lighting_device.control == 'automatic':
+                    # Manual control of lighting device
                     if siepa_data.iluminity <= 200 and not self.lighting_device.mode:
                         self.lighting_device.turn_on_device()
                     elif siepa_data.iluminity > 200 and self.lighting_device.mode:
