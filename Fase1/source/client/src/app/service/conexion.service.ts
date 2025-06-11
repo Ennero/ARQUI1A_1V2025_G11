@@ -43,49 +43,47 @@ export class MqttService {
             const sensor = topic.split('/').pop();
             // Obetener el valor usando la clave dinámica
             const value = data[sensor!];
+            const valueFormat = Number(value);
+            const valueFormatFixed = isNaN(valueFormat) ? value : valueFormat.toFixed(2);
+
             console.log(`📬 Mensaje recibido en el topic: ${topic} con valor: ${value}`);
             switch (sensor) {
               case 'humidity':
-                // Actualizar el array de humedad, manteniendo solo los últimos 20 valores, de lo contrario elimina el primero
-                if (this.dataHumedad.length >= 20) this.dataHumedad.shift();
+                // // Actualizar el array de humedad, manteniendo solo los últimos 20 valores, de lo contrario elimina el primero
+                // if (this.dataHumedad.length >= 20) this.dataHumedad.shift();
                 // Agregar el nuevo valor al array
-                this.dataHumedad.push({ no: this.dataHumedad.length + 1, humidity: `${value} %` });
+                this.dataHumedad.push({ no: this.dataHumedad.length + 1, humidity: `${valueFormatFixed} %` });
                 // Actualizar el índice 'no' de cada elemento, por si se borra algún elemento
                 this.dataHumedad.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataHumedad = [...this.dataHumedad];
                 break;
-              case 'temperatura':
-                if (this.dataTemperatura.length >= 20) this.dataTemperatura.shift();
-                this.dataTemperatura.push({ no: this.dataTemperatura.length + 1, temperatura: `${value} °C` });
+              case 'temperature':
+                this.dataTemperatura.push({ no: this.dataTemperatura.length + 1, temperatura: `${valueFormatFixed} °C` });
                 this.dataTemperatura.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataTemperatura = [...this.dataTemperatura];
                 break;
-              case 'proximidad':
-                if (this.dataProximidad.length >= 20) this.dataProximidad.shift();
-                this.dataProximidad.push({ no: this.dataProximidad.length + 1, proximidad: `${value} m` });
+              case 'proximity':
+                this.dataProximidad.push({ no: this.dataProximidad.length + 1, proximidad: `${valueFormatFixed} m` });
                 this.dataProximidad.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataProximidad = [...this.dataProximidad];
                 break;
               case 'air_quality':
-                if (this.dataAirQuality.length >= 20) this.dataAirQuality.shift();
-                this.dataAirQuality.push({ no: this.dataAirQuality.length + 1, air_quality: `${value} ppm` });
+                this.dataAirQuality.push({ no: this.dataAirQuality.length + 1, air_quality: `${valueFormatFixed} ppm` });
                 this.dataAirQuality.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataAirQuality = [...this.dataAirQuality];
                 break;
-              case 'iluminacion':
-                if (this.dataIluminacion.length >= 20) this.dataIluminacion.shift();
-                this.dataIluminacion.push({ no: this.dataIluminacion.length + 1, iluminacion: `${value} lux` });
+              case 'iluminity':
+                this.dataIluminacion.push({ no: this.dataIluminacion.length + 1, iluminacion: `${valueFormatFixed} lux` });
                 this.dataIluminacion.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataIluminacion = [...this.dataIluminacion];
                 break;
-              case 'presion':
-                if (this.dataPresion.length >= 20) this.dataPresion.shift();
-                this.dataPresion.push({ no: this.dataPresion.length + 1, presion: `${value} hPa` });
+              case 'pressure':
+                this.dataPresion.push({ no: this.dataPresion.length + 1, presion: `${valueFormatFixed} hPa` });
                 this.dataPresion.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataPresion = [...this.dataPresion];

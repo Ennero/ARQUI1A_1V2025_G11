@@ -74,10 +74,10 @@ export class Exit {
         case 'humidity':
           this.dataSourceHumedad;
           break;
-        case 'temperatura':
+        case 'temperature':
           this.dataSourceTemperatura;
           break;
-        case 'iluminacion':
+        case 'iluminity':
           this.dataSourceIluminacion;
           break;
         case 'air_quality':

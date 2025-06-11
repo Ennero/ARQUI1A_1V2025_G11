@@ -37,6 +37,37 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
   get dataSourcePresion() { return this.mqttService.dataPresion; }
 
+  get dataSourceHumedadGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataHumedad;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceAirQualityGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataAirQuality;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceProximidadGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataProximidad;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceIluminacionGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataIluminacion;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceTemperaturaGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataTemperatura;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourcePresionGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataPresion;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+
   private mqttSub!: Subscription;
   // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
   private charts: { [key: string]: Chart } = {};
@@ -57,46 +88,46 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
       // Inicializar los valores de las fuentes de datos
       switch (sensor) {
         case 'humidity':
-          this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
+          this.updateChart('humedadChart', this.dataSourceHumedadGrafica, 'humidity');
           break;
-        case 'temperatura':
-          this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
+        case 'temperature':
+          this.updateChart('temperaturaChart', this.dataSourceTemperaturaGrafica, 'temperatura');
           break;
-        case 'proximidad':
-          this.updateChart('proximidadChart', this.dataSourceProximidad, 'proximidad');
+        case 'proximity':
+          this.updateChart('proximidadChart', this.dataSourceProximidadGrafica, 'proximidad');
           break;
         case 'air_quality':
-          this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
+          this.updateChart('air_qualityChart', this.dataSourceAirQualityGrafica, 'air_quality');
           break;
-        case 'iluminacion':
-          this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
+        case 'iluminity':
+          this.updateChart('iluminacionChart', this.dataSourceIluminacionGrafica, 'iluminacion');
           break;
-        case 'presion':
-          this.updateChart('presionChart', this.dataSourcePresion, 'presion');
+        case 'pressure':
+          this.updateChart('presionChart', this.dataSourcePresionGrafica, 'presion');
           break;
       }
     })
   } 
 
   ngAfterViewInit() {
-    this.charts['proximidad'] = this.createChart('proximidadChart', 'Proximidad (m)', this.dataSourceProximidad, 'proximidad', '#8d6748');
+    this.charts['proximidad'] = this.createChart('proximidadChart', 'Proximidad (m)', this.dataSourceProximidadGrafica, 'proximidad', '#8d6748');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('proximidadChart', this.dataSourceProximidad, 'proximidad');
-    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQuality, 'air_quality', '#a8e6a3');
+    this.updateChart('proximidadChart', this.dataSourceProximidadGrafica, 'proximidad');
+    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQualityGrafica, 'air_quality', '#a8e6a3');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
-    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacion, 'iluminacion', '#22543d');
+    this.updateChart('air_qualityChart', this.dataSourceAirQualityGrafica, 'air_quality');
+    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacionGrafica, 'iluminacion', '#22543d');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
-    this.charts['humidity'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedad, 'humidity', '#f5f3e7');
+    this.updateChart('iluminacionChart', this.dataSourceIluminacionGrafica, 'iluminacion');
+    this.charts['humidity'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedadGrafica, 'humidity', '#f5f3e7');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
-    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperatura, 'temperatura', '#8d6748');
+    this.updateChart('humedadChart', this.dataSourceHumedadGrafica, 'humidity');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperaturaGrafica, 'temperatura', '#8d6748');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
-    this.charts['presion'] = this.createChart('presionChart', 'Presion (hPa)', this.dataSourcePresion, 'presion', '#a8e6a3');
+    this.updateChart('temperaturaChart', this.dataSourceTemperaturaGrafica, 'temperatura');
+    this.charts['presion'] = this.createChart('presionChart', 'Presion (hPa)', this.dataSourcePresionGrafica, 'presion', '#a8e6a3');
     // Actualizar los datos de los gráficos con los datos iniciales
-    this.updateChart('presionChart', this.dataSourcePresion, 'presion');
+    this.updateChart('presionChart', this.dataSourcePresionGrafica, 'presion');
   }
 
   // Actualizar el gráfico con los nuevos datos

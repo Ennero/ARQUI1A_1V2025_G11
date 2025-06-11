@@ -27,12 +27,36 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
 
   // Acceder a los datos de los sensores a través del servicio MQTT
   // Estos getters permiten acceder a los datos de los sensores desde la plantilla
-  get dataSourceHumedad() { return this.mqttService.dataHumedad; }
-  get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
-  get dataSourceProximidad() { return this.mqttService.dataProximidad; }
-  get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
-  get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
-  get dataSourcePresion() { return this.mqttService.dataPresion; }
+  get dataSourceHumedad() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataHumedad;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
+  get dataSourceTemperatura() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataTemperatura;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
+  get dataSourceProximidad() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataProximidad;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
+  get dataSourceAirQuality() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataAirQuality;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
+  get dataSourceIluminacion() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataIluminacion;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
+  get dataSourcePresion() { 
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataPresion;
+    return arr.length > 20 ? arr.slice(-20): arr;
+  }
 
   // Estos getters permiten acceder a los valores actuales de los sensores desde la plantilla
   // Accediendo al último elemento de cada array
@@ -104,20 +128,19 @@ export class Dashboard implements AfterViewInit, OnInit, OnDestroy {
           case 'humidity':
             this.updateChart('humedadChart', this.dataSourceHumedad, 'humidity');
             break;
-          case 'temperatura':
+          case 'temperature':
             this.updateChart('temperaturaChart', this.dataSourceTemperatura, 'temperatura');
             break;
-          case 'proximidad':
+          case 'proximity':
             this.updateChart('proximidadChart', this.dataSourceProximidad, 'proximidad');
-            break;
             break;
           case 'air_quality':
             this.updateChart('air_qualityChart', this.dataSourceAirQuality, 'air_quality');
             break;
-          case 'iluminacion':
+          case 'iluminity':
             this.updateChart('iluminacionChart', this.dataSourceIluminacion, 'iluminacion');
             break;
-          case 'presion':
+          case 'pressure':
             this.updateChart('presionChart', this.dataSourcePresion, 'presion');
             break;
         }

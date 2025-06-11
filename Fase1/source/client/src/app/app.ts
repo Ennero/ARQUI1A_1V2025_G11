@@ -35,9 +35,9 @@ export class App {
       } else if (topic.endsWith('air_quality/danger')) {
         mensaje = '¡Peligro! Calidad del aire crítica detectada.';
         tipo = 'warning_3';
-      } else if (topic.endsWith('proximidad')) {
+      } else if (topic.endsWith('proximidad/presence')) {
         mensaje = 'Hay movimiento detectado.';
-        tipo = 'warning_4';
+        tipo = 'info';
       }
       if (mensaje && tipo) {
         const id = ++this.alertaId;

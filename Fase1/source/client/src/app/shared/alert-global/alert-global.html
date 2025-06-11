@@ -5,6 +5,7 @@
     <mat-icon *ngIf="tipo === 'warning_1'">warning</mat-icon>
     <mat-icon *ngIf="tipo === 'warning_2'">warning</mat-icon>
     <mat-icon *ngIf="tipo === 'warning_3'">warning</mat-icon>
-    <mat-icon *ngIf="tipo === 'warning_4'">warning</mat-icon>
+    <mat-icon *ngIf="tipo === 'warning_4'">info</mat-icon>
     <span>{{ mensaje }}</span>
+    <button class="cerrar-alerta" (click)="cerrar.emit()" aria-label="Cerrar notificación">&times;</button>
 </div>
