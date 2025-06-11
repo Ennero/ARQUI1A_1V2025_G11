@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AlertGlobal } from './shared/alert-global/alert-global';
+import { AlertaGlobal } from './shared/alerta-global/alerta-global';
 import { NgFor } from '@angular/common';
 import { MqttService } from './service/conexion.service';
 
@@ -8,7 +8,7 @@ type Alerta = { id: number, mensaje: string, tipo: 'danger' | 'warning' | 'warni
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AlertGlobal, NgFor],
+  imports: [RouterOutlet, AlertaGlobal, NgFor],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })

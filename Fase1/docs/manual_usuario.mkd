@@ -139,3 +139,83 @@ Imagina que es un día muy caluroso y la temperatura dentro del vivero empieza a
     * Al ver la alerta en el dashboard desde tu ordenador, decides que quieres apagar el ventilador manually por un momento.
     * Vas a la sección "Control Remoto de Actuadores" y pulsas el botón para **desactivar el ventilador**.
     * El comando viaja por MQTT hasta la Raspberry Pi, y el ventilador físico se detiene, aunque el LED rojo y la alerta de temperatura sigan activos hasta que la condición mejore.
+
+# Diseño web
+
+## Requsisitos del sistema 
+
+  * Navegador web compatible: Chrome, Firefox o Edge (versiones actualizadas).
+
+  * Conexión a Internet: Para acceder al Dashboard y recibir datos en tiempo real.
+
+  * Credenciales de acceso: Proporcionadas por el administrador del sistema.
+
+## Diseño web
+La aplicación web nos ayudará para mostrar una ayuda visual para controlar y verificar los datos que recibimos, al iniciar la página web,  nos llevará directamente a un sistema de inicio de sesión de la siguiente forma:
+
+### Inicio de sesión
+
+Controlará que solo el usuario administrador pueda acceder al sistema, por lo tanto tendremos lo siguiente:
+
+![Inicio de sesión](imgs/Inicio_sesion.png)
+
+Si ingresamos los datos de forma incorrecta nos enviará una ventana emergente:
+
+![Inicio de sesión equivocado](imgs/Inicio_malo.png)
+
+Por lo tanto al ingresar los datos correctos nos enviará a la ventana principal del sistema
+
+## Dashboard Principal
+En la ventana principal encontraremos los 3 paneles subprincipales de la siguiente forma:
+
+![Dashboard Principal](imgs/principal.png)
+
+## Pestaña de Gráficas
+
+Acá encontraremos los datos en timpo real entre los cuales incluye: Proximidad, Calidad de aire, iluminación, Humedad, Temperatura y Presión, mostrando el dato en formato númerico de la última medición que se nos ha entregado.
+
+![Panel Datos](imgs/datos.png)
+
+Además tendremos un pequeño panel en el cual se mostrarán las gráficas de los últimos 20 datos en tiempo real, actualizando los valores constantemente:
+
+![Panel Gráficas](imgs/grafica1.png)
+
+## Pestaña de Historial de Actividades
+
+Cumple la misma función de las gráficas anteriores, agregando el hecho de que tendrán una tabla que nos mostarán todos los datos que hemos recibido y de igual manera las gráficas mostarán los últimos 20 datos y se actualizará de forma dinámica.
+
+![Panel History](imgs/history.png)
+
+## Pestaña de Controladores
+
+En este pestaña tendremos 2 módulos principales:
+
+### Led de Advertencia 
+Estas led´s se activaran cuando los datos que recibamos son críticos, es decir, si la temperatura es muy alta, la iluminación es muy baja, entre otros.
+
+![Panel led de Advertencia](imgs/led.png)
+
+Al presionar el incono de peligro "danger" nos mostará un modal con información del error:
+
+![Peligro información](imgs/modal.png)
+
+### Actuadores del sistema
+En este apartado tendremos un botón "slice" para poder activar el modo manual o automatico y que los actuadores funcionen de esa forma respectivamente.
+
+![Actuadores del sistema](imgs/actudores.png)
+
+* Modo automático: El sistema mostará los actuadores de forma automática sin controlarlo desde el frontend.
+
+* Modo manual: una vez activado el modo manual, pdremos activar los controladores desde los botontes, los cuales se activarán cuando los datos sean críticos.
+
+![Actuadores del sistema](imgs/actuadores1.png)
+
+
+## Alertas del sistema
+Cuando los datos sean críticos, nos saltarán notificaciones en las cuales tendremos revisar los datos o activar los actuadores, esta notificación durará 5 segundos, o podremos desactivarla pulsando le botón de "x".
+
+![Notificaciones](imgs/notificacion.png)
+
+
+
+

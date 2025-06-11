@@ -1,11 +1,11 @@
 <div class="toast-container">
   <ng-container *ngFor="let alerta of alertas">
-    <app-alert-global
+    <app-alerta-global
       [tipo]="alerta.tipo"
       [visible]="true"
       [mensaje]="alerta.mensaje"
       (cerrar)="cerrarAlerta(alerta)">
-    </app-alert-global>
+    </app-alerta-global>
   </ng-container>
 </div>
 <router-outlet></router-outlet>
