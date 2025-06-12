@@ -85,6 +85,11 @@ class SiepaG11App(object):
         """Run MQTT client in a separate thread"""
         self.mqtt_client.connect()
         self.mqtt_client.run()
+    
+    def turning_off_with_delay(self, led, device):
+        time.sleep(5)
+        led.turn_off_device()
+        device.turn_off_device()
 
     def run_sensor_tasks(self):
         """Run sensor reading loop in a separate thread"""
@@ -122,8 +127,12 @@ class SiepaG11App(object):
                     self.mqtt_client.publish('temperature/danger', json.dumps({
                         'message': 'High temperature detected! Turning on red LED.'
                     }))
+                    # Turn on the fan devices
+                    self.fan_device.turn_on_device()
+                    print("The fans are on.")
                 elif siepa_data.temperature < 28 and self.red_led.mode:
-                    self.red_led.turn_off_device()
+                    # Turning off the fans in 5 seconds...
+                    Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
                 
                 # Yellow LED (humidity >= 70)
                 if siepa_data.humidity >= 70 and not self.yellow_led.mode:
@@ -142,8 +151,12 @@ class SiepaG11App(object):
                     self.mqtt_client.publish('iluminity/danger', json.dumps({
                         'message': 'Low iluminity detected! Turning on green LED.'
                     }))
+                    #Turn on the illumination
+                    self.lighting_device.turn_on_device()
+                    print("Turning on lights")
                 elif siepa_data.iluminity > 1000 and self.green_led.mode:
-                    self.green_led.turn_off_device()
+                    # Turning off illumination in 5 seconds
+                    Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
                 
                 # Blue LED (air quality <= 100)
                 if siepa_data.air_quality <= 100 and not self.blue_led.mode:
