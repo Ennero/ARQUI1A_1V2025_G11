@@ -86,15 +86,10 @@ class SiepaG11App(object):
         self.mqtt_client.connect()
         self.mqtt_client.run()
     
-    def turning_off_fans_delay(self):
+    def turning_off_with_delay(self, led, device):
         time.sleep(5)
-        self.red_led.turn_off_device()
-        self.fan_device.turn_off_device()
-    
-    def turning_off_lights_delay(self):
-        time.sleep(5)
-        self.green_led.turn_off_device()
-        self.lighting_device.turn_off_device()
+        led.turn_off_device()
+        device.turn_off_device()
 
     def run_sensor_tasks(self):
         """Run sensor reading loop in a separate thread"""
@@ -137,8 +132,7 @@ class SiepaG11App(object):
                     print("The fans are on.")
                 elif siepa_data.temperature < 28 and self.red_led.mode:
                     # Turning off the fans in 5 seconds...
-                    turning_off_process = Thread(target=self.turning_off_fans_delay())
-                    turning_off_process.start()
+                    Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
                 
                 # Yellow LED (humidity >= 70)
                 if siepa_data.humidity >= 70 and not self.yellow_led.mode:
@@ -162,8 +156,7 @@ class SiepaG11App(object):
                     print("Turning on lights")
                 elif siepa_data.iluminity > 1000 and self.green_led.mode:
                     # Turning off illumination in 5 seconds
-                    turning_off_process = Thread(target=self.turning_off_lights_delay())
-                    turning_off_process.start() 
+                    Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
                 
                 # Blue LED (air quality <= 100)
                 if siepa_data.air_quality <= 100 and not self.blue_led.mode:
