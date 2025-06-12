@@ -22,3 +22,15 @@ class Ultrasonic:
         except Exception as e:
             print(f"[Ultrasonic] Error al leer: {e}")
             return False
+
+if __name__ == "__main__":
+    ultrasonic = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
+    
+    try:
+        while True:
+            if ultrasonic.motion_detected:
+                print("Movimiento detectado!")
+            else:
+                print("No se detecta movimiento.")
+    except KeyboardInterrupt:
+        print("Deteniendo sensor ultrasonido.")

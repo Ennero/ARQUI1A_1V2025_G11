@@ -33,6 +33,19 @@ class MQ135:
             vout = self.adc.read_voltage(self.channel, self.vref)
             rs = self.calculate_rs(vout)
             rs_sum += rs
+            print(f"[Calibración] Lectura RS: {rs} ohmios")
             time.sleep(delay)
         self.r0 = rs_sum / samples
-        print(f"[Calibración] Nuevo R0 estimado: {self.r0:.2f}")
+        print(f"[Calibración] Nuevo R0 estimado: {self.r0}")
+
+if __name__ == "__main__":
+    from pcf8591 import PCF8591
+
+    adc = PCF8591(address=0x48)  # Cambia la dirección según tu configuración
+    mq135 = MQ135(adc, channel=0)
+
+    # Calibrar R0
+    mq135.calibrate_r0(samples=1000, delay=0.5)
+
+    # Resultado de R0
+    print(f"R0 calibrado: {mq135.r0} ohmios")

@@ -38,13 +38,13 @@ class SiepaG11App(object):
         # Define sensors
         self.dht_sensor = DHT(board.D17, "DHT11")
         self.bmp_sensor = BMP280()
-        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=10.0)
+        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=33.220338983050844)
         self.bh_sensor = BH1750(bus=1)
-        # self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
+        self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
 
         # Define output devices
         self.display_lcd = DisplayLCD()
-        self.red_led = GenericOutputDevice(22)
+        self.red_led = GenericOutputDevice(5)
         self.green_led = GenericOutputDevice(23)
         self.yellow_led = GenericOutputDevice(25)
         self.blue_led = GenericOutputDevice(26)
@@ -96,7 +96,8 @@ class SiepaG11App(object):
                     humidity=self.dht_sensor.humidity,
                     pressure=self.bmp_sensor.pressure,
                     air_quality=self.mq_sensor.ppm,
-                    iluminity=self.bh_sensor.luminosity
+                    luminosity=self.bh_sensor.luminosity,
+                    motion_detected=self.ultrasonic_sensor.motion_detected
                 )
 
                 # Store data
@@ -107,8 +108,8 @@ class SiepaG11App(object):
                 self.mqtt_client.publish('humidity', json.dumps({'humidity': siepa_data.humidity}))
                 self.mqtt_client.publish('pressure', json.dumps({'pressure': siepa_data.pressure}))
                 self.mqtt_client.publish('air_quality', json.dumps({'air_quality': siepa_data.air_quality}))
-                # self.mqtt_client.publish('proximity', json.dumps({'distance': ultrasonic_data['distance']}))
-                self.mqtt_client.publish('iluminity', json.dumps({'iluminity': siepa_data.iluminity}))
+                self.mqtt_client.publish('motion_detected', json.dumps({'motion_detected': siepa_data.motion_detected}))
+                self.mqtt_client.publish('luminosity', json.dumps({'luminosity': siepa_data.luminosity}))
 
                 # Check if we should stop
                 if self.stop_event.is_set():
@@ -137,12 +138,12 @@ class SiepaG11App(object):
                     self.yellow_led.turn_off_device()
                 
                 # Green LED (pressure <= 1000)
-                if siepa_data.iluminity <= 1000 and not self.green_led.mode:
+                if siepa_data.luminosity <= 1000 and not self.green_led.mode:
                     self.green_led.turn_on_device()
-                    self.mqtt_client.publish('iluminity/danger', json.dumps({
-                        'message': 'Low iluminity detected! Turning on green LED.'
+                    self.mqtt_client.publish('luminosity/danger', json.dumps({
+                        'message': 'Low luminosity detected! Turning on green LED.'
                     }))
-                elif siepa_data.iluminity > 1000 and self.green_led.mode:
+                elif siepa_data.luminosity > 1000 and self.green_led.mode:
                     self.green_led.turn_off_device()
                 
                 # Blue LED (air quality <= 100)
@@ -168,9 +169,9 @@ class SiepaG11App(object):
                         self.buzzer_device.turn_off_device()
                 if self.lighting_device.control == 'automatic':
                     # Manual control of lighting device
-                    if siepa_data.iluminity <= 200 and not self.lighting_device.mode:
+                    if siepa_data.luminosity <= 200 and not self.lighting_device.mode:
                         self.lighting_device.turn_on_device()
-                    elif siepa_data.iluminity > 200 and self.lighting_device.mode:
+                    elif siepa_data.luminosity > 200 and self.lighting_device.mode:
                         self.lighting_device.turn_off_device()
 
                 # for line in siepa_data.to_display_lines():
