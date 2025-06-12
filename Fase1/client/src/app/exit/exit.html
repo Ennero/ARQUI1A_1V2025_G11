@@ -79,12 +79,6 @@
             <div class="dashboard-top">
                 <img src="assets/actuadores.png" alt="logo" class="dashboard-logo">
                 <h1 class="dashboard-title">Actuadores del sistema</h1>
-                <mat-slide-toggle
-                    [(ngModel)]="modoManual"
-                    color="primary"
-                    class="modo-toggle"
-                    (change)="cambiarModoManual()"
-                >Modo Manual</mat-slide-toggle>
             </div>
             <!-- Panel para los actuadores-->
             <div class="panel panel-segundo">
@@ -92,15 +86,22 @@
                 <mat-card class="subpanel">
                     <div class="subpanel-header actuador-header">
                         <img src="assets/Temperatura.png" alt="logo" class="dashboard-logo">
-                        <h3>Controles sobre el ventilador</h3>
+                        <h3>Ventilación</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="modoManualTemperatura"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('temperatura')"
+                        >Modo Manual</mat-slide-toggle>
                         </div>
                         <div class="actuador-body">
                         <button
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-ventilador"
-                            (click)="enviarComando('fan')">
-                            <!-- Deshabilitar el botón si no está en modo manual o si la temperatura no es crítica -->
+                            (click)="enviarComando('fan')"
+                            [disabled]="!puedeEncenderVentilador()"
+                            >
                             Encender Ventilador
                         </button>
                         <div *ngIf="temperaturaCritica" class="actuador-alert danger">
@@ -113,7 +114,13 @@
                 <mat-card class="subpanel">
                     <div class="subpanel-header actuador-header">
                         <img src="assets/sonido.png" alt="logo" class="dashboard-logo">
-                        <h3>Controles sobre el buzzer</h3>
+                        <h3>Buzzer</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="modoManualAire"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('buzzer')"
+                        >Modo Manual</mat-slide-toggle>
                         </div>
                         <div class="actuador-body">
                         <button
@@ -121,6 +128,7 @@
                             color="warn"
                             class="actuador-btn btn-buzzer"
                             (click)="enviarComando('buzzer')"
+                            [disabled]="!puedeEncenderBuzzer()"
                             >
                             Encender Buzzer
                         </button>
@@ -130,24 +138,96 @@
                         </div>
                         </div>
                 </mat-card>
-                  <!-- Actuador de la temperatura -->
+                <!-- Actuador de la Iluminación -->
                 <mat-card class="subpanel">
                     <div class="subpanel-header actuador-header">
                         <img src="assets/iluminacion.png" alt="logo" class="dashboard-logo">
-                        <h3>Controles sobre la iluminacion</h3>
+                        <h3>Iluminación</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="modoManualIluminacion"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('iluminacion')"
+                        >Modo Manual</mat-slide-toggle>
                         </div>
                         <div class="actuador-body">
                         <button
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-iluminacion"
-                            (click)="enviarComando('lighting')">
+                            (click)="enviarComando('lighting')"
+                            [disabled]="!puedeEncenderIluminacion()"
+                        >
                             Encender Iluminación
                         </button>
                         <div *ngIf="iluminacionCritica" class="actuador-alert iluminacion">
                             <mat-icon>warning</mat-icon>
                             ¡Peligro! Iluminación demasiado baja
                         </div>
+                        </div>
+                </mat-card>
+            </div>
+
+            <!-- Panel Superior logo y título-->
+            <div class="dashboard-top">
+                <img src="assets/lucitas.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Controles sobre las luces led</h1>
+            </div>
+
+            <!-- Panel para los actuadores-->
+            <div class="panel panel-segundo">
+                <!-- Actuador de la led roja -->
+                <mat-card class="subpanel">
+                    <div class="subpanel-header actuador-header">
+                        <img src="assets/led-roja.png" alt="logo" class="dashboard-logo">
+                        <h3>Led-roja</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="statusLedRoja"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('led-roja')"
+                        >{{ statusLedRoja ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
+                        </div>
+                </mat-card>
+                <!-- Actuador de la led amarilla -->
+                <mat-card class="subpanel">
+                    <div class="subpanel-header actuador-header">
+                        <img src="assets/led-amarilla.png" alt="logo" class="dashboard-logo">
+                        <h3>Led-Amarilla</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="statusLedAmarilla"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('led-amarilla')"
+                        >{{ statusLedAmarilla ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
+                        </div>
+                </mat-card>
+            </div>
+            <div class="panel panel-segundo">
+                <!-- Actuador de la led Verde -->
+                <mat-card class="subpanel">
+                    <div class="subpanel-header actuador-header">
+                        <img src="assets/led-verde.png" alt="logo" class="dashboard-logo">
+                        <h3>Led-Verde</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="statusLedVerde"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('led-verde')"
+                        >{{ statusLedVerde ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
+                        </div>
+                </mat-card>
+                <!-- Actuador de la led Azul -->
+                <mat-card class="subpanel">
+                    <div class="subpanel-header actuador-header">
+                        <img src="assets/led-azul.png" alt="logo" class="dashboard-logo">
+                        <h3>Led-Azul</h3>
+                        <mat-slide-toggle
+                            [(ngModel)]="statusLedAzul"
+                            color="primary"
+                            class="modo-toggle"
+                            (change)="cambiarModoManual('led-azul')"
+                        >{{ statusLedAzul ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
                         </div>
                 </mat-card>
             </div>

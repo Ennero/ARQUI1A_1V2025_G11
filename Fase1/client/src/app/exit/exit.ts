@@ -20,7 +20,9 @@ export class Exit {
   constructor(private mqttService: MqttService, private http: HttpClient) {}
 
   // false = automático, true = manual
-  modoManual = false;
+  modoManualTemperatura = false;
+  modoManualIluminacion = false;
+  modoManualAire = false;
 
   temperaturaCritica = false;
   humedadCritica = false;
@@ -30,6 +32,12 @@ export class Exit {
   statusDeviceBuzzer = false // Estado del actuador
   statusDeviceFan = false // Estado del actuador
   statusDeviceLighting = false // Estado del actuador
+
+  // Estados de las led
+  statusLedRoja = false;
+  statusLedVerde = false;
+  statusLedAzul = false;
+  statusLedAmarilla = false;
 
   get dataSourceHumedad() : number {
     const listaHumedad = this.mqttService.dataHumedad;
@@ -128,12 +136,22 @@ export class Exit {
     });
   }
 
-  cambiarModoManual() {
-    const url = 'http://172.20.10.2:5000/siepa/devices/buzzer/control'; // Backend
-    this.http.put(url, { mode: this.modoManual ? 'manual' : 'automatico' }).subscribe({
+  cambiarModoManual(actuador: string) {
+    let modoManual = "manual";
+    const url = `http://172.20.10.2:5000/siepa/devices/${actuador}/control`;
+
+    if (actuador === 'temperatura') {
+      modoManual = this.modoManualTemperatura ? 'manual' : 'automatico';
+    } else if (actuador === 'iluminacion') {
+      modoManual = this.modoManualIluminacion ? 'manual' : 'automatico';
+    } else if (actuador === 'buzzer') {
+      modoManual = this.modoManualAire ? 'manual' : 'automatico';
+    }
+
+    this.http.put(url, { mode: modoManual ? 'manual' : 'automatico' }).subscribe({
       next: (response) => {
         console.log('Modo cambiado exitosamente:', response);
-        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${this.modoManual ? 'manual' : 'automatic'}.`, 'success');
+        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${modoManual ? 'manual' : 'automatico'}.`, 'success');
       },
       error: (error) => {
         console.error('Error al cambiar el modo:', error);
@@ -154,6 +172,16 @@ export class Exit {
       this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
     } else if (actuador == 'lighting') {
       this.statusDeviceLighting = status=  !this.statusDeviceLighting; // Cambiar el estado de la iluminación
+    } else if (actuador == 'led-roja'){
+      this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
+    } else if (actuador == 'led-verde'){
+      this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
+    }
+    else if (actuador == 'led-azul'){
+      this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
+    }
+    else if (actuador == 'led-amarillo'){
+      this.statusLedAmarilla = status = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
     }
 
     this.http.put(url, { status: !status }).subscribe({
@@ -166,5 +194,16 @@ export class Exit {
         Swal.fire('Error', 'No se pudo enviar el comando. Inténtelo de nuevo más tarde.', 'error');
       }
     });
+  }
+
+  puedeEncenderVentilador() {
+  return this.modoManualTemperatura && this.temperaturaCritica;
+  }
+
+  puedeEncenderBuzzer() {
+  return this.modoManualAire && this.aireCritico;
+  }
+  puedeEncenderIluminacion() {
+    return this.modoManualIluminacion && this.iluminacionCritica;
   }
 }

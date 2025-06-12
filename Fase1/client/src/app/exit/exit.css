@@ -196,7 +196,7 @@
 .actuador-header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 10px;
 }
 
@@ -324,10 +324,9 @@
 .modo-toggle {
   font-weight: 900;
   font-size: 1.35rem;
-  letter-spacing: 1.5px;
   color: #22543d !important;
   text-shadow: 0 2px 8px #a8e6a355, 0 1px 0 #fff8;
-  padding: 0 24px;
+  padding: 5px;
   border-radius: 16px;
   background: linear-gradient(90deg, #a8e6a3 0%, #f5f3e7 100%);
   box-shadow: 0 2px 12px #a8e6a322;
