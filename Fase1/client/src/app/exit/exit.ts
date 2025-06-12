@@ -27,6 +27,10 @@ export class Exit {
   iluminacionCritica = false;
   aireCritico = false;
 
+  statusDeviceBuzzer = false // Estado del actuador
+  statusDeviceFan = false // Estado del actuador
+  statusDeviceLighting = false // Estado del actuador
+
   get dataSourceHumedad() : number {
     const listaHumedad = this.mqttService.dataHumedad;
     if (listaHumedad.length > 0) {
@@ -125,11 +129,11 @@ export class Exit {
   }
 
   cambiarModoManual() {
-    const url = 'http://localhost:3000/mode'; // Backend
-    this.http.post(url, { modo: this.modoManual ? 'manual' : 'automatico' }).subscribe({
+    const url = 'http://172.20.10.2:5000/siepa/devices/buzzer/control'; // Backend
+    this.http.put(url, { mode: this.modoManual ? 'manual' : 'automatico' }).subscribe({
       next: (response) => {
         console.log('Modo cambiado exitosamente:', response);
-        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${this.modoManual ? 'manual' : 'automático'}.`, 'success');
+        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${this.modoManual ? 'manual' : 'automatic'}.`, 'success');
       },
       error: (error) => {
         console.error('Error al cambiar el modo:', error);
@@ -140,8 +144,19 @@ export class Exit {
 
   enviarComando(actuador: string) {
     // Url del servidor al que se enviará el comando
-    const url = 'http://localhost:3000/actuador'; // Backend
-    this.http.post(url, { actuador }).subscribe({
+    const url = `http://172.20.10.2:5000/siepa/devices/${actuador}`; // Backend
+
+    let status = null;
+
+    if (actuador == 'buzzer') {
+      this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
+    } else if (actuador == 'fan') {
+      this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
+    } else if (actuador == 'lighting') {
+      this.statusDeviceLighting = status=  !this.statusDeviceLighting; // Cambiar el estado de la iluminación
+    }
+
+    this.http.put(url, { status: !status }).subscribe({
       next: (response) => {
         console.log('Comando enviado exitosamente:', response);
         Swal.fire('Éxito', `El comando para el actuador ${actuador} se ha enviado correctamente.`, 'success');

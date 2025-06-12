@@ -2,7 +2,7 @@
 <div class="dashboard-bg">
     <div class="dashboard-container">
         <h1 class="dashboard-title">Dispositivos de Salida</h1>
-        <mat-card class="panel panel-top">  
+        <mat-card class="panel panel-top">
             <div class="dashboard-top-panel">
                 <img src="assets/rgb.png" alt="logo" class="dashboard-logo">
                 <h1 class="dashboard-title">Led de Advertencia  </h1>
@@ -13,10 +13,10 @@
                     <div class="subpanel-header">
                     <h3><i class="bi bi-thermometer-sun"></i> Temperatura</h3>
                     <div class="led" [ngClass]="{'on': temperaturaCritica}" style="--led-color: #e53935"></div>
-                    <button *ngIf="temperaturaCritica" 
-                            mat-icon-button 
-                            color="warn" 
-                            class="alert-btn" 
+                    <button *ngIf="temperaturaCritica"
+                            mat-icon-button
+                            color="warn"
+                            class="alert-btn"
                             aria-label="Advertencia"
                             (click)="mostrarAlertaPeligro('temperatura')">
                         <mat-icon>warning</mat-icon>
@@ -28,10 +28,10 @@
                     <div class="subpanel-header">
                     <h3><i class="bi bi-moisture"></i> Humedad</h3>
                     <div class="led" [ngClass]="{'on': humedadCritica}" style="--led-color: #ffd600"></div>
-                    <button *ngIf="humedadCritica" 
-                            mat-icon-button 
-                            color="warn" 
-                            class="alert-btn" 
+                    <button *ngIf="humedadCritica"
+                            mat-icon-button
+                            color="warn"
+                            class="alert-btn"
                             aria-label="Advertencia"
                             (click)="mostrarAlertaPeligro('humedad')">
                         <mat-icon>warning</mat-icon>
@@ -47,11 +47,11 @@
                     <h3><i class="bi bi-lightbulb"></i> Iluminación</h3>
                     <div class="led" [ngClass]="{'on': iluminacionCritica}" style="--led-color: #43a047"></div>
                     <button *ngIf="iluminacionCritica"
-                            mat-icon-button 
-                            color="warn" 
-                            class="alert-btn" 
+                            mat-icon-button
+                            color="warn"
+                            class="alert-btn"
                             aria-label="Advertencia"
-                            (click)="mostrarAlertaPeligro('iluminacion')">  
+                            (click)="mostrarAlertaPeligro('iluminacion')">
                         <mat-icon>warning</mat-icon>
                     </button>
                     </div>
@@ -61,10 +61,10 @@
                     <div class="subpanel-header">
                     <h3><i class="bi bi-cloud-fill"></i> Aire</h3>
                     <div class="led" [ngClass]="{'on': aireCritico}" style="--led-color: #1e88e5"></div>
-                    <button *ngIf="aireCritico" 
-                            mat-icon-button 
-                            color="warn" 
-                            class="alert-btn" 
+                    <button *ngIf="aireCritico"
+                            mat-icon-button
+                            color="warn"
+                            class="alert-btn"
                             aria-label="Advertencia"
                             (click)="mostrarAlertaPeligro('aire')">
                         <mat-icon>warning</mat-icon>
@@ -95,12 +95,11 @@
                         <h3>Controles sobre el ventilador</h3>
                         </div>
                         <div class="actuador-body">
-                        <button 
-                            mat-raised-button 
-                            color="primary" 
+                        <button
+                            mat-raised-button
+                            color="primary"
                             class="actuador-btn btn-ventilador"
-                            (click)="enviarComando('ventilador')"
-                            [disabled]="!modoManual || !temperaturaCritica">
+                            (click)="enviarComando('fan')">
                             <!-- Deshabilitar el botón si no está en modo manual o si la temperatura no es crítica -->
                             Encender Ventilador
                         </button>
@@ -117,12 +116,12 @@
                         <h3>Controles sobre el buzzer</h3>
                         </div>
                         <div class="actuador-body">
-                        <button 
-                            mat-raised-button 
-                            color="warn" 
+                        <button
+                            mat-raised-button
+                            color="warn"
                             class="actuador-btn btn-buzzer"
                             (click)="enviarComando('buzzer')"
-                            [disabled]="!modoManual || !aireCritico">
+                            >
                             Encender Buzzer
                         </button>
                         <div *ngIf="aireCritico" class="actuador-alert quality">
@@ -138,12 +137,11 @@
                         <h3>Controles sobre la iluminacion</h3>
                         </div>
                         <div class="actuador-body">
-                        <button 
-                            mat-raised-button 
-                            color="primary" 
+                        <button
+                            mat-raised-button
+                            color="primary"
                             class="actuador-btn btn-iluminacion"
-                            (click)="enviarComando('iluminacion')"
-                            [disabled]="!modoManual || !iluminacionCritica">
+                            (click)="enviarComando('lighting')">
                             Encender Iluminación
                         </button>
                         <div *ngIf="iluminacionCritica" class="actuador-alert iluminacion">
