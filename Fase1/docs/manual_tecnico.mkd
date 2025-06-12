@@ -17,7 +17,10 @@
     - [Presentación de Información - Dashboard Web](#presentación-de-información---dashboard-web)
     - [Prototocolos de Comunicación](#prototocolos-de-comunicación)
     - [Diseño y Tecnologías Utilizadas](#diseño-y-tecnologías-utilizadas)
-    - [Interacción Software-Hardware](#interacción-software-hardware)
+  - [Interacción Software-Hardware](#interacción-software-hardware)
+    - [1. Lectura de Sensores](#1-lectura-de-sensores)
+    - [2. Control de actuadores y LCD](#2-control-de-actuadores-y-lcd)
+    - [3. Respuesta a Comandos MQTT](#3-respuesta-a-comandos-mqtt)
   - [9. Mantenimiento y Futuras Modificaciones](#9-mantenimiento-y-futuras-modificaciones)
   - [Costo del Prototipo](#costo-del-prototipo)
 
@@ -135,18 +138,36 @@ Este manual cubre los aspectos técnicos de la implementación de la Fase 1 del 
   - Backend: Python (Flask/Django), Node.js (Express), u otra tecnología para gestionar la lógica del dashboard, autenticación y comunicación con el broker MQTT si no se hace directamente desde el frontend.
   - Base de Datos: No especificada, podría ser un archivo CSV, SQLite para simplicidad, una base de datos más robusta o simplemente un arreglo dinámico.
 
-
 - #### Librerías Python (Raspberry Pi):
 
-  - `RPi.GPIO` o `gpiozero`: Para control de pines GPIO.
+  A continuación se detallan las principales librerías de Python utilizadas en el proyecto, agrupadas por su funcionalidad para una mayor claridad:
 
-  - Librerías específicas para cada sensor (ej. `Adafruit_DHT` para DHT11/22, librerías para BMP280, MQ135, etc.).
+  * **Comunicación y Red:**
+      * `paho-mqtt`: El cliente MQTT fundamental, utilizado para publicar los datos de los sensores y suscribirse a los comandos de control.
+      * `flask`: Un micro-framework web, utilizado para crear una API sencilla que permite la configuración remota del sistema.
 
-  - Librerías para control de LCD I2C.
+  * **Control de Hardware y GPIO:**
+      * `RPi.GPIO` y/o `gpiozero`: Librerías esenciales para la interacción de bajo nivel con los pines GPIO de la Raspberry Pi.
+      * `smbus` o `smbus2`: Para manejar la comunicación a través del bus I2C, protocolo utilizado por varios sensores y la pantalla LCD.
+      * `board`: Librería de soporte de Adafruit que proporciona compatibilidad de CircuitPython en la Raspberry Pi.
 
-  - `paho-mqtt`: Cliente MQTT para Python.
+  * **Sensores Específicos:**
+      * `adafruit_dht` o `dht`: Para leer los datos de temperatura y humedad del sensor DHT11/22.
+      * `adafruit_bmp280` o `bmp280`: Para obtener lecturas de presión barométrica y temperatura del sensor BMP280.
+      * `bh1750`: Para medir la iluminancia en Lux con el sensor de luz digital BH1750.
+      * `ultrasonic` o `gpiozero.DistanceSensor`: Para medir la distancia con el sensor ultrasónico HC-SR04.
+      * `mq135`: Librería específica para interactuar con el sensor de calidad del aire MQ135.
+      * `pcf8591`: Para manejar el convertidor Analógico-Digital (ADC), necesario para leer la señal analógica del sensor MQ135.
 
-adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf nhladsjfhn klasdhfk ajldsnhkfl hsdklfn hsad fhaslkdmf askhldjhmflk asdhfl kadshflk jasdhmfl asdhklf hasdkljf haskmldfaskjdfhmlk sdhfk lsadhfkl asdhklf askldf hj *****************************************************************************************************
+  * **Pantalla y Visualización:**
+      * `rpi-lcd`: Una librería para controlar y mostrar texto en la pantalla LCD.
+
+  * **Utilitarios y Concurrencia:**
+      * `threading`: Para ejecutar tareas concurrentes (lectura de sensores, servidor web y cliente MQTT) sin que se bloqueen entre sí.
+      * `time`: Imprescindible para manejar pausas (`sleep`), delays y temporizadores.
+      * `json`: Para formatear los datos en un objeto JSON antes de ser enviados vía MQTT.
+      * `random`: Utilizado para generar identificadores únicos para el cliente MQTT.
+
 
 - #### Herramientas de Desarrollo:
 
@@ -171,6 +192,7 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
     - Procesar estos datos localmente.
     - Controlar los actuadores y la pantalla LCD.
     - Publicar datos al broker MQTT y suscribirse a comandos.
+
 - #### Capa de Aplicación (Dashboard Web y Lógica de Control):
   - El Dashboard Web proporciona la interfaz de usuario para:
     - Visualizar datos en tiempo real.
@@ -181,22 +203,20 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
 
 ### Diagrama de Flujo de Arquitectura
 
-![0](/imgs/diagrama_arquitectura.png)
+![diagrama_arquitectura](./imgs/diagrama_arquitectura.png)
 
 ### Funcionamiento y Lógica Software/Hardware
 
-1. **Inicialización:** Al arrancar el script Python en la Raspberry Pi, se configuran los pines GPIO para cada sensor y actuador. Se establece la conexión con el broker MQTT.
-2.  **Ciclo de Lectura:** El script entra en un bucle principal donde periódicamente:
+1. **Inicialización:** Al arrancar el script Python, se crean instancias de cada sensor, actuador y cliente de comunicación. Todo se gestiona desde la clase principal `SiepaG11App`.
+2.  **Ciclo de Lectura:** Un hilo (`sensor_thread`) se encarga de leer periódicamente los sensores.
     * **DHT11/DHT22:** Se lee la temperatura y humedad.
     * **Sensor de Luz BH1750:** Se lee el nivel de iluminación en lux a través del protocolo I2C.
     * **Sensor Ultrasónico HC-SR04:** Se mide la distancia para detectar presencia o movimiento.
-    * **Sensor de Presión BMP280:** Se lee la presión barométrica 
-    * **Sensor MQ135:** Se lee el nivel de calidad del aire 
+    * **Sensor de Presión BMP280:** Se lee la presión barométrica.
+    * **Sensor MQ135:** Se lee el nivel de calidad del aire.
 3.  **Procesamiento en Raspberry Pi:**
-    * Los valores crudos de los sensores pueden requerir conversión o calibración.
-    * Los valores procesados se comparan con umbrales predefinidos para detectar condiciones críticas 
-4.  **Publicación MQTT:** Los datos de cada sensor se publican en tópicos MQTT específicos.
-
+    * Los valores se comparan con umbrales predefinidos para activar o desactivar alertas y actuadores.
+4.  **Publicación MQTT:** Los datos de cada sensor se publican en tópicos MQTT específicos para que el dashboard los pueda consumir.
 
 ### Presentación de Información - Dashboard Web
 
@@ -216,60 +236,167 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
     * Protocolos específicos dependen del sensor:
         * **Digital (Simple):** Para LEDs, botones, algunos PIR.
         * **One-Wire:** Usado por sensores como el DHT11/22.
-        * **I2C:** Para sensores como BMP280, y opcionalmente para la pantalla LCD.
-        * **SPI:** Para otros tipos de sensores o periféricos.
-        * **Analógico a Digital (vía ADC):** La Raspberry Pi no tiene ADC nativo. Para el MQ135, si se requiere una lectura analógica precisa, se necesitaría un ADC externo (ej. MCP3008). El sensor BH1750, al ser digital (I2C), no requiere de este componente.
+        * **I2C:** Para sensores como BMP280, BH1750, y opcionalmente para la pantalla LCD.
+        * **Analógico a Digital (vía ADC):** La Raspberry Pi no tiene ADC nativo. Para el MQ135, se utiliza un ADC externo (PCF8591) para leer la señal analógica.
 * **Raspberry Pi <-> Broker MQTT:**
     * Protocolo MQTT sobre TCP/IP. La Raspberry Pi actúa como cliente MQTT publicando datos y suscribiéndose a tópicos.
 * **Dashboard Web <-> Broker MQTT:**
-    * Protocolo MQTT (generalmente sobre WebSockets si es desde el frontend directamente, o MQTT sobre TCP/IP si es desde un backend) para suscribirse a datos y publicar comandos.
+    * Protocolo MQTT (generalmente sobre WebSockets) para suscribirse a datos y publicar comandos.
+
 
 ### Diseño y Tecnologías Utilizadas
 
-
-* **Raspberry Pi:** Elegida como unidad central por su versatilidad, capacidad de cómputo suficiente para el procesamiento de datos de sensores, control de GPIO, conectividad de red y amplio soporte de la comunidad y librerías Python.
-* **Python (en Raspberry Pi):** Seleccionado por su facilidad de uso, gran cantidad de librerías para interactuar con hardware (GPIO, sensores) y para comunicación en red (MQTT).
-* **MQTT (Message Queuing Telemetry Transport):** Protocolo estándar para IoT, ligero, eficiente, y basado en el modelo publicador/suscriptor, lo que permite una comunicación desacoplada y escalable entre dispositivos y aplicaciones. Mqttx se sugiere como un broker accesible.
-* **Dashboard Web:** Proporciona una interfaz gráfica accesible desde cualquier navegador para el monitoreo y control, mejorando la usabilidad del sistema. Las tecnologías específicas (HTML, CSS, JS, y posibles frameworks/backends) se eligen por su ubicuidad y capacidad para crear interfaces interactivas.
+* **Raspberry Pi:** Elegida como unidad central por su versatilidad, capacidad de cómputo, conectividad de red y amplio soporte de la comunidad.
+* **Python (en Raspberry Pi):** Seleccionado por su facilidad de uso y la gran cantidad de librerías para interactuar con hardware y protocolos de red.
+* **MQTT (Message Queuing Telemetry Transport):** Protocolo estándar para IoT, ligero y eficiente, que permite una comunicación desacoplada y escalable.
+* **Dashboard Web:** Proporciona una interfaz gráfica accesible desde cualquier navegador para el monitoreo y control.
 * **Sensores Específicos:**
-    * **DHT11/22:** Comunes, económicos y fáciles de integrar para temperatura y humedad.
-    * **BH1750:** Elegido por su salida digital directa en lux vía I2C, lo que elimina la necesidad de un ADC y calibración compleja, resultando en mediciones de iluminación más precisas y consistentes.
-    * **HC-SR04:** Popular para detección de presencia/distancia sin contacto.
-    * **BMP280:** Proporciona mediciones precisas de presión barométrica y temperatura.
-    * **MQ135:** Sensor de gases para monitorear la calidad del aire.
+    * **DHT11/22:** Comunes y económicos para temperatura y humedad.
+    * **BH1750:** Elegido por su salida digital directa en lux vía I2C, lo que resulta en mediciones de iluminación precisas.
+    * **HC-SR04:** Popular para detección de presencia/distancia.
+    * **BMP280:** Proporciona mediciones precisas de presión barométrica.
+    * **MQ135:** Sensor de gases para monitorear la calidad del aire, usado en conjunto con un ADC.
 
-### Interacción Software-Hardware
+## Interacción Software-Hardware
 
-1.  **Lectura de Sensores:**
+A continuación, se presentan fragmentos de código que ilustran la interacción clave entre el software y el hardware en el proyecto.
+
+### 1. Lectura de Sensores
+
+El sistema encapsula la lógica de cada sensor en su propia clase para mantener el código organizado. En la clase principal, se crean instancias de estos sensores.
+
+```python
+# --- Dentro de la clase SiepaG11App, método __init__ ---
+
+# Se crea una instancia para cada sensor, indicando los pines o interfaces que utiliza.
+# Por ejemplo, el DHT11 se conecta al pin D17.
+self.dht_sensor = DHT(board.D17, "DHT11")
+
+# El sensor de presión utiliza el bus I2C (indicado por la librería 'board').
+self.bmp_sensor = BMP(board.D4) # El pin es referencial para la librería de Adafruit.
+
+# El sensor de calidad de aire (analógico) se conecta al canal 0 del ADC PCF8591.
+self.mq_sensor = MQ135(PCF8591(), channel=0)
+
+# El sensor ultrasónico utiliza dos pines GPIO: uno de trigger y otro de echo.
+self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
+```
+La lectura se realiza de forma cíclica dentro de un hilo para no bloquear el resto del programa
+```python
+# --- Dentro de la clase SiepaG11App, método run_sensor_tasks ---
+
+# En un bucle infinito, se llama al método 'read()' de cada objeto sensor.
+# Este método encapsula la lógica específica para obtener los datos.
+dht_data = self.dht_sensor.read()
+bmp_data = self.bmp_sensor.read()
+mq_data = self.mq_sensor.read()
+ultrasonic_data = self.ultrasonic_sensor.read()
+
+# Luego, los datos se publican en tópicos MQTT específicos.
+self.mqtt_client.publish('temperature', json.dumps({'temperature': dht_data['temperature']}))
+self.mqtt_client.publish('humidity', json.dumps({'humidity': dht_data['humidity']}))
+```
+
+### 2. Control de actuadores y LCD
+
+Los actuadores (LEDs, ventilador, buzzer) se gestionan a través de una clase genérica que simplifica su control.
+
+```python
+# --- Clase GenericOutputDevice ---
+
+# El método 'turn_on_device' establece el pin GPIO correspondiente en estado ALTO (3.3V).
+def turn_on_device(self):
+    GPIO.output(self._pin, GPIO.HIGH)
+    self._mode = True
+
+# El método 'turn_off_device' establece el pin en estado BAJO (0V).
+def turn_off_device(self):
+    GPIO.output(self._pin, GPIO.LOW)
+    self._mode = False
+```
+
+La lógica de control automático se ejecuta en el mismo bucle de lectura de sensores, comparando los valores obtenidos con umbrales predefinidos.
+
+```python
+
+# --- Dentro de la clase SiepaG11App, método run_sensor_tasks ---
+
+# Ejemplo de control automático del ventilador y el LED de alerta de temperatura.
+# Si la temperatura supera los 28°C, se enciende el ventilador y el LED rojo.
+if siepa_data.temperature >= 28:
+    if not self.red_led.mode:
+        self.red_led.turn_on_device()
+    if self.fan_device.control == 'automatic' and not self.fan_device.mode:
+        self.fan_device.turn_on_device()
+# Si la temperatura es inferior, se apagan.
+elif siepa_data.temperature < 28:
+    if self.red_led.mode:
+        self.red_led.turn_off_device()
+    if self.fan_device.control == 'automatic' and self.fan_device.mode:
+        self.fan_device.turn_off_device()
+
+```
+La pantalla LCD se controla a través de la clase DisplayLCD, que permite mostrar texto de forma cíclica.
+
+```python
+# --- Dentro de la clase DisplayLCD ---
+
+# Método para mostrar datos en la pantalla, rotando la información cada 'delay' segundos.
+def scroll_data(self, seipa_data, delay=2):
+    lines = [
+        f"Temp: {seipa_data.temperature:.1f} C",
+        f"Humedad: {seipa_data.humidity:.1f} %",
+        f"Presion: {seipa_data.pressure:.1f} hPa",
+        f"CO2: {seipa_data.air_quality:.1f} ppm",
+        f"Lux: {seipa_data.iluminity:.1f} lux"
+    ]
+    # Lógica para mostrar las líneas en la pantalla...
+```
 
 
 
+### 3. Respuesta a Comandos MQTT
+
+El cliente MQTT se configura con una función que se ejecuta cada vez que llega un mensaje a un tópico suscrito.
+
+```python
+
+# --- Dentro de la clase SiepaMqttClient, método connect ---
+
+# La función on_message se define para procesar los mensajes entrantes.
+def on_message(client, user_data, msg):
+    print(f"Mensaje recibido en [{msg.topic}]: {msg.payload.decode()}")
+    # Aquí se añadiría la lógica para controlar los actuadores.
+    # Por ejemplo:
+    # topic_parts = msg.topic.split('/')
+    # device_name = topic_parts[-2]
+    # command = msg.payload.decode().lower()
+    #
+    # if device_name == 'fan' and command == 'on':
+    #     SiepaG11App().fan_device.turn_on_device()
+```
 
 
-**************************************************************************************************************************************************************************************************************************************************************************************
+El sistema expone una API a través de Flask que permite el control manual, demostrando la capacidad del sistema para responder a eventos externos.
 
+```python
+# --- Dentro del controlador de Flask (siepa_app_controller.py) ---
 
-
-
-
-
-    * El script Python en la Raspberry Pi utiliza librerías como `RPi.GPIO` o `gpiozero` para configurar los pines GPIO como entrada o salida.
-    * Para sensores digitales (como algunos PIR), se lee directamente el estado del pin (ALTO/BAJO).
-    * Para sensores como el DHT11, se utiliza una librería específica que maneja el protocolo One-Wire a través de un pin GPIO.
-    * Para sensores I2C como el BMP280 y BH1750, se utilizan los pines SCL/SDA de la Raspberry Pi y librerías I2C.
-    * El sensor de luz BH1750 utiliza comunicación digital I2C y no requiere un ADC.
-2.  **Control de Actuadores y LCD:**
-    * El script Python cambia el estado de los pines GPIO configurados como salida para encender/apagar LEDs o el motor DC
-    * El buzzer se controla de manera similar, enviando una señal al pin GPIO correspondiente.
-    * La pantalla LCD (I2C) se controla enviando comandos y datos a través de la interfaz I2C utilizando una librería específica.
-3.  **Respuesta a Comandos MQTT:**
-    * El cliente MQTT en el script Python está suscrito a tópicos de control.
-    * Cuando llega un mensaje a uno de estos tópicos (enviado desde el dashboard), la función callback asociada al cliente MQTT se ejecuta.
-    * Esta función parsea el mensaje (ej. `ON`/`OFF`) y actualiza el estado del actuador correspondiente modificando el estado del pin GPIO.
-
-
-
-
+# Este endpoint permite cambiar el estado de un dispositivo (ON/OFF).
+@siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
+def put_siepa_device_status(device_name):
+    data = request.get_json()
+    status = data.get('status')
+    
+    # Lógica para encontrar el dispositivo y cambiar su estado...
+    if device_name == 'fan':
+        if status.lower() == 'on':
+            SiepaG11App().fan_device.turn_on_device()
+        else:
+            SiepaG11App().fan_device.turn_off_device()
+            
+    return respond_with_success({"message": f"Device {device_name} is now {status.upper()}."})
+```
 
 
 ## 9. Mantenimiento y Futuras Modificaciones
@@ -294,12 +421,13 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
 | Ítem                                               | Cantidad | Precio unitario | Costo total |
 |----------------------------------------------------|---------:|----------------:|------------:|
 | Ventilador 5 V                                     |        4 |        Q 29.00  |  Q 116.00   |
-| Sensor de presión MD-BMP280                        |        1 |        Q 22.00  |   Q 22.00   |
+| Sensor de presión BMP280                           |        2 |     Q 23.50**   |   Q 47.00   |
 | Módulo sensor de humedad DHT11                     |        1 |        Q 27.00  |   Q 27.00   |
 | Adaptador HDMI a micro-HDMI                        |        1 |        Q 20.00  |   Q 20.00   |
 | Sensor de calidad de aire MQ135                    |        1 |        Q 31.00  |   Q 31.00   |
-| Cables Dupont macho-hembra 30 cm                   |       12 |        Q 1.00*  |   Q 12.00   |
-| Cables Dupont hembra-hembra 20 cm                  |       10 |        Q 0.75*  |    Q 7.50   |
+| Cables Dupont macho-hembra (30 cm y 20 cm)         |       22 |     Q 1.00*     |   Q 22.00   |
+| Cables Dupont hembra-hembra 20 cm                  |       10 |     Q 0.75*     |   Q 7.50    |
+| Cables Dupont hembra-hembra adicionales            |        - |            -    |   Q 14.00   |
 | Canaleta de 2 m                                    |        1 |        Q 12.00  |   Q 12.00   |
 | Sierra con arco de 10''                            |        1 |        Q 34.00  |   Q 34.00   |
 | Pegamento para PVC                                 |        1 |        Q 27.00  |   Q 27.00   |
@@ -308,8 +436,8 @@ adshnmcfnsadhfohdklj nhaklsdjhfnkjlasdnh fklajdsnhfkl adshfkl ahsdnkl fhadskljf 
 | Módulo conversor analógico-digital (ADC)           |        1 |        Q 35.00  |   Q 35.00   |
 | Módulo iluminación de intensidad BH1750            |        1 |        Q 30.00  |   Q 30.00   |
 | Spray de pintura blanca                            |        1 |        Q 25.00  |   Q 25.00   |
-| Cables Dupont hembra-hembra adicionales            |        - |            -    |   Q 14.00   |
-| Paletas pequeñas                                   |        - |            -    |    Q 6.50   |
-| Paletas y nylon adicionales                        |        - |            -    |   Q 38.00   |
 | Pintura blanca y café + pinceles                   |        - |            -    |   Q 70.00   |
-| **Total general**                                  |          |                 | **Q 577.89** |
+| Paletas pequeñas                                   |        - |            -    |   Q 6.50    |
+| Paletas y nylon adicionales                        |        - |            -    |   Q 38.00   |
+| Luces LED de alta intensidad                       |        4 |        Q 12.00  |   Q 48.00   |
+| **Total general**                                  |          |                 | **Q 660.89** |
