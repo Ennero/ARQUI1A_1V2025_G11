@@ -144,7 +144,7 @@ export class Exit {
 
   cambiarModoManual(actuador: string) {
     let modoManual = "manual";
-    const url = `http://172.20.10.2:5000/siepa/devices/${actuador}/control`;
+    const url = `http://172.20.10.2:5000/siepa/devices/control/${actuador}`;
 
     if (actuador === 'temperatura') {
       modoManual = this.modoManualTemperatura ? 'manual' : 'automatico';
@@ -176,11 +176,11 @@ export class Exit {
       this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
       this.encendidoBuzzer = !this.encendidoBuzzer; // Cambiar el texto del botón
     } else if (actuador == 'fan') {
-      this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
       this.encendidoVentilador = !this.encendidoVentilador; // Cambiar el texto del botón
+      status = !this.encendidoVentilador; // Cambiar el estado del ventilador
     } else if (actuador == 'lighting') {
-      status = this.statusDeviceLighting;
       this.encendidoIluminacion = !this.encendidoIluminacion; // Cambiar el texto del botón
+      status = this.encendidoIluminacion;
     } else if (actuador == 'led_red'){
       // this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
       status = this.statusLedRoja;
@@ -211,13 +211,13 @@ export class Exit {
   }
 
   puedeEncenderVentilador() {
-  return this.modoManualTemperatura && this.temperaturaCritica;
+  return this.modoManualTemperatura;
   }
 
   puedeEncenderBuzzer() {
-  return this.modoManualAire && this.aireCritico;
+  return this.modoManualAire;
   }
   puedeEncenderIluminacion() {
-    return this.modoManualIluminacion && this.iluminacionCritica;
+    return this.modoManualIluminacion;
   }
 }
