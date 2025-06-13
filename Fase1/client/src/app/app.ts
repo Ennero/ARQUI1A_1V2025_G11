@@ -21,23 +21,27 @@ export class App {
 
   ngOnInit() {
     this.mqttService.message$.subscribe(({ topic, value }) => {
+      console.log("El valor es de tipo: ", typeof value, " y el topic es: ", topic);
       let mensaje = '';
       let tipo: 'danger' | 'warning' | 'warning_1' | 'warning_2' | 'warning_3' | 'warning_4' | 'info' | 'success' | undefined = undefined;
-      if (topic.endsWith('temperatura/danger')) {
+      if (topic.endsWith('temperature/danger')) {
         mensaje = '¡Peligro! Temperatura crítica detectada.';
         tipo = 'danger';
-      } else if (topic.endsWith('iluminacion/danger')) {
+      } else if (topic.endsWith('luminosity/danger')) {
         mensaje = '¡Peligro! Iluminación baja detectada.';
         tipo = 'warning_1';
-      } else if (topic.endsWith('humedad/danger')) {
+      } else if (topic.endsWith('humidity/danger')) {
         mensaje = '¡Peligro! Humedad crítica detectada.';
         tipo = 'warning_2';
       } else if (topic.endsWith('air_quality/danger')) {
         mensaje = '¡Peligro! Calidad del aire crítica detectada.';
         tipo = 'warning_3';
-      } else if (topic.endsWith('proximidad/presence')) {
+      } else if (topic.endsWith('proximity') && value != '0') {
         mensaje = 'Hay movimiento detectado.';
         tipo = 'info';
+      } else if (topic.endsWith('pressure/danger')) {
+        mensaje = '¡Peligro! Presión crítica detectada.';
+        tipo = 'success';
       }
       if (mensaje && tipo) {
         const id = ++this.alertaId;

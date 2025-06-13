@@ -78,6 +78,7 @@ export class Exit {
 
   // Simulación para encender las leds
   ngOnInit() {
+    //this.cargarEstadosDesdeBackend();
     // Suscribirse a los mensajes WebSocket
     this.mqttService.message$.subscribe(({ topic, value}) => {
       // Extraer el tipo de sensor del topic
@@ -208,4 +209,39 @@ export class Exit {
   puedeEncenderIluminacion() {
     return this.modoManualIluminacion;
   }
+
+  cargarEstadosDesdeBackend() {
+    const url = 'http://172.20.10.2:5000/siepa/devices/status'; // Cambia por tu endpoint real
+
+    this.http.get<any>(url).subscribe({
+      next: (data) => {
+        // Leds
+        this.statusLedRoja = data.temperature?.mode ?? false;
+        this.modoManualTemperatura = data.temperature?.control === 'manual';
+
+        this.statusLedAmarilla = data.humidity?.mode ?? false;
+
+        this.statusLedVerde = data.luminosity?.mode ?? false;
+        this.modoManualIluminacion = data.luminosity?.control === 'manual';
+
+        this.statusLedAzul = data.air_quality?.mode ?? false;
+        this.modoManualAire = data.air_quality?.control === 'manual';
+
+        // Actuadores principales
+        this.statusDeviceLighting = data.lighting_device?.mode ?? false;
+        // Si tienes modo manual para iluminación principal:
+        // this.modoManualIluminacion = data.lighting_device?.control === 'manual';
+
+        this.statusDeviceFan = data.fan_device?.mode ?? false;
+        // this.modoManualTemperatura = data.fan_device?.control === 'manual';
+
+        this.statusDeviceBuzzer = data.buzzer_device?.mode ?? false;
+        // this.modoManualAire = data.buzzer_device?.control === 'manual';
+      },
+      error: (err) => {
+        console.error('Error al cargar estados:', err);
+      }
+    });
+  }
+
 }
