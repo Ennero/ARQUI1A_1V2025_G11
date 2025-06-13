@@ -10,12 +10,48 @@ siepa_blueprint = Blueprint('siepa_controller', __name__)
 @siepa_blueprint.route('/siepa/settings', methods=['GET'])
 def get_siepa_settings():
     
+    # return respond_with_success({
+    #     "app_name": AppSettings().app_name,
+    #     "version": AppSettings().version,
+    #     "debug": AppSettings().debug,
+    #     "mode": AppSettings().mode
+    # })
     return respond_with_success({
-        "app_name": AppSettings().app_name,
-        "version": AppSettings().version,
-        "debug": AppSettings().debug,
-        "mode": AppSettings().mode
+        "humidity": {
+            "control": DeviceManager().yellow_led.control,
+            "mode": DeviceManager().yellow_led.mode
+        },
+        "luminosity": {
+            "control": DeviceManager().green_led.control,
+            "mode": DeviceManager().green_led.mode
+        },
+        "temperature": {
+            "control": DeviceManager().red_led.control,
+            "mode": DeviceManager().red_led.mode
+        },
+        "air_quality": {
+            "control": DeviceManager().blue_led.control,
+            "mode": DeviceManager().blue_led.mode
+        },
+        "lighting_device": {
+            "control": DeviceManager().lighting_device.control,
+            "mode": DeviceManager().lighting_device.mode
+        },
+        "lighting_device": {
+            "control": DeviceManager().lighting_device.control,
+            "mode": DeviceManager().lighting_device.mode
+        },
+        "fan_device": {
+            "control": DeviceManager().fan_device.control,
+            "mode": DeviceManager().fan_device.mode
+        },
+        "buzzer_device": {
+            "control": DeviceManager().buzzer_device.control,
+            "mode": DeviceManager().buzzer_device.mode
+        }
     })
+    
+    
 
 @siepa_blueprint.route('/siepa/devices/control/<device_name>', methods=['PUT'])
 def put_siepa_device_control(device_name):
