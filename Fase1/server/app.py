@@ -30,7 +30,7 @@ class SiepaG11App(object):
         return cls.instance
 
     def __init__(self):
-        GPIO.setmode(GPIO.BCM)
+        # GPIO.setmode(GPIO.BCM)
         # Load environment variables
         # load_dotenv()
 
@@ -42,14 +42,11 @@ class SiepaG11App(object):
         # Define sensors
         self.dht_sensor = DHT(board.D17, "DHT11")
         self.bmp_sensor = BMP280()
-        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=32.5)
+        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=29.8)
         self.bh_sensor = BH1750(bus=1)
-        try:
-            self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
-            # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
-        except Exception as e:
-            print("Ultrasonic sensor not initialized:", e)
-            self.ultrasonic_sensor = None
+        # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
+        self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=15.0)
+        self.presence_helper = False
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -111,8 +108,7 @@ class SiepaG11App(object):
                     pressure=self.bmp_sensor.pressure,
                     air_quality=self.mq_sensor.ppm,
                     luminosity=self.bh_sensor.luminosity,
-                    motion_detected=self.ultrasonic_sensor.motion_detected
-                    # motion_detected=None
+                    proximity=self.ultrasonic_sensor.proximity
                 )
 
                 # Store data
@@ -123,8 +119,13 @@ class SiepaG11App(object):
                 self.mqtt_client.publish('humidity', json.dumps({'humidity': siepa_data.humidity}))
                 self.mqtt_client.publish('pressure', json.dumps({'pressure': siepa_data.pressure}))
                 self.mqtt_client.publish('air_quality', json.dumps({'air_quality': siepa_data.air_quality}))
-                self.mqtt_client.publish('motion_detected', json.dumps({'motion_detected': siepa_data.motion_detected}))
                 self.mqtt_client.publish('luminosity', json.dumps({'luminosity': siepa_data.luminosity}))
+
+                if not self.presence_helper and siepa_data.proximity > 0:
+                    self.mqtt_client.publish('proximity', json.dumps({'proximity': siepa_data.proximity}))
+                    self.presence_helper = True
+                elif self.presence_helper and  siepa_data.proximity <= 0:
+                    self.presence_helper = False
 
                 # Check if we should stop
                 if self.stop_event.is_set():
@@ -140,7 +141,7 @@ class SiepaG11App(object):
                     }))
                     # Turn on the fan devices
                     self.fan_device.turn_on_device()
-                    print("The fans are on.")
+                    #print("The fans are on.")
                 elif siepa_data.temperature < 28 and self.red_led.mode:
                     # Turning off the fans in 5 seconds...
                     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
@@ -173,6 +174,7 @@ class SiepaG11App(object):
                 elif siepa_data.air_quality < 1000 and self.blue_led.mode:
                     self.blue_led.turn_off_device()
 
+                print("Mode: ", self.fan_device.control)
                 if self.fan_device.control == 'automatic':
                     if siepa_data.temperature >= 28 and not self.fan_device.mode:
                         self.fan_device.turn_on_device()
@@ -184,6 +186,7 @@ class SiepaG11App(object):
                         self.buzzer_device.turn_on_device()
                     elif siepa_data.air_quality < 1000 and self.buzzer_device.mode:
                         self.buzzer_device.turn_off_device()
+                    pass
                 if self.lighting_device.control == 'automatic':
                     # Manual control of lighting device
                     if siepa_data.luminosity <= 200 and not self.lighting_device.mode:
@@ -192,13 +195,12 @@ class SiepaG11App(object):
                         self.lighting_device.turn_off_device()
 
                 for line in siepa_data.to_display_lines():
-                    print(f"Adding to display queue: {line}")  # Debug print
                     self.display_queue.put(line)
 
                 time.sleep(2)
 
             except Exception as e:
-                print(f"Error in sensor tasks: {e}")
+                #print(f"Error in sensor tasks: {e}")
                 time.sleep(1)  # Prevent tight loop on error
 
     def run_display(self):
@@ -212,7 +214,7 @@ class SiepaG11App(object):
                 previous_line = current_line
                 current_line = new_line
 
-                print(f"LCD displaying:\n 1: {previous_line}\n 2: {current_line}")
+                #print(f"LCD displaying:\n 1: {previous_line}\n 2: {current_line}")
 
                 self.display_lcd.clear()
                 self.display_lcd.write_centered(previous_line, 1)
@@ -226,7 +228,7 @@ class SiepaG11App(object):
     def start(self):
         """Start all threads"""
         if self.running:
-            print("Application is already running")
+            #print("Application is already running")
             return
 
         self.running = True
@@ -237,23 +239,23 @@ class SiepaG11App(object):
         self.flask_thread.start()
 
         # Start MQTT client thread
-        # self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
-        # self.mqtt_thread.start()
+        self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
+        self.mqtt_thread.start()
 
-        # # Start sensor tasks thread
-        # self.sensor_thread = Thread(target=self.run_sensor_tasks, daemon=True)
-        # self.sensor_thread.start()
+        # Start sensor tasks thread
+        self.sensor_thread = Thread(target=self.run_sensor_tasks, daemon=True)
+        self.sensor_thread.start()
 
-        # # # Start display thread
-        # self.display_thread = Thread(target=self.run_display, daemon=True)
-        # self.display_thread.start()
+        # # Start display thread
+        self.display_thread = Thread(target=self.run_display, daemon=True)
+        self.display_thread.start()
 
-        print("All threads started")
+        #print("All threads started")
 
     def stop(self):
         """Stop all threads gracefully"""
         if not self.running:
-            print("Application is not running")
+            #print("Application is not running")
             return
 
         self.running = False
@@ -283,13 +285,13 @@ class SiepaG11App(object):
         # Cleanup GPIO pins
         GPIO.cleanup()
 
-        print("All threads stopped")
+        #print("All threads stopped")
 
     def perform(self):
         """Main application entry point"""
-        self.display_lcd.write_centered("Bienvenido a SIEPA", 1)
-        self.display_lcd.write_centered("Grupo11-Los Pro", 2)
-        print("Starting SiepaG11App...")
+        self.display_lcd.write_centered("Bienvenido a", 1)
+        self.display_lcd.write_centered("SIEPA - Grupo 11", 2)
+        #print("Starting SiepaG11App...")
         time.sleep(4)  # Wait for 2 seconds before starting
         self.display_lcd.clear()
 
@@ -301,7 +303,8 @@ class SiepaG11App(object):
                 time.sleep(4)
                 
         except KeyboardInterrupt:
-            print("\nReceived keyboard interrupt, stopping...")
+            pass
+            #print("\nReceived keyboard interrupt, stopping...")
         finally:
             self.stop()
 

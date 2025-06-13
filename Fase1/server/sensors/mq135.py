@@ -45,7 +45,7 @@ if __name__ == "__main__":
     mq135 = MQ135(adc, channel=0)
 
     # Calibrar R0
-    mq135.calibrate_r0(samples=1000, delay=0.5)
+    mq135.calibrate_r0(samples=100, delay=0.2)
 
     # Resultado de R0
     print(f"R0 calibrado: {mq135.r0} ohmios")

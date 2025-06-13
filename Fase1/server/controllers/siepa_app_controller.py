@@ -20,7 +20,7 @@ def get_siepa_settings():
 @siepa_blueprint.route('/siepa/devices/control/<device_name>', methods=['PUT'])
 def put_siepa_device_control(device_name):
     data = request.get_json()
-
+    print(data)
     if not data:
         return respond_with_error("Missing JSON body")
     
@@ -70,7 +70,7 @@ def put_siepa_device_mode(device_name):
     
     if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led']:
         return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', ''yellow_led''.")
-    print(f"Device name: {device_name}")
+    
     if device_name == 'lighting':
         if status:
             DeviceManager().lighting_device.turn_on_device()

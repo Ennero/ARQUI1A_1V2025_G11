@@ -2,14 +2,14 @@ from datetime import datetime
 
 class SiepaDB:
 
-    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, luminosity=0, motion_detected=False):
+    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, luminosity=0, motion_detected=False, proximity=0):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
         self._pressure = pressure
         self._air_quality = air_quality
         self._luminosity = luminosity
-        self._motion_detected = motion_detected
+        self._proximity = proximity
 
     @property
     def timestamp(self):
@@ -76,23 +76,27 @@ class SiepaDB:
             self._luminosity = value
         else:
             raise TypeError("La luminosidad debe ser un número")
-
+        
     @property
-    def motion_detected(self):
-        return self._motion_detected
+    def proximity(self):
+        return self._proximity
     
-    @motion_detected.setter
-    def motion_detected(self, value):
-        if isinstance(value, bool):
-            self._motion_detected = value
+    @proximity.setter
+    def proximity(self, value):
+        if isinstance(value, (int, float)):
+            self._proximity = value
         else:
-            raise TypeError("El estado de movimiento debe ser un booleano")
+            raise TypeError("La proximidad debe ser un número")
 
     def to_display_lines(self):
         timestamp_str = self._timestamp.strftime('%H:%M:%S') if self._timestamp else "N/A"
         lines = ["Nueva lectura"]
         
         lines.append(f"Hora: {timestamp_str}")
+
+        if self._proximity > 0:
+            lines.append("Ingreso detectado")
+
         lines.append(f"Temp: {self._temperature:.1f} °C")
 
         if self._temperature >= 28:
