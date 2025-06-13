@@ -16,6 +16,16 @@
   align-items: stretch;
 }
 
+.dashboard-top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
+  padding: 18px 28px;
+}
+
 .dashboard-top-panel {
   display: flex;
   align-items: center;
@@ -25,16 +35,6 @@
   box-shadow: 0 4px 16px rgba(34,84,61,0.10);
   padding: 18px 28px;
   background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
-}
-
-.dashboard-top {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
-  padding: 18px 28px;
 }
 
 .dashboard-logo {
@@ -67,18 +67,12 @@
   margin: 8px;
 }
 
-.panel-usuarios {
+.panel-bottom {
+  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
+  border-bottom: 2px solid #e0e0e0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: linear-gradient(90deg, #a8e6a3 60%, #f5f3e7 100%);
-}
-
-.usuarios-numero {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #22543d;
-  margin-top: 8px;
+  gap: 32px;
 }
 
 .panel-segundo, .panel-tercero {
@@ -88,40 +82,6 @@
   background: transparent;
   box-shadow: none;
   padding: 0;
-}
-
-.panel-bottom {
-  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.panel-top {
-  background: #fff;
-}
-
-
-.panel-bottom {
-  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
-  border-bottom: 2px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.dashboard-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-
-.panel-title {
-  color: #22543d;
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin: 0;
-  flex: 1;
-  text-align: left;
 }
 
 .subpanel {
@@ -192,6 +152,7 @@
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.3s, background 0.3s;
+  animation: alertBlink 1s infinite alternate;
 }
 
 .alert-btn:hover {
@@ -220,4 +181,158 @@
   box-shadow: 0 1px 6px #a8e6a322;
   font-weight: 500;
   letter-spacing: 0.5px;
+}
+
+
+/* Estilos para los actuadores */
+.actuador-panel {
+  background: #fafdff;
+  border: 2px solid #a8e6a3;
+  box-shadow: 0 2px 12px #a8e6a322;
+  min-width: 260px;
+  align-items: stretch;
+}
+
+.actuador-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.actuador-icon {
+  filter: drop-shadow(0 0 2px #a8e6a3);
+}
+
+.actuador-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Estilo base para todos los botones de actuador */
+.actuador-btn {
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 10px 28px;
+  box-shadow: 0 2px 8px #a8e6a322;
+  border: none;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+/* Botón para el ventilador (colores cálidos: rojo-naranja-amarillo) */
+.actuador-btn.btn-ventilador {
+  background: linear-gradient(90deg, #e53935 0%, #ffb300 60%, #ffd600 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #e5393544;
+}
+.actuador-btn.btn-ventilador:hover,
+.actuador-btn.btn-ventilador:focus {
+  background: linear-gradient(90deg, #ffd600 0%, #e53935 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #ffd60044;
+}
+
+/* Botón para la iluminación (azul-verde) */
+.actuador-btn.btn-iluminacion {
+  background: linear-gradient(90deg, #3bb78f 0%, #0bab64 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #3bb78f44;
+}
+.actuador-btn.btn-iluminacion:hover,
+.actuador-btn.btn-iluminacion:focus {
+  background: linear-gradient(90deg, #0bab64 0%, #3bb78f 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #0bab6444;
+}
+
+/* Botón para el buzzer (azul-morado) */
+.actuador-btn.btn-buzzer {
+  background: linear-gradient(90deg, #3bb7e0 0%, #6a82fb 60%, #a259c6 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #6a82fb44;
+}
+.actuador-btn.btn-buzzer:hover,
+.actuador-btn.btn-buzzer:focus {
+  background: linear-gradient(90deg, #a259c6 0%, #3bb7e0 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #a259c644;
+}
+
+/* Botón para la iluminación (verde intenso) */
+.actuador-btn.btn-iluminacion {
+  background: linear-gradient(90deg, #43a047 0%, #3bb78f 60%, #0bab64 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #43a04744;
+}
+.actuador-btn.btn-iluminacion:hover,
+.actuador-btn.btn-iluminacion:focus {
+  background: linear-gradient(90deg, #0bab64 0%, #43a047 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #0bab6444;
+}
+
+/* Mensaje de peligro para iluminación (verde) */
+.actuador-alert.iluminacion {
+  background: linear-gradient(90deg, #43a047 60%, #3bb78f 100%);
+  color: #fff;
+}
+
+.actuador-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 1.08rem;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-top: 4px;
+  animation: alertBlink 1s infinite alternate; /* Cambia aquí la animación */
+}
+
+.actuador-alert.danger {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+}
+
+.actuador-alert.quality {
+  background: linear-gradient(90deg, #3bb7e0 0%, #6a82fb 60%, #a259c6 100%);
+  color: #fff;
+}
+
+.actuador-btn:disabled,
+.actuador-btn[disabled] {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  filter: grayscale(0.4) brightness(1.1);
+  background: #e0e0e0 !important;
+  color: #888 !important;
+  border: none !important;
+  transition: none !important;
+  pointer-events: none;
+}
+
+@keyframes alertBlink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.modo-toggle {
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: #22543d !important;
+  text-shadow: 0 2px 8px #a8e6a355, 0 1px 0 #fff8;
+  padding: 5px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #a8e6a3 0%, #f5f3e7 100%);
+  box-shadow: 0 2px 12px #a8e6a322;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  margin-left: 18px;
+  transition: background 0.3s, box-shadow 0.3s;
 }
