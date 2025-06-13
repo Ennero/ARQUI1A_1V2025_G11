@@ -162,7 +162,8 @@ class SiepaG11App(object):
                         'message': 'Low luminosity detected! Turning on green LED.'
                     }))
                 elif siepa_data.luminosity > 200 and self.green_led.mode:
-                    self.green_led.turn_off_device()
+                    # self.green_led.turn_off_device()
+                    Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
                 
                 # Blue LED (air quality >= 1000)
                 if siepa_data.air_quality >= 1000 and not self.blue_led.mode:
