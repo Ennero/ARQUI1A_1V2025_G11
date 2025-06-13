@@ -102,7 +102,7 @@
                             (click)="enviarComando('fan')"
                             [disabled]="!puedeEncenderVentilador()"
                             >
-                            Encender Ventilador
+                            {{ encendidoVentilador ? 'Encender' : 'Apagar' }} Ventilador
                         </button>
                         <div *ngIf="temperaturaCritica" class="actuador-alert danger">
                             <mat-icon>warning</mat-icon>
@@ -130,7 +130,7 @@
                             (click)="enviarComando('buzzer')"
                             [disabled]="!puedeEncenderBuzzer()"
                             >
-                            Encender Buzzer
+                            {{ encendidoBuzzer ? 'Encender' : 'Apagar' }} Buzzer
                         </button>
                         <div *ngIf="aireCritico" class="actuador-alert quality">
                             <mat-icon>warning</mat-icon>
@@ -158,7 +158,7 @@
                             (click)="enviarComando('lighting')"
                             [disabled]="!puedeEncenderIluminacion()"
                         >
-                            Encender Iluminación
+                            {{ encendidoIluminacion ? 'Encender' : 'Apagar' }} Iluminación
                         </button>
                         <div *ngIf="iluminacionCritica" class="actuador-alert iluminacion">
                             <mat-icon>warning</mat-icon>
@@ -185,7 +185,7 @@
                             [(ngModel)]="statusLedRoja"
                             color="primary"
                             class="modo-toggle"
-                            (change)="cambiarModoManual('led-roja')"
+                            (change)="enviarComando('red_led')"
                         >{{ statusLedRoja ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
                         </div>
                 </mat-card>
@@ -198,7 +198,7 @@
                             [(ngModel)]="statusLedAmarilla"
                             color="primary"
                             class="modo-toggle"
-                            (change)="cambiarModoManual('led-amarilla')"
+                            (change)="enviarComando('led_yellow')"
                         >{{ statusLedAmarilla ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
                         </div>
                 </mat-card>
@@ -213,7 +213,7 @@
                             [(ngModel)]="statusLedVerde"
                             color="primary"
                             class="modo-toggle"
-                            (change)="cambiarModoManual('led-verde')"
+                            (change)="enviarComando('led_green')"
                         >{{ statusLedVerde ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
                         </div>
                 </mat-card>
@@ -226,7 +226,7 @@
                             [(ngModel)]="statusLedAzul"
                             color="primary"
                             class="modo-toggle"
-                            (change)="cambiarModoManual('led-azul')"
+                            (change)="enviarComando('led_blue')"
                         >{{ statusLedAzul ? 'Encendido' : 'Apagado' }}</mat-slide-toggle>
                         </div>
                 </mat-card>

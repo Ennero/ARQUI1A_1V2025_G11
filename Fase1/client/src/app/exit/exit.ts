@@ -24,6 +24,12 @@ export class Exit {
   modoManualIluminacion = false;
   modoManualAire = false;
 
+  // Variables para controles texto de los botones
+  encendidoBuzzer = true;
+  encendidoVentilador = true;
+  encendidoIluminacion = true;
+
+  // Variables para los estados de los sensores
   temperaturaCritica = false;
   humedadCritica = false;
   iluminacionCritica = false;
@@ -168,20 +174,28 @@ export class Exit {
 
     if (actuador == 'buzzer') {
       this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
+      this.encendidoBuzzer = !this.encendidoBuzzer; // Cambiar el texto del botón
     } else if (actuador == 'fan') {
       this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
+      this.encendidoVentilador = !this.encendidoVentilador; // Cambiar el texto del botón
     } else if (actuador == 'lighting') {
-      this.statusDeviceLighting = status=  !this.statusDeviceLighting; // Cambiar el estado de la iluminación
-    } else if (actuador == 'led-roja'){
-      this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
-    } else if (actuador == 'led-verde'){
-      this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
+      status = this.statusDeviceLighting;
+      this.encendidoIluminacion = !this.encendidoIluminacion; // Cambiar el texto del botón
+    } else if (actuador == 'led_red'){
+      // this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
+      status = this.statusLedRoja;
+    } else if (actuador == 'led_green'){
+      //this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
+      status = this.statusLedVerde;
     }
-    else if (actuador == 'led-azul'){
-      this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
+    else if (actuador == 'led_blue'){
+      //this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
+      status = this.statusLedAzul;
+      console.log('Estado del led azul:', this.statusLedAzul);
     }
-    else if (actuador == 'led-amarillo'){
+    else if (actuador == 'led_yellow'){
       this.statusLedAmarilla = status = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
+      status = this.statusLedAmarilla;
     }
 
     this.http.put(url, { status: !status }).subscribe({
