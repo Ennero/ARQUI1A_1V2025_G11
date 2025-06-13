@@ -26,19 +26,23 @@ class FlaskServer:
     def register_error_handlers(self):
         @self.app.errorhandler(404)
         def not_found_error(error):
+            print(f"Resource not found: {error}")
             # return respond_with_not_found("The requested resource was not found.")
             return respond_with_not_found()
 
         @self.app.errorhandler(BadRequest)
         def handle_bad_request(error):
+            print(f"Bad Request: {error}")
             return respond_with_error("Bad request")
 
         @self.app.errorhandler(HTTPException)
         def handle_http_exception(error):
+            print(f"HTTP Exception: {error}")
             return respond_with_error(error.description, error.code)
 
         @self.app.errorhandler(Exception)
         def handle_exception(error):
+            print(f"An unexpected error occurred: {error}")
             return respond_with_internal_server_error(f"Internal server error {error}")
 
     def run(self):

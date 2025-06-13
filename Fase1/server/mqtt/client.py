@@ -26,7 +26,8 @@ class SiepaMqttClient(object):
             'pressure', 
             'air_quality',
             'proximity',
-            'luminosity'
+            'luminosity',
+            'motion_detected'
         ]
 
     def connect(self):

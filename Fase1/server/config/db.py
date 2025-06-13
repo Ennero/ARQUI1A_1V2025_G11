@@ -94,28 +94,25 @@ class SiepaDB:
         
         lines.append(f"Hora: {timestamp_str}")
         lines.append(f"Temp: {self._temperature:.1f} °C")
-        # 🚨 Agrega advertencias si los valores están fuera de rangos
-        if self._temperature > 30:
+
+        if self._temperature >= 28:
             lines.append("Temperatura alta")
-        elif self._temperature < 10:
-            lines.append("Temperatura baja")
 
         lines.append(f"Humedad: {self._humidity:.1f} %")
 
-        if self._humidity < 30:
-            lines.append("Humedad baja")
-        elif self._humidity > 70:
+        if self._humidity >= 70:
             lines.append("Humedad alta")
 
         lines.append(f"Presion: {self._pressure:.1f} hPa")
+
         lines.append(f"CO2: {self._air_quality:.1f} ppm")
 
-        if self._air_quality > 1000:
+        if self._air_quality >= 1000:
             lines.append("Aire contaminado")
 
         lines.append(f"Lumin: {self._luminosity:.1f} lux")
 
-        if self._luminosity < 50:
+        if self._luminosity <= 200:
             lines.append("Poca luz")
 
         return lines

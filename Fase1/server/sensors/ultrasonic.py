@@ -25,7 +25,7 @@ class Ultrasonic:
 
 if __name__ == "__main__":
     ultrasonic = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
-    
+
     try:
         while True:
             if ultrasonic.motion_detected:

@@ -10,6 +10,7 @@ from mqtt.client import SiepaMqttClient
 from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
+from models.device_manager import DeviceManager
 from threading import Thread, Event
 import board
 import RPi.GPIO as GPIO
@@ -32,27 +33,37 @@ class SiepaG11App(object):
         # Load environment variables
         # load_dotenv()
 
+        self.device_manager = DeviceManager()
+
         self.running = False
         self.stop_event = Event()  # For graceful thread termination
 
         # Define sensors
         self.dht_sensor = DHT(board.D17, "DHT11")
         self.bmp_sensor = BMP280()
-        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=33.220338983050844)
+        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=32.5)
         self.bh_sensor = BH1750(bus=1)
-        self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
+        # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
 
         # Define output devices
         self.display_lcd = DisplayLCD()
-        self.red_led = GenericOutputDevice(5)
-        self.green_led = GenericOutputDevice(23)
-        self.yellow_led = GenericOutputDevice(25)
-        self.blue_led = GenericOutputDevice(26)
+        # self.red_led = GenericOutputDevice(16)
+        # self.green_led = GenericOutputDevice(19)
+        # self.yellow_led = GenericOutputDevice(20)
+        # self.blue_led = GenericOutputDevice(21)
         
-        # Actuators
-        self.fan_device = GenericOutputDevice(19)
-        self.buzzer_device = GenericOutputDevice(24)
-        self.lighting_device = GenericOutputDevice(21)
+        # # Actuators
+        # self.buzzer_device = GenericOutputDevice(26)
+        # self.fan_device = GenericOutputDevice(1)
+        # self.lighting_device = GenericOutputDevice(12)
+        self.red_led = self.device_manager.red_led
+        self.green_led = self.device_manager.green_led
+        self.yellow_led = self.device_manager.yellow_led
+        self.blue_led = self.device_manager.blue_led
+
+        self.buzzer_device = self.device_manager.buzzer_device
+        self.fan_device = self.device_manager.fan_device
+        self.lighting_device = self.device_manager.lighting_device
 
         # Define storage
         self.storage = [] # We will implement MongoDB later
@@ -97,7 +108,8 @@ class SiepaG11App(object):
                     pressure=self.bmp_sensor.pressure,
                     air_quality=self.mq_sensor.ppm,
                     luminosity=self.bh_sensor.luminosity,
-                    motion_detected=self.ultrasonic_sensor.motion_detected
+                    # motion_detected=self.ultrasonic_sensor.motion_detected
+                    motion_detected=None
                 )
 
                 # Store data
@@ -133,26 +145,25 @@ class SiepaG11App(object):
                     self.mqtt_client.publish('humidity/danger', json.dumps({
                         'message': 'High humidity detected! Turning on yellow LED.'
                     }))
-
                 elif siepa_data.humidity < 70 and self.yellow_led.mode:
                     self.yellow_led.turn_off_device()
                 
-                # Green LED (pressure <= 1000)
-                if siepa_data.luminosity <= 1000 and not self.green_led.mode:
+                # Green LED (luminosity <= 200)
+                if siepa_data.luminosity <= 200 and not self.green_led.mode:
                     self.green_led.turn_on_device()
                     self.mqtt_client.publish('luminosity/danger', json.dumps({
                         'message': 'Low luminosity detected! Turning on green LED.'
                     }))
-                elif siepa_data.luminosity > 1000 and self.green_led.mode:
+                elif siepa_data.luminosity > 200 and self.green_led.mode:
                     self.green_led.turn_off_device()
                 
-                # Blue LED (air quality <= 100)
-                if siepa_data.air_quality <= 100 and not self.blue_led.mode:
+                # Blue LED (air quality >= 1000)
+                if siepa_data.air_quality >= 1000 and not self.blue_led.mode:
                     self.blue_led.turn_on_device()
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
                         'message': 'Low air_quality detected! Turning on blue LED.'
                     }))
-                elif siepa_data.air_quality > 100 and self.blue_led.mode:
+                elif siepa_data.air_quality < 1000 and self.blue_led.mode:
                     self.blue_led.turn_off_device()
 
                 if self.fan_device.control == 'automatic':
@@ -163,9 +174,9 @@ class SiepaG11App(object):
                         self.fan_device.turn_off_device()
                 if self.buzzer_device.control == 'automatic':
                     # Manual control of buzzer
-                    if siepa_data.air_quality <= 50 and not self.buzzer_device.mode:
+                    if siepa_data.air_quality >= 1000 and not self.buzzer_device.mode:
                         self.buzzer_device.turn_on_device()
-                    elif siepa_data.air_quality > 50 and self.buzzer_device.mode:
+                    elif siepa_data.air_quality < 1000 and self.buzzer_device.mode:
                         self.buzzer_device.turn_off_device()
                 if self.lighting_device.control == 'automatic':
                     # Manual control of lighting device
@@ -174,14 +185,11 @@ class SiepaG11App(object):
                     elif siepa_data.luminosity > 200 and self.lighting_device.mode:
                         self.lighting_device.turn_off_device()
 
-                # for line in siepa_data.to_display_lines():
-                #     self.display_queue.put(line)
-
                 for line in siepa_data.to_display_lines():
                     print(f"Adding to display queue: {line}")  # Debug print
                     self.display_queue.put(line)
 
-                time.sleep(5)
+                time.sleep(2)
 
             except Exception as e:
                 print(f"Error in sensor tasks: {e}")
@@ -203,7 +211,7 @@ class SiepaG11App(object):
                 self.display_lcd.clear()
                 self.display_lcd.write_centered(previous_line, 1)
                 self.display_lcd.write_centered(current_line, 2)
-                time.sleep(4)  # Increased from 1 to 4 seconds
+                time.sleep(2)  # Increased from 1 to 4 seconds
 
             except queue.Empty:
                 continue
@@ -223,16 +231,16 @@ class SiepaG11App(object):
         self.flask_thread.start()
 
         # Start MQTT client thread
-        self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
-        self.mqtt_thread.start()
+        # self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
+        # self.mqtt_thread.start()
 
-        # Start sensor tasks thread
-        self.sensor_thread = Thread(target=self.run_sensor_tasks, daemon=True)
-        self.sensor_thread.start()
+        # # Start sensor tasks thread
+        # self.sensor_thread = Thread(target=self.run_sensor_tasks, daemon=True)
+        # self.sensor_thread.start()
 
-        # Start display thread
-        self.display_thread = Thread(target=self.run_display, daemon=True)
-        self.display_thread.start()
+        # # # Start display thread
+        # self.display_thread = Thread(target=self.run_display, daemon=True)
+        # self.display_thread.start()
 
         print("All threads started")
 

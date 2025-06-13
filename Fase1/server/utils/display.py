@@ -18,3 +18,8 @@ class DisplayLCD:
 
     def clear(self):
         self.lcd.clear()
+
+# if __name__ == "__main__":
+#     display = DisplayLCD()
+#     display.write_centered("Lesbianas", 1)
+#     display.write_centered("Raspberry Pi", 2)

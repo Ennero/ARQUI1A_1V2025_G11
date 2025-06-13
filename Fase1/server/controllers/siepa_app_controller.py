@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from config.db import SiepaDB
 from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
-# from app import SiepaG11App
+from models.device_manager import DeviceManager
 
 siepa_blueprint = Blueprint('siepa_controller', __name__)
 
@@ -17,8 +17,8 @@ def get_siepa_settings():
         "mode": AppSettings().mode
     })
 
-@siepa_blueprint.route('/siepa/devises/<device_name>/control', methods=['PUT'])
-def put_siepa_device_control(devise_name):
+@siepa_blueprint.route('/siepa/devices/control/<device_name>', methods=['PUT'])
+def put_siepa_device_control(device_name):
     data = request.get_json()
 
     if not data:
@@ -32,42 +32,85 @@ def put_siepa_device_control(devise_name):
     if mode not in ['automatic', 'manual']:
         return respond_with_error("Invalid mode. Must be 'automatic' or 'manual'.")
     
-    # if not hasattr(SiepaG11App(), f"{devise_name}_device"):
-    #     return respond_with_error(f"Invalid device name: {devise_name}. Must be 'lighting', 'fan', or 'buzzer'.")
+    # if not hasattr(SiepaG11App(), f"{device_name}_device"):
+    #     return respond_with_error(f"Invalid device name: {device_name}. Must be 'lighting', 'fan', or 'buzzer'.")
 
-    # # Update the device settings
-    # if devise_name == 'lighting':
-    #     SiepaG11App().lighting_device.control = mode
-    # elif devise_name == 'fan':
-    #     SiepaG11App().fan_device.control = mode
-    # elif devise_name == 'buzzer':
-    #     SiepaG11App().buzzer_device.control = mode
+    # Update the device settings
+    if device_name == 'lighting':
+        DeviceManager().lighting_device.control = mode
+    elif device_name == 'fan':
+        DeviceManager().fan_device.control = mode
+    elif device_name == 'buzzer':
+        DeviceManager().buzzer_device.control = mode
+    elif device_name == 'red_led':
+        DeviceManager().red_led.control = mode
+    elif device_name == 'green_led':
+        DeviceManager().green_led.control = mode
+    elif device_name == 'blue_led':
+        DeviceManager().blue_led.control = mode
+    elif device_name == 'yellow_led':
+        DeviceManager().yellow_led.control = mode
     
     return respond_with_success({"message": "Settings updated successfully."})
 
 @siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
 def put_siepa_device_mode(device_name):
     data = request.get_json()
-
+    print(data)
     if not data:
         return respond_with_error("Missing JSON body")
     
     status = data.get('status')
 
-    if not status:
-        return respond_with_error("Missing status")
+    # if status != True or status != False:
+    #     return respond_with_error("Missing status")
     
-    if status.lower() not in ['on', 'off']:
-        return respond_with_error("Invalid status. Must be 'ON' or 'OFF'.")
+    # if status.lower() not in ['on', 'off']:
+    #     return respond_with_error("Invalid status. Must be 'ON' or 'OFF'.")
     
-    if device_name not in ['lighting', 'fan', 'buzzer']:
-        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer'.")
+    if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led']:
+        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', ''yellow_led''.")
+    print(f"Device name: {device_name}")
+    if device_name == 'lighting':
+        if status:
+            DeviceManager().lighting_device.turn_on_device()
+        else:
+            DeviceManager().lighting_device.turn_off_device()
+        # DeviceManager().lighting_device.mode = True if status else False
+    elif device_name == 'fan':
+        if status:
+            DeviceManager().fan_device.turn_on_device()
+        else:
+            DeviceManager().fan_device.turn_off_device()
+        # DeviceManager().fan_device.mode = True if status else False
+    elif device_name == 'buzzer':
+        if status:
+            DeviceManager().buzzer_device.turn_on_device()
+        else:
+            DeviceManager().buzzer_device.turn_off_device()
+        # DeviceManager().buzzer_device.mode = True if status else False
+
+    elif device_name == 'red_led':
+        if status:
+            DeviceManager().red_led.turn_on_device()
+        else:
+            DeviceManager().red_led.turn_off_device()
+    elif device_name == 'green_led':
+        if status:
+            DeviceManager().green_led.turn_on_device()
+        else:
+            DeviceManager().green_led.turn_off_device()
+    elif device_name == 'blue_led':
+        if status:
+            DeviceManager().blue_led.turn_on_device()
+        else:
+            DeviceManager().blue_led.turn_off_device()
+    elif device_name == 'yellow_led':
+        if status:
+            DeviceManager().yellow_led.turn_on_device()
+        else:
+            DeviceManager().yellow_led.turn_off_device()
+    else:
+        return respond_with_error("Invalid device name provided.")
     
-    # if device_name == 'lighting':
-    #     SiepaG11App().lighting_device.mode = True if status.lower() == 'on' else False
-    # elif device_name == 'fan':
-    #     SiepaG11App().fan.mode = True if status.lower() == 'on' else False
-    # elif device_name == 'buzzer':
-    #     SiepaG11App().buzzer.mode = True if status.lower() == 'on' else False
-    
-    return respond_with_success({"message": f"Device {device_name} is {status.upper()}."})
+    return respond_with_success({"message": f"Device {device_name} is {status}."})

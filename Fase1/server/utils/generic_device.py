@@ -18,6 +18,7 @@ class GenericOutputDevice:
         self._mode = False
         self._control = control
         GPIO.setup(self._pin, GPIO.OUT)
+        GPIO.output(self._pin, GPIO.LOW)
 
     def turn_on_device(self):
         GPIO.output(self._pin, GPIO.HIGH)
@@ -56,3 +57,19 @@ class GenericOutputDevice:
             self._control = value
         else:
             print('Control must be "automatic" or "manual"')
+
+
+# if __name__ == "__main__":
+#     # Example usage
+#     GPIO.cleanup(1)
+#     led = GenericOutputDevice(13)
+#     led.turn_on_device()
+#     time.sleep(2)
+#     led.turn_off_device()
+#     time.sleep(2)
+#     led.cleanup()
+    
+    # led = GenericOutputDevice(13)
+    # led.turn_off_device()
+    # time.sleep(4)
+    # led.cleanup()
