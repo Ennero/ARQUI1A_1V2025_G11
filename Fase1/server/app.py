@@ -30,6 +30,7 @@ class SiepaG11App(object):
         return cls.instance
 
     def __init__(self):
+        GPIO.setmode(GPIO.BCM)
         # Load environment variables
         # load_dotenv()
 
@@ -43,7 +44,12 @@ class SiepaG11App(object):
         self.bmp_sensor = BMP280()
         self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=32.5)
         self.bh_sensor = BH1750(bus=1)
-        # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
+        try:
+            self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
+            # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
+        except Exception as e:
+            print("Ultrasonic sensor not initialized:", e)
+            self.ultrasonic_sensor = None
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -176,7 +182,6 @@ class SiepaG11App(object):
                     self.blue_led.turn_off_device()
 
                 if self.fan_device.control == 'automatic':
-                    # Manual control of fan
                     if siepa_data.temperature >= 28 and not self.fan_device.mode:
                         self.fan_device.turn_on_device()
                     elif siepa_data.temperature < 28 and self.fan_device.mode:
@@ -252,11 +257,6 @@ class SiepaG11App(object):
         # self.display_thread.start()
 
         print("All threads started")
-
-    def display_storage(self):
-        if not self.storage:
-            print("No data in storage")
-            return
 
     def stop(self):
         """Stop all threads gracefully"""
