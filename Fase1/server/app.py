@@ -53,15 +53,7 @@ class SiepaG11App(object):
 
         # Define output devices
         self.display_lcd = DisplayLCD()
-        # self.red_led = GenericOutputDevice(16)
-        # self.green_led = GenericOutputDevice(19)
-        # self.yellow_led = GenericOutputDevice(20)
-        # self.blue_led = GenericOutputDevice(21)
         
-        # # Actuators
-        # self.buzzer_device = GenericOutputDevice(26)
-        # self.fan_device = GenericOutputDevice(1)
-        # self.lighting_device = GenericOutputDevice(12)
         self.red_led = self.device_manager.red_led
         self.green_led = self.device_manager.green_led
         self.yellow_led = self.device_manager.yellow_led
@@ -119,8 +111,8 @@ class SiepaG11App(object):
                     pressure=self.bmp_sensor.pressure,
                     air_quality=self.mq_sensor.ppm,
                     luminosity=self.bh_sensor.luminosity,
-                    # motion_detected=self.ultrasonic_sensor.motion_detected
-                    motion_detected=None
+                    motion_detected=self.ultrasonic_sensor.motion_detected
+                    # motion_detected=None
                 )
 
                 # Store data

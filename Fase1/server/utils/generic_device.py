@@ -37,6 +37,7 @@ class GenericOutputDevice:
             self.turn_on_device()
 
     def cleanup(self):
+        self._mode = False
         GPIO.cleanup(self._pin)
 
     @property
@@ -53,8 +54,12 @@ class GenericOutputDevice:
 
     @control.setter
     def control(self, value):
+
         if value in ["automatic", "manual"]:
             self._control = value
+            if value == "automatic":
+                GPIO.output(self._pin, GPIO.LOW)
+                self._mode = False
         else:
             print('Control must be "automatic" or "manual"')
 
