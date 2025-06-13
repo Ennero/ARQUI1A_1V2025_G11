@@ -176,11 +176,11 @@ export class Exit {
       this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
       this.encendidoBuzzer = !this.encendidoBuzzer; // Cambiar el texto del botón
     } else if (actuador == 'fan') {
-      this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
       this.encendidoVentilador = !this.encendidoVentilador; // Cambiar el texto del botón
+      status = !this.encendidoVentilador; // Cambiar el estado del ventilador
     } else if (actuador == 'lighting') {
-      status = this.statusDeviceLighting;
       this.encendidoIluminacion = !this.encendidoIluminacion; // Cambiar el texto del botón
+      status = this.encendidoIluminacion;
     } else if (actuador == 'led_red'){
       // this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
       status = this.statusLedRoja;
