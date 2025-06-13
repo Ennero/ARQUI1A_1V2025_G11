@@ -144,7 +144,7 @@ export class Exit {
 
   cambiarModoManual(actuador: string) {
     let modoManual = "manual";
-    const url = `http://172.20.10.2:5000/siepa/devices/${actuador}/control`;
+    const url = `http://172.20.10.2:5000/siepa/devices/control/${actuador}`;
 
     if (actuador === 'temperatura') {
       modoManual = this.modoManualTemperatura ? 'manual' : 'automatico';
@@ -211,13 +211,13 @@ export class Exit {
   }
 
   puedeEncenderVentilador() {
-  return this.modoManualTemperatura && this.temperaturaCritica;
+  return this.modoManualTemperatura;
   }
 
   puedeEncenderBuzzer() {
-  return this.modoManualAire && this.aireCritico;
+  return this.modoManualAire;
   }
   puedeEncenderIluminacion() {
-    return this.modoManualIluminacion && this.iluminacionCritica;
+    return this.modoManualIluminacion;
   }
 }
