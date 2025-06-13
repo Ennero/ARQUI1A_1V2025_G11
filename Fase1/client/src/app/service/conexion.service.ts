@@ -23,6 +23,8 @@ export class MqttService {
     this.connectClient();
   }
 
+  // Cargar el historial de datos cuando se inicializa el servici
+
   connectClient() {
     this.client = mqtt.connect(this.brokerUrl, {
       clientId: 'angular_' + Math.random().toString(16).substr(2, 8),
@@ -65,7 +67,7 @@ export class MqttService {
                 this.dataTemperatura = [...this.dataTemperatura];
                 break;
               case 'proximity':
-                this.dataProximidad.push({ no: this.dataProximidad.length + 1, proximidad: `${valueFormatFixed} m` });
+                this.dataProximidad.push({ no: this.dataProximidad.length + 1, proximidad: `${valueFormatFixed} cm` });
                 this.dataProximidad.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataProximidad = [...this.dataProximidad];
