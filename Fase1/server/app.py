@@ -287,6 +287,12 @@ class SiepaG11App(object):
 
     def perform(self):
         """Main application entry point"""
+        self.display_lcd.write_centered("Bienvenido a SIEPA", 1)
+        self.display_lcd.write_centered("Grupo11-Los Pro", 2)
+        print("Starting SiepaG11App...")
+        time.sleep(4)  # Wait for 2 seconds before starting
+        self.display_lcd.clear()
+
         try:
             self.start()
             
