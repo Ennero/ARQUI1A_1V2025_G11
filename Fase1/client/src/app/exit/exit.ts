@@ -24,11 +24,6 @@ export class Exit {
   modoManualIluminacion = false;
   modoManualAire = false;
 
-  // Variables para controles texto de los botones
-  encendidoBuzzer = true;
-  encendidoVentilador = true;
-  encendidoIluminacion = true;
-
   // Variables para los estados de los sensores
   temperaturaCritica = false;
   humedadCritica = false;
@@ -147,10 +142,13 @@ export class Exit {
     const url = `http://172.20.10.2:5000/siepa/devices/control/${actuador}`;
 
     if (actuador === 'temperatura') {
+      this.modoManualTemperatura = !this.modoManualTemperatura; // Cambiar el estado del modo manual
       modoManual = this.modoManualTemperatura ? 'manual' : 'automatico';
     } else if (actuador === 'iluminacion') {
+      this.modoManualIluminacion = !this.modoManualIluminacion; // Cambiar el estado del modo manual
       modoManual = this.modoManualIluminacion ? 'manual' : 'automatico';
     } else if (actuador === 'buzzer') {
+      this.modoManualAire = !this.modoManualAire; // Cambiar el estado del modo manual
       modoManual = this.modoManualAire ? 'manual' : 'automatico';
     }
 
@@ -174,28 +172,18 @@ export class Exit {
 
     if (actuador == 'buzzer') {
       this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
-      this.encendidoBuzzer = !this.encendidoBuzzer; // Cambiar el texto del botón
     } else if (actuador == 'fan') {
-      this.encendidoVentilador = !this.encendidoVentilador; // Cambiar el texto del botón
-      status = !this.encendidoVentilador; // Cambiar el estado del ventilador
+      this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
     } else if (actuador == 'lighting') {
-      this.encendidoIluminacion = !this.encendidoIluminacion; // Cambiar el texto del botón
-      status = this.encendidoIluminacion;
+      this.statusDeviceLighting = status = !this.statusDeviceLighting; // Cambiar el estado de la iluminación
     } else if (actuador == 'led_red'){
-      // this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
-      status = this.statusLedRoja;
+      this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
     } else if (actuador == 'led_green'){
-      //this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
-      status = this.statusLedVerde;
-    }
-    else if (actuador == 'led_blue'){
-      //this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
-      status = this.statusLedAzul;
-      console.log('Estado del led azul:', this.statusLedAzul);
-    }
-    else if (actuador == 'led_yellow'){
+      this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
+    } else if (actuador == 'led_blue'){
+      this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
+    } else if (actuador == 'led_yellow'){
       this.statusLedAmarilla = status = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
-      status = this.statusLedAmarilla;
     }
 
     this.http.put(url, { status: !status }).subscribe({
