@@ -62,6 +62,8 @@ class GenericOutputDevice:
                 self.turn_off_device()
         else:
             print('Control must be "automatic" or "manual"')
+        print(f"Control set to {self._control}")
+        print(f"Device mode is {self._mode}")
 
 
 # if __name__ == "__main__":
