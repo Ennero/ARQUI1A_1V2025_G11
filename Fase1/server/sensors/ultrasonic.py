@@ -12,16 +12,18 @@ class Ultrasonic:
             pin_factory=factory
         )
         self.detection_range = detection_range_cm / 100.0
-    
+
     @property
-    def motion_detected(self):
+    def proximity(self):
         try:
             distance = self.sensor.distance
-            print(f"[Ultrasonic] Distancia: {distance*100:.1f} cm")
-            return distance <= self.detection_range
+            if distance <= self.detection_range:
+                return distance * 100
+            else:
+                return 0
         except Exception as e:
-            print(f"[Ultrasonic] Error al leer: {e}")
-            return False
+            print(f"[Ultrasonic] Error al obtener proximidad: {e}")
+            return None
 
 if __name__ == "__main__":
     ultrasonic = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)

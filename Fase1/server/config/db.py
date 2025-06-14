@@ -2,14 +2,14 @@ from datetime import datetime
 
 class SiepaDB:
 
-    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, luminosity=0, motion_detected=False):
+    def __init__(self, temperature=0, humidity=0, pressure=0, air_quality=0, luminosity=0, motion_detected=False, proximity=0):
         self._timestamp = datetime.now()
         self._temperature = temperature
         self._humidity = humidity
         self._pressure = pressure
         self._air_quality = air_quality
         self._luminosity = luminosity
-        self._motion_detected = motion_detected
+        self._proximity = proximity
 
     @property
     def timestamp(self):
@@ -76,17 +76,17 @@ class SiepaDB:
             self._luminosity = value
         else:
             raise TypeError("La luminosidad debe ser un número")
-
+        
     @property
-    def motion_detected(self):
-        return self._motion_detected
+    def proximity(self):
+        return self._proximity
     
-    @motion_detected.setter
-    def motion_detected(self, value):
-        if isinstance(value, bool):
-            self._motion_detected = value
+    @proximity.setter
+    def proximity(self, value):
+        if isinstance(value, (int, float)):
+            self._proximity = value
         else:
-            raise TypeError("El estado de movimiento debe ser un booleano")
+            raise TypeError("La proximidad debe ser un número")
 
     def to_display_lines(self):
         timestamp_str = self._timestamp.strftime('%H:%M:%S') if self._timestamp else "N/A"
@@ -94,28 +94,29 @@ class SiepaDB:
         
         lines.append(f"Hora: {timestamp_str}")
         lines.append(f"Temp: {self._temperature:.1f} °C")
-
-        if self._temperature >= 28:
-            lines.append("Temperatura alta")
-
         lines.append(f"Humedad: {self._humidity:.1f} %")
-
-        if self._humidity >= 70:
-            lines.append("Humedad alta")
-
         lines.append(f"Presion: {self._pressure:.1f} hPa")
-
         lines.append(f"CO2: {self._air_quality:.1f} ppm")
-
-        if self._air_quality >= 1000:
-            lines.append("Aire contaminado")
-
         lines.append(f"Lumin: {self._luminosity:.1f} lux")
 
-        if self._luminosity <= 200:
-            lines.append("Poca luz")
-
         return lines
+    
+    def alert_messages(self):
+        messages = []
+        
+        if self._temperature >= 28:
+            messages.append("Temperatura alta")
+        
+        if self._humidity >= 70:
+            messages.append("Humedad alta")
+        
+        if self._air_quality >= 700:
+            messages.append("Aire contaminado")
+        
+        if self._luminosity <= 200:
+            messages.append("Poca luz")
+        
+        return messages
 
     # def to_display_lines(self):
     #     return [
