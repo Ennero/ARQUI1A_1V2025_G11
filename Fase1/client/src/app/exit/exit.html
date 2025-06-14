@@ -91,7 +91,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-modo btn-cambiarModo-ventilacion"
-                            (click)="cambiarModoManual('temperatura')"
+                            (click)="cambiarModoManual('fan')"
                             >
                             Modo {{ modoManualTemperatura ? 'Manual' : 'Automático' }}
                         </button>
@@ -151,7 +151,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-modo btn-cambiarModo-iluminacion"
-                            (click)="cambiarModoManual('iluminacion')"
+                            (click)="cambiarModoManual('lighting')"
                             >
                             Modo {{ modoManualIluminacion ? 'Manual' : 'Automático' }}
                         </button>
@@ -191,7 +191,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-rojo"
-                            (click)="enviarComando('led_red')"
+                            (click)="enviarComando('red_led')"
                             >
                             {{ !statusLedRoja ? 'Encender Led' : 'Apagar Led' }}
                         </button>
@@ -206,7 +206,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-amarillo"
-                            (click)="enviarComando('led_yellow')"
+                            (click)="enviarComando('yellow_led')"
                             >
                             {{ !statusLedAmarilla ? 'Encender Led' : 'Apagar Led' }}
                         </button>
@@ -223,7 +223,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-verde"
-                            (click)="enviarComando('led_green')"
+                            (click)="enviarComando('green_led')"
                             >
                             {{ !statusLedVerde ? 'Encender Led' : 'Apagar Led' }}
                         </button>
@@ -238,7 +238,7 @@
                             mat-raised-button
                             color="primary"
                             class="actuador-btn btn-azul"
-                            (click)="enviarComando('led_blue')"
+                            (click)="enviarComando('blue_led')"
                             >
                             {{ !statusLedAzul ? 'Encender Led' : 'Apagar Led' }}
                         </button>
