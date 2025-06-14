@@ -99,32 +99,32 @@ export class Exit {
           break;
       }
 
-      const temperaturaMaxima = 29; // Simulación de temperatura
+      const temperaturaMaxima = 28; // Simulación de temperatura
       this.temperaturaCritica = this.dataSourceTemperatura > temperaturaMaxima;
 
-      const humedadMaxima = 80; // Simulación de humedad
+      const humedadMaxima = 70; // Simulación de humedad
       this.humedadCritica = this.dataSourceHumedad > humedadMaxima;
 
-      const iluminacionMaxima = 1000; // Simulación de iluminación
+      const iluminacionMaxima = 200; // Simulación de iluminación
       this.iluminacionCritica = this.mqttService.dataIluminacion.length > 0 && this.dataSourceIluminacion < iluminacionMaxima;
       console.log('Iluminación:', this.dataSourceIluminacion);
 
-      const aireMaximo = 1500; // Simulación de aire
+      const aireMaximo = 700; // Simulación de aire
       this.aireCritico = this.dataSourceAire > aireMaximo;
     });
   }
 
   ngAfterViewInit() {
-    const temperaturaMaxima = 29; // Simulación de temperatura
+    const temperaturaMaxima = 28; // Simulación de temperatura
     this.temperaturaCritica = this.dataSourceTemperatura > temperaturaMaxima;
 
-    const humedadMaxima = 80; // Simulación de humedad
+    const humedadMaxima = 70; // Simulación de humedad
     this.humedadCritica = this.dataSourceHumedad > humedadMaxima;
 
-    const iluminacionMinima = 1000; // Simulación de iluminación
+    const iluminacionMinima = 200; // Simulación de iluminación
     this.iluminacionCritica = this.dataSourceIluminacion < iluminacionMinima;
 
-    const aireMaximo = 1500; // Simulación de aire
+    const aireMaximo = 700; // Simulación de aire
     this.aireCritico = this.dataSourceAire > aireMaximo;
   }
 
@@ -142,21 +142,21 @@ export class Exit {
     let modoManual = "manual";
     const url = `http://172.20.10.2:5000/siepa/devices/control/${actuador}`;
 
-    if (actuador === 'temperatura') {
+    if (actuador === 'fan') {
       this.modoManualTemperatura = !this.modoManualTemperatura; // Cambiar el estado del modo manual
-      modoManual = this.modoManualTemperatura ? 'manual' : 'automatico';
-    } else if (actuador === 'iluminacion') {
+      modoManual = this.modoManualTemperatura ? 'manual' : 'automatic';
+    } else if (actuador === 'lighting') {
       this.modoManualIluminacion = !this.modoManualIluminacion; // Cambiar el estado del modo manual
-      modoManual = this.modoManualIluminacion ? 'manual' : 'automatico';
+      modoManual = this.modoManualIluminacion ? 'manual' : 'automatic';
     } else if (actuador === 'buzzer') {
       this.modoManualAire = !this.modoManualAire; // Cambiar el estado del modo manual
-      modoManual = this.modoManualAire ? 'manual' : 'automatico';
+      modoManual = this.modoManualAire ? 'manual' : 'automatic';
     }
 
-    this.http.put(url, { mode: modoManual ? 'manual' : 'automatico' }).subscribe({
+    this.http.put(url, { mode: modoManual }).subscribe({
       next: (response) => {
         console.log('Modo cambiado exitosamente:', response);
-        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${modoManual ? 'manual' : 'automatico'}.`, 'success');
+        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${modoManual ? 'manual' : 'automatic'}.`, 'success');
       },
       error: (error) => {
         console.error('Error al cambiar el modo:', error);
@@ -177,17 +177,17 @@ export class Exit {
       this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
     } else if (actuador == 'lighting') {
       this.statusDeviceLighting = status = !this.statusDeviceLighting; // Cambiar el estado de la iluminación
-    } else if (actuador == 'led_red'){
+    } else if (actuador == 'red_led'){
       this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
-    } else if (actuador == 'led_green'){
+    } else if (actuador == 'green_led'){
       this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
-    } else if (actuador == 'led_blue'){
+    } else if (actuador == 'blue_led'){
       this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
-    } else if (actuador == 'led_yellow'){
+    } else if (actuador == 'yellow_led'){
       this.statusLedAmarilla = status = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
     }
 
-    this.http.put(url, { status: !status }).subscribe({
+    this.http.put(url, { status: status }).subscribe({
       next: (response) => {
         console.log('Comando enviado exitosamente:', response);
         Swal.fire('Éxito', `El comando para el actuador ${actuador} se ha enviado correctamente.`, 'success');
