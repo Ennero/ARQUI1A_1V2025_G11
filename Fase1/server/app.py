@@ -42,11 +42,16 @@ class SiepaG11App(object):
         # Define sensors
         self.dht_sensor = DHT(board.D17, "DHT11")
         self.bmp_sensor = BMP280()
-        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=29.8)
+        self.mq_sensor = MQ135(PCF8591(), channel=0, vref=5.0, load_resistance=10.0, r0=20.5)
         self.bh_sensor = BH1750(bus=1)
         # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
         self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=15.0)
         self.presence_helper = False
+
+        self.humidity_helper = False
+        self.temperature_helper = False
+        self.pressure_helper = False
+        self.air_quality_helper = False
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -60,10 +65,15 @@ class SiepaG11App(object):
         self.fan_device = self.device_manager.fan_device
         self.lighting_device = self.device_manager.lighting_device
 
+        self.fan_device.turn_off_device()
+
         # Define storage
         self.storage = [] # We will implement MongoDB later
         self.display_queue = queue.Queue()
+        self.alert_queue = queue.Queue()
 
+        self.last_display_message = None
+        self.last_alert_message = None
         
         # Define Flask server and MQTT client
         self.server = FlaskServer()
@@ -74,6 +84,8 @@ class SiepaG11App(object):
         self.mqtt_thread = None
         self.sensor_thread = None
         self.display_thread = None
+
+        self.pause_display_event = Event()
 
         # App settings
         self.config = AppSettings(
@@ -92,9 +104,10 @@ class SiepaG11App(object):
         self.mqtt_client.connect()
         self.mqtt_client.run()
     
-    def turning_off_with_delay(self, led, device):
+    def turning_off_with_delay(self, led, device=None):
         time.sleep(5)
         led.turn_off_device()
+        if(device is None): return
         device.turn_off_device()
 
     def run_sensor_tasks(self):
@@ -134,69 +147,68 @@ class SiepaG11App(object):
                 # ACTUATORS: Perform some actions based on sensor data
 
                 # Red LED (temperature >= 28)
-                if siepa_data.temperature >= 28 and not self.red_led.mode:
+                if siepa_data.temperature >= 28 and not self.red_led.mode and self.fan_device.control == 'automatic':
                     self.red_led.turn_on_device()
                     self.mqtt_client.publish('temperature/danger', json.dumps({
                         'message': 'High temperature detected! Turning on red LED.'
                     }))
                     # Turn on the fan devices
                     self.fan_device.turn_on_device()
+                    self.show_priority_message("Alerta temp", 5)
+                    self.temperature_helper = True
                     #print("The fans are on.")
-                elif siepa_data.temperature < 28 and self.red_led.mode:
-                    # Turning off the fans in 5 seconds...
+                elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
+                    self.temperature_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
+                    # Turning off the fans in 5 seconds...
                 
                 # Yellow LED (humidity >= 70)
-                if siepa_data.humidity >= 70 and not self.yellow_led.mode:
+                if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                    self.humidity_helper = True
                     self.yellow_led.turn_on_device()
 
                     self.mqtt_client.publish('humidity/danger', json.dumps({
                         'message': 'High humidity detected! Turning on yellow LED.'
                     }))
-                elif siepa_data.humidity < 70 and self.yellow_led.mode:
-                    self.yellow_led.turn_off_device()
+                    self.show_priority_message("Alerta humedad", 5)
+                elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                    # self.yellow_led.turn_off_device()
+                    self.humidity_helper = False
+                    Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
                 
                 # Green LED (luminosity <= 200)
-                if siepa_data.luminosity <= 200 and not self.green_led.mode:
+                if siepa_data.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic':
+                    self.luminosity_helper = True
                     self.green_led.turn_on_device()
                     self.mqtt_client.publish('luminosity/danger', json.dumps({
                         'message': 'Low luminosity detected! Turning on green LED.'
                     }))
-                elif siepa_data.luminosity > 200 and self.green_led.mode:
+                    self.lighting_device.turn_on_device()
+                    self.show_priority_message("Alerta luz", 5)
+                elif siepa_data.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic':
                     # self.green_led.turn_off_device()
+                    self.luminosity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
                 
                 # Blue LED (air quality >= 1000)
-                if siepa_data.air_quality >= 1000 and not self.blue_led.mode:
+                if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
+                    self.air_quality_helper = True
                     self.blue_led.turn_on_device()
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
                         'message': 'Low air_quality detected! Turning on blue LED.'
                     }))
-                elif siepa_data.air_quality < 1000 and self.blue_led.mode:
-                    self.blue_led.turn_off_device()
+                    self.buzzer_device.turn_on_device()
+                    self.show_priority_message("Alerta aire", 5)
+                elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
+                    #self.blue_led.turn_off_device()
+                    self.air_quality_helper = False
+                    Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
 
-                print("Mode: ", self.fan_device.control)
-                if self.fan_device.control == 'automatic':
-                    if siepa_data.temperature >= 28 and not self.fan_device.mode:
-                        self.fan_device.turn_on_device()
-                    elif siepa_data.temperature < 28 and self.fan_device.mode:
-                        self.fan_device.turn_off_device()
-                if self.buzzer_device.control == 'automatic':
-                    # Manual control of buzzer
-                    if siepa_data.air_quality >= 1000 and not self.buzzer_device.mode:
-                        self.buzzer_device.turn_on_device()
-                    elif siepa_data.air_quality < 1000 and self.buzzer_device.mode:
-                        self.buzzer_device.turn_off_device()
-                    pass
-                if self.lighting_device.control == 'automatic':
-                    # Manual control of lighting device
-                    if siepa_data.luminosity <= 200 and not self.lighting_device.mode:
-                        self.lighting_device.turn_on_device()
-                    elif siepa_data.luminosity > 200 and self.lighting_device.mode:
-                        self.lighting_device.turn_off_device()
+                for alert in siepa_data.alert_messages():
+                    self.safe_put(self.alert_queue, alert, 'last_alert_message')
 
                 for line in siepa_data.to_display_lines():
-                    self.display_queue.put(line)
+                    self.safe_put(self.display_queue, line, 'last_display_message')
 
                 time.sleep(2)
 
@@ -204,26 +216,86 @@ class SiepaG11App(object):
                 #print(f"Error in sensor tasks: {e}")
                 time.sleep(1)  # Prevent tight loop on error
 
+    # def run_display(self):
+    #     previous_line = ""
+    #     current_line = ""
+        
+    #     while not self.stop_event.is_set():
+    #         try:
+    #             if not self.alert_queue.empty():
+    #                 new_line = self.alert_queue.get(timeout=1)
+    #                 previous_line = current_line
+    #                 current_line = new_line
+
+    #                 self.display_lcd.clear()
+    #                 self.display_lcd.write_centered(current_line, 1)
+    #                 time.sleep(5)
+    #                 continue
+                
+    #             new_line = self.display_queue.get(timeout=1)
+    #             previous_line = current_line
+    #             current_line = new_line
+
+    #             self.display_lcd.clear()
+    #             self.display_lcd.write_centered(previous_line, 1)
+    #             self.display_lcd.write_centered(current_line, 2)
+    #             time.sleep(2)
+
+    #         except queue.Empty:
+    #             continue
     def run_display(self):
         previous_line = ""
         current_line = ""
 
         while not self.stop_event.is_set():
+            if self.pause_display_event.is_set():
+                time.sleep(0.1)  # Esperar a que termine el mensaje prioritario
+                continue
             try:
-                new_line = self.display_queue.get(timeout=1)
+                if not self.alert_queue.empty():
+                    new_line = self.alert_queue.get(timeout=1)
+                    previous_line = current_line
+                    current_line = new_line
 
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered(current_line, 1)
+                    time.sleep(5)
+                    continue
+
+                new_line = self.display_queue.get(timeout=1)
                 previous_line = current_line
                 current_line = new_line
-
-                #print(f"LCD displaying:\n 1: {previous_line}\n 2: {current_line}")
 
                 self.display_lcd.clear()
                 self.display_lcd.write_centered(previous_line, 1)
                 self.display_lcd.write_centered(current_line, 2)
-                time.sleep(2)  # Increased from 1 to 4 seconds
+                time.sleep(2)
 
             except queue.Empty:
                 continue
+
+    def show_priority_message(self, msg: str, duration: int = 5):
+        """Pausa el display, muestra un mensaje por unos segundos, limpia las colas y reanuda."""
+        def task():
+            self.pause_display_event.set()  # Pausar display
+            self.display_lcd.clear()
+            self.display_lcd.write_centered(msg, 1)
+            time.sleep(duration)
+
+            # Limpiar colas
+            with self.display_queue.mutex:
+                self.display_queue.queue.clear()
+            with self.alert_queue.mutex:
+                self.alert_queue.queue.clear()
+
+            self.last_display_message = None
+            self.last_alert_message = None
+
+            self.display_lcd.clear()
+            self.pause_display_event.clear()  # Reanudar display
+            # self.display_queue.clear()  # Clear display queue
+
+        Thread(target=task, daemon=True).start()
 
 
     def start(self):
@@ -288,6 +360,12 @@ class SiepaG11App(object):
 
         #print("All threads stopped")
 
+    def safe_put(self, q, msg, last_msg_attr):
+        last_msg = getattr(self, last_msg_attr, None)
+        if msg != last_msg:
+            q.put(msg)
+            setattr(self, last_msg_attr, msg)
+    
     def perform(self):
         """Main application entry point"""
         self.display_lcd.write_centered("Bienvenido a", 1)

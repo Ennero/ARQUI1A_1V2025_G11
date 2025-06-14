@@ -93,33 +93,30 @@ class SiepaDB:
         lines = ["Nueva lectura"]
         
         lines.append(f"Hora: {timestamp_str}")
-
-        if self._proximity > 0:
-            lines.append("Ingreso detectado")
-
         lines.append(f"Temp: {self._temperature:.1f} °C")
-
-        if self._temperature >= 28:
-            lines.append("Temperatura alta")
-
         lines.append(f"Humedad: {self._humidity:.1f} %")
-
-        if self._humidity >= 70:
-            lines.append("Humedad alta")
-
         lines.append(f"Presion: {self._pressure:.1f} hPa")
-
         lines.append(f"CO2: {self._air_quality:.1f} ppm")
-
-        if self._air_quality >= 1000:
-            lines.append("Aire contaminado")
-
         lines.append(f"Lumin: {self._luminosity:.1f} lux")
 
-        if self._luminosity <= 200:
-            lines.append("Poca luz")
-
         return lines
+    
+    def alert_messages(self):
+        messages = []
+        
+        if self._temperature >= 28:
+            messages.append("Temperatura alta")
+        
+        if self._humidity >= 70:
+            messages.append("Humedad alta")
+        
+        if self._air_quality >= 700:
+            messages.append("Aire contaminado")
+        
+        if self._luminosity <= 200:
+            messages.append("Poca luz")
+        
+        return messages
 
     # def to_display_lines(self):
     #     return [

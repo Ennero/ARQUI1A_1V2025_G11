@@ -74,18 +74,23 @@ def put_siepa_device_control(device_name):
     # Update the device settings
     if device_name == 'lighting':
         DeviceManager().lighting_device.control = mode
+        DeviceManager().lighting_device.turn_off_device()  
     elif device_name == 'fan':
         DeviceManager().fan_device.control = mode
+        DeviceManager().fan_device.turn_off_device()  
     elif device_name == 'buzzer':
         DeviceManager().buzzer_device.control = mode
+        DeviceManager().buzzer_device.turn_off_device()
     elif device_name == 'red_led':
         DeviceManager().red_led.control = mode
+        DeviceManager().red_led.turn_off_device()
     elif device_name == 'green_led':
         DeviceManager().green_led.control = mode
+        DeviceManager().green_led.turn_off_device()
     elif device_name == 'blue_led':
-        DeviceManager().blue_led.control = mode
+        DeviceManager().blue_led.turn_off_device()
     elif device_name == 'yellow_led':
-        DeviceManager().yellow_led.control = mode
+        DeviceManager().yellow_led.turn_off_device()
     
     return respond_with_success({"message": "Settings updated successfully."})
 
