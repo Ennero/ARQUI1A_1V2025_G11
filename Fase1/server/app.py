@@ -214,33 +214,6 @@ class SiepaG11App(object):
                 #print(f"Error in sensor tasks: {e}")
                 time.sleep(1)  # Prevent tight loop on error
 
-    # def run_display(self):
-    #     previous_line = ""
-    #     current_line = ""
-        
-    #     while not self.stop_event.is_set():
-    #         try:
-    #             if not self.alert_queue.empty():
-    #                 new_line = self.alert_queue.get(timeout=1)
-    #                 previous_line = current_line
-    #                 current_line = new_line
-
-    #                 self.display_lcd.clear()
-    #                 self.display_lcd.write_centered(current_line, 1)
-    #                 time.sleep(5)
-    #                 continue
-                
-    #             new_line = self.display_queue.get(timeout=1)
-    #             previous_line = current_line
-    #             current_line = new_line
-
-    #             self.display_lcd.clear()
-    #             self.display_lcd.write_centered(previous_line, 1)
-    #             self.display_lcd.write_centered(current_line, 2)
-    #             time.sleep(2)
-
-    #         except queue.Empty:
-    #             continue
     def run_display(self):
         previous_line = ""
         current_line = ""
