@@ -95,7 +95,7 @@ def put_siepa_device_control(device_name):
     return respond_with_success({"message": "Settings updated successfully."})
 
 @siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
-def put_siepa_device_mode(device_name):
+def put_siepa_device_status(device_name):
     data = request.get_json()
     print(data)
     if not data:

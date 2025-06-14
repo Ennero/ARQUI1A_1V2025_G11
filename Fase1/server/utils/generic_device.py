@@ -58,7 +58,8 @@ class GenericOutputDevice:
         if value in ["automatic", "manual"]:
             self._control = value
             self._mode = False
-            GPIO.output(self._pin, GPIO.LOW)
+            if value == "automatic":
+                self.turn_off_device()
         else:
             print('Control must be "automatic" or "manual"')
 
