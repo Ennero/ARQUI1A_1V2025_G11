@@ -48,10 +48,14 @@ class SiepaG11App(object):
         self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=15.0)
         self.presence_helper = False
 
-        self.humidity_helper = False
-        self.temperature_helper = False
-        self.pressure_helper = False
-        self.air_quality_helper = False
+        # NEW
+        self.red_led_state = False
+        self.blue_led_state = False
+        self.yellow_led_state = False
+        self.green_led_state = False
+        self.buzzer_state = False
+        self.lighting_state = False
+        self.fan_state = False
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -103,10 +107,17 @@ class SiepaG11App(object):
         self.mqtt_client.run()
     
     def turning_off_with_delay(self, led, device=None):
+        
+        if led is not None:
+            led.turn_off_device()
+        
+        if device is not None:
+            device.turn_off_device()
+
+        if device is None and led is None:
+            return
+        # Wait for 5 seconds before turning off the device
         time.sleep(5)
-        led.turn_off_device()
-        if(device is None): return
-        device.turn_off_device()
 
     def run_sensor_tasks(self):
         """Run sensor reading loop in a separate thread"""
@@ -142,65 +153,132 @@ class SiepaG11App(object):
                 if self.stop_event.is_set():
                     break
 
-                # ACTUATORS: Perform some actions based on sensor data
+                # NEW VERSION
 
-                # Red LED (temperature >= 28)
-                if siepa_data.temperature >= 28 and not self.red_led.mode and self.fan_device.control == 'automatic':
-                    self.red_led.turn_on_device()
+                # ACTUATORS: Second version of the actuator logic
+
+                if siepa_data.temperature >= 28:
                     self.mqtt_client.publish('temperature/danger', json.dumps({
                         'message': 'High temperature detected! Turning on red LED.'
                     }))
-                    # Turn on the fan devices
-                    self.fan_device.turn_on_device()
-                    self.show_priority_message("Alerta temp", 5)
-                    self.temperature_helper = True
-                    #print("The fans are on.")
-                elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
-                    self.temperature_helper = False
-                    Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
-                    # Turning off the fans in 5 seconds...
-                
-                # Yellow LED (humidity >= 70)
-                if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
-                    self.humidity_helper = True
-                    self.yellow_led.turn_on_device()
 
+                if siepa_data.humidity >= 70:
                     self.mqtt_client.publish('humidity/danger', json.dumps({
                         'message': 'High humidity detected! Turning on yellow LED.'
                     }))
-                    self.show_priority_message("Alerta humedad", 5)
-                elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
-                    # self.yellow_led.turn_off_device()
-                    self.humidity_helper = False
-                    Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
-                
-                # Green LED (luminosity <= 200)
-                if siepa_data.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
-                    self.luminosity_helper = True
-                    self.green_led.turn_on_device()
+
+                if siepa_data.luminosity <= 200:
                     self.mqtt_client.publish('luminosity/danger', json.dumps({
                         'message': 'Low luminosity detected! Turning on green LED.'
                     }))
-                    self.lighting_device.turn_on_device()
-                    self.show_priority_message("Alerta luz", 5)
-                elif siepa_data.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
-                    # self.green_led.turn_off_device()
-                    self.luminosity_helper = False
-                    Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
-                
-                # Blue LED (air quality >= 1000)
-                if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
-                    self.air_quality_helper = True
-                    self.blue_led.turn_on_device()
+
+                if siepa_data.air_quality >= 700:
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
                         'message': 'Low air_quality detected! Turning on blue LED.'
                     }))
-                    self.buzzer_device.turn_on_device()
+
+                # Check if we should show priority messages on the display
+                if siepa_data.temperature >= 28:
+                    self.show_priority_message("Alerta temp", 5)
+                if siepa_data.humidity >= 70:
+                    self.show_priority_message("Alerta humedad", 5)
+
+                if siepa_data.luminosity <= 200:
+                    self.show_priority_message("Alerta luz", 5)
+
+                if siepa_data.air_quality >= 700:
                     self.show_priority_message("Alerta aire", 5)
-                elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
-                    #self.blue_led.turn_off_device()
-                    self.air_quality_helper = False
+
+                
+                if self.red_led.control == 'automatic' and siepa_data.temperature >= 28 and not self.red_led.mode:
+                    self.red_led.turn_on_device()
+                elif self.red_led.control == 'automatic' and siepa_data.temperature < 28 and self.red_led.mode:
+                    Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
+
+                if self.yellow_led.control == 'automatic' and siepa_data.humidity >= 70 and not self.yellow_led.mode:
+                    self.yellow_led.turn_on_device()
+                elif self.yellow_led.control == 'automatic' and siepa_data.humidity < 70 and self.yellow_led.mode:
+                    Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
+
+                if self.green_led.control == 'automatic' and siepa_data.luminosity <= 200 and not self.green_led.mode:
+                    self.green_led.turn_on_device()
+                elif self.green_led.control == 'automatic' and siepa_data.luminosity > 200 and self.green_led.mode:
+                    Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
+                
+                if self.blue_led.control == 'automatic' and siepa_data.air_quality >= 700 and not self.blue_led.mode:
+                    self.blue_led.turn_on_device()
+                elif self.blue_led.control == 'automatic' and siepa_data.air_quality < 700 and self.blue_led.mode:
                     Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
+
+
+                if self.fan_device.control == 'automatic' and siepa_data.temperature >= 28 and not self.fan_device.mode:
+                    self.fan_device.turn_on_device()
+                elif self.fan_device.control == 'automatic' and siepa_data.temperature < 28 and self.fan_device.mode:
+                    Thread(target=self.turning_off_with_delay, args=(None, self.fan_device)).start()
+                if self.lighting_device.control == 'automatic' and siepa_data.luminosity <= 200 and not self.lighting_device.mode:
+                    self.lighting_device.turn_on_device()
+                elif self.lighting_device.control == 'automatic' and siepa_data.luminosity > 200 and self.lighting_device.mode:
+                    Thread(target=self.turning_off_with_delay, args=(None, self.lighting_device)).start()
+                if self.buzzer_device.control == 'automatic' and siepa_data.air_quality >= 700 and not self.buzzer_device.mode:
+                    self.buzzer_device.turn_on_device()
+                elif self.buzzer_device.control == 'automatic' and siepa_data.air_quality < 700 and self.buzzer_device.mode:
+                    Thread(target=self.turning_off_with_delay, args=(None, self.buzzer_device)).start()
+
+
+                # ACTUATORS: Perform some actions based on sensor data
+
+                # # Red LED (temperature >= 28)
+                # if siepa_data.temperature >= 28 and not self.red_led.mode and self.fan_device.control == 'automatic':
+                #     self.red_led.turn_on_device()
+                #     self.mqtt_client.publish('temperature/danger', json.dumps({
+                #         'message': 'High temperature detected! Turning on red LED.'
+                #     }))
+                #     # Turn on the fan devices
+                #     self.fan_device.turn_on_device()
+                #     self.show_priority_message("Alerta temp", 5)
+                #     #print("The fans are on.")
+                # elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
+                #     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
+                #     # Turning off the fans in 5 seconds...
+                
+                # # OLD VERSION
+                
+                # # Yellow LED (humidity >= 70)
+                # if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                #     self.yellow_led.turn_on_device()
+
+                #     self.mqtt_client.publish('humidity/danger', json.dumps({
+                #         'message': 'High humidity detected! Turning on yellow LED.'
+                #     }))
+                #     self.show_priority_message("Alerta humedad", 5)
+                # elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                #     # self.yellow_led.turn_off_device()
+                #     Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
+                
+                # # Green LED (luminosity <= 200)
+                # if siepa_data.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                #     self.green_led.turn_on_device()
+                #     self.mqtt_client.publish('luminosity/danger', json.dumps({
+                #         'message': 'Low luminosity detected! Turning on green LED.'
+                #     }))
+                #     self.lighting_device.turn_on_device()
+                #     self.show_priority_message("Alerta luz", 5)
+                # elif siepa_data.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                #     # self.green_led.turn_off_device()
+                #     Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
+                
+                # # Blue LED (air quality >= 1000)
+                # if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
+                #     self.blue_led.turn_on_device()
+                #     self.mqtt_client.publish('air_quality/danger', json.dumps({
+                #         'message': 'Low air_quality detected! Turning on blue LED.'
+                #     }))
+                #     self.buzzer_device.turn_on_device()
+                #     self.show_priority_message("Alerta aire", 5)
+                # elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
+                #     #self.blue_led.turn_off_device()
+                #     Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
+
 
                 for alert in siepa_data.alert_messages():
                     self.safe_put(self.alert_queue, alert, 'last_alert_message')
