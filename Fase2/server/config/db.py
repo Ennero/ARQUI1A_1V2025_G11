@@ -117,3 +117,7 @@ class SiepaDB:
             messages.append("Poca luz")
         
         return messages
+
+
+class SiepaMongoDB:
+    pass
