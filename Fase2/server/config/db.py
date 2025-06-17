@@ -117,28 +117,3 @@ class SiepaDB:
             messages.append("Poca luz")
         
         return messages
-
-    # def to_display_lines(self):
-    #     return [
-    #         f"T: {self.temperature:.1f}C",
-    #         f"H: {self.humidity:.1f}%",
-    #         f"P: {self.pressure:.1f}hPa",
-    #         f"AQ: {self.air_quality:.1f}ppm",
-    #         f"LUX: {self.luminosity:.1f}"
-    #     ]
-
-
-    # def to_display_lines(self):
-    #     return [
-    #         f"T: {self.temperature:.1f}C",
-    #         f"H: {self.humidity:.1f}%",
-    #         f"P: {self.pressure:.1f}hPa",
-    #         f"AQ: {self.air_quality:.1f}ppm",
-    #         f"LUX: {self.luminosity:.1f}"
-    #     ]
-    # def to_display_lines(self):
-    #     return [
-    #         f"Temp: {self.temperature:.1f}C Hum: {self.humidity:.1f}%",
-    #         f"Pres: {self.pressure:.1f}hPa AQ: {self.air_quality:.1f}",
-    #         f"Lux: {self.luminosity:.1f} Time: {self._timestamp.strftime('%H:%M')}"
-    #     ]
