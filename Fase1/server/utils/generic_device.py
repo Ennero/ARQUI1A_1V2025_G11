@@ -62,21 +62,3 @@ class GenericOutputDevice:
                 self.turn_off_device()
         else:
             print('Control must be "automatic" or "manual"')
-        print(f"Control set to {self._control}")
-        print(f"Device mode is {self._mode}")
-
-
-# if __name__ == "__main__":
-#     # Example usage
-#     GPIO.cleanup(1)
-#     led = GenericOutputDevice(13)
-#     led.turn_on_device()
-#     time.sleep(2)
-#     led.turn_off_device()
-#     time.sleep(2)
-#     led.cleanup()
-    
-    # led = GenericOutputDevice(13)
-    # led.turn_off_device()
-    # time.sleep(4)
-    # led.cleanup()

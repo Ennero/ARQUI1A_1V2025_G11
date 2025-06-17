@@ -10,12 +10,6 @@ siepa_blueprint = Blueprint('siepa_controller', __name__)
 @siepa_blueprint.route('/siepa/settings', methods=['GET'])
 def get_siepa_settings():
     
-    # return respond_with_success({
-    #     "app_name": AppSettings().app_name,
-    #     "version": AppSettings().version,
-    #     "debug": AppSettings().debug,
-    #     "mode": AppSettings().mode
-    # })
     return respond_with_success({
         "humidity": {
             "control": DeviceManager().yellow_led.control,
