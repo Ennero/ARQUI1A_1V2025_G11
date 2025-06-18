@@ -32,7 +32,8 @@
 ### Troubleshooting
 
 ```shell
-   pip3 freeze > requirements.txt --break-system-packages
+    pip3 install -r requirements.txt --break-system-packages # Install packages from the requirements.txt
+    pip3 freeze > requirements.txt --break-system-packages
 ```
 
 ```shell
@@ -47,12 +48,9 @@
 
 #### Credentials
 
+#### Connect to MongoDB Atlas
 
+In order to get access to your cluster, your `.env` file must have the following structure:
 ```env
-MODE=automatic
-DHT_PIN=
-BMP_PIN=
-MQTT_BROKER=localhost
-MQTT_PORT=1883
-MQTT_TOPIC_PREFIX=
+MONGODB_URI=mongodb+srv://<username>:<password>@arqui1g11siepacluster.r2uoqj2.mongodb.net/?retryWrites=true&w=majority&appName=Arqui1G11SiepaCluster
 ```
