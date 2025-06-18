@@ -1,4 +1,8 @@
 from datetime import datetime
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+
 
 class SiepaDB:
 
@@ -117,7 +121,3 @@ class SiepaDB:
             messages.append("Poca luz")
         
         return messages
-
-
-class SiepaMongoDB:
-    pass
