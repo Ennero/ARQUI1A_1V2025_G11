@@ -179,8 +179,8 @@ class SiepaG11App(object):
 
                 if current_time - last_save_time >= 30:
                     try:
-                        self.save_sensor_data_to_mongodb()
-                        Thread(target=self.save_sensor_data_to_mongodb, daemon=True).start()
+                        # self.save_sensor_data_to_mongodb()
+                        Thread(target=self.save_sensor_readings_to_mongodb, daemon=True).start()
                         last_save_time = current_time  # Update last save time
                     except Exception as e:
                         print(f"Error saving to MongoDB: {e}")

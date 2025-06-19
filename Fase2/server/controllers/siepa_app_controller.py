@@ -149,3 +149,7 @@ def put_siepa_device_status(device_name):
         return respond_with_error("Invalid device name provided.")
     
     return respond_with_success({"message": f"Device {device_name} is {status}."})
+
+@siepa_blueprint.route('/siepa/devices/<mesurement>/statistics', methods=['POST'])
+def post_statistics(mesurement):
+    return respond_with_success("post_statistics")
