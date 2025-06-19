@@ -28,7 +28,7 @@ class MeasuresCalculator:
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
-            ['qemu-aarch64-static', './ARM_processor/tests/test'],
+            ['qemu-aarch64-static', './ARM_processor/mean/mean'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -37,12 +37,5 @@ class MeasuresCalculator:
 
         stdout, stderr = mean_result.communicate(input=str_data(data))
 
-        print("Media: ")
-        print(stdout)
-
-        print("Error: ")
-        print(stderr)
-
-
-
+        print("Media: " + str(stdout))
     

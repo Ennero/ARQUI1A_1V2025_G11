@@ -7,3 +7,5 @@ datos = [
 
 calc = ms()
 calc.get_mean(datos)
+
+# print(stringify_data(datos))
