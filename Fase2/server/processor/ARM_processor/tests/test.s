@@ -30,8 +30,8 @@ _start:
 
 
     mov x0, 1
-    ldr x1, =numSalida
-    mov x2, 5
+    ldr x1, =buffer
+    mov x2, 1024
     mov x8, 64
     svc 0
 

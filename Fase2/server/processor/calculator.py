@@ -25,6 +25,7 @@ class MeasuresCalculator:
     def calculate(self, measure=None):
         return  
     
+    
     def get_mean(self, data):
         mean_result = sbp.Popen(
             ['qemu-aarch64-static', './ARM_processor/tests/test'],
