@@ -11,6 +11,7 @@ from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
+from config.mongodb import mongodb_connection
 from threading import Thread, Event
 import board
 import RPi.GPIO as GPIO
@@ -66,7 +67,7 @@ class SiepaG11App(object):
         self.lighting_device = self.device_manager.lighting_device
 
         # Define storage
-        self.storage = [] # We will implement MongoDB later
+        # self.storage = [] # We will implement MongoDB later
         self.display_queue = queue.Queue()
         self.alert_queue = queue.Queue()
 
@@ -84,6 +85,15 @@ class SiepaG11App(object):
         self.display_thread = None
 
         self.pause_display_event = Event()
+
+        # Create MongoDB database and collections
+        self.database = mongodb_connection.get_database('arqui1_siepa_g11_db')
+        self.sensor_readings_collection = self.database['sensor_readings']
+        self.alerts_collection = self.database['alerts']
+        self.predictions_collection = self.database['predictions']
+        self.stadistics_collection = self.database['statistics']
+
+        self.current_reading = None  # To store the latest sensor reading
 
         # App settings
         self.config = AppSettings(
@@ -108,12 +118,57 @@ class SiepaG11App(object):
         if(device is None): return
         device.turn_off_device()
 
+    def save_sensor_readings_to_mongodb(self):
+        if not self.current_reading:
+            return  # No data to save
+        
+        try:
+            
+            # Insert into MongoDB
+            result = self.sensor_readings_collection.insert_one({
+                "timestamp": self.current_reading.timestamp,
+                "temperature": self.current_reading.temperature,
+                "humidity": self.current_reading.humidity,
+                "pressure": self.current_reading.pressure,
+                "air_quality": self.current_reading.air_quality,
+                "luminosity": self.current_reading.luminosity,
+                "proximity": self.current_reading.proximity,
+            })
+            
+            print(f"Saved SENSOR DATA to MongoDB with id: {result.inserted_id}")
+            
+        except Exception as e:
+            print(f"Failed to save sensor data to MongoDB: {e}")
+    
+    def save_alert_to_mongodb(self, measurement, value):
+        if not self.current_reading:
+            return  # No data to save
+        
+        try:
+            
+            # Insert into MongoDB
+            result = self.alerts_collection.insert_one({
+                "timestamp": self.current_reading.timestamp,
+                "measurement": measurement,
+                "value": value
+            })
+            
+            print(f"Saved ALERT to MongoDB with id: {result.inserted_id}")
+            
+        except Exception as e:
+            print(f"Failed to save sensor data to MongoDB: {e}")
+
     def run_sensor_tasks(self):
         """Run sensor reading loop in a separate thread"""
+
+        last_save_time = time.time() # Initialize last save time
+
         while not self.stop_event.is_set():
             try:
+                current_time = time.time()
+
                 # Create a siepaDB instance
-                siepa_data = SiepaDB(
+                self.current_reading = SiepaDB(
                     temperature=self.dht_sensor.temperature,
                     humidity=self.dht_sensor.humidity,
                     pressure=self.bmp_sensor.pressure,
@@ -122,20 +177,29 @@ class SiepaG11App(object):
                     proximity=self.ultrasonic_sensor.proximity
                 )
 
+                if current_time - last_save_time >= 30:
+                    try:
+                        self.save_sensor_data_to_mongodb()
+                        Thread(target=self.save_sensor_data_to_mongodb, daemon=True).start()
+                        last_save_time = current_time  # Update last save time
+                    except Exception as e:
+                        print(f"Error saving to MongoDB: {e}")
+                
+                
                 # Store data
-                self.storage.append(siepa_data)
+                #self.storage.append(self.current_reading) # No longer used, we make use of MongoDB
 
                 # Publish to MQTT messages
-                self.mqtt_client.publish('temperature', json.dumps({'temperature': siepa_data.temperature}))
-                self.mqtt_client.publish('humidity', json.dumps({'humidity': siepa_data.humidity}))
-                self.mqtt_client.publish('pressure', json.dumps({'pressure': siepa_data.pressure}))
-                self.mqtt_client.publish('air_quality', json.dumps({'air_quality': siepa_data.air_quality}))
-                self.mqtt_client.publish('luminosity', json.dumps({'luminosity': siepa_data.luminosity}))
+                self.mqtt_client.publish('temperature', json.dumps({'temperature': self.current_reading.temperature}))
+                self.mqtt_client.publish('humidity', json.dumps({'humidity': self.current_reading.humidity}))
+                self.mqtt_client.publish('pressure', json.dumps({'pressure': self.current_reading.pressure}))
+                self.mqtt_client.publish('air_quality', json.dumps({'air_quality': self.current_reading.air_quality}))
+                self.mqtt_client.publish('luminosity', json.dumps({'luminosity': self.current_reading.luminosity}))
 
-                if not self.presence_helper and siepa_data.proximity > 0:
-                    self.mqtt_client.publish('proximity', json.dumps({'proximity': siepa_data.proximity}))
+                if not self.presence_helper and self.current_reading.proximity > 0:
+                    self.mqtt_client.publish('proximity', json.dumps({'proximity': self.current_reading.proximity}))
                     self.presence_helper = True
-                elif self.presence_helper and  siepa_data.proximity <= 0:
+                elif self.presence_helper and  self.current_reading.proximity <= 0:
                     self.presence_helper = False
 
                 # Check if we should stop
@@ -145,7 +209,7 @@ class SiepaG11App(object):
                 # ACTUATORS: Perform some actions based on sensor data
 
                 # Red LED (temperature >= 28)
-                if siepa_data.temperature >= 28 and not self.red_led.mode and self.fan_device.control == 'automatic':
+                if self.current_reading.temperature >= 28 and not self.red_led.mode and self.fan_device.control == 'automatic':
                     self.red_led.turn_on_device()
                     self.mqtt_client.publish('temperature/danger', json.dumps({
                         'message': 'High temperature detected! Turning on red LED.'
@@ -155,13 +219,13 @@ class SiepaG11App(object):
                     self.show_priority_message("Alerta temp", 5)
                     self.temperature_helper = True
                     #print("The fans are on.")
-                elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
+                elif self.current_reading.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
                     self.temperature_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
                     # Turning off the fans in 5 seconds...
                 
                 # Yellow LED (humidity >= 70)
-                if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                if self.current_reading.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
                     self.humidity_helper = True
                     self.yellow_led.turn_on_device()
 
@@ -169,13 +233,13 @@ class SiepaG11App(object):
                         'message': 'High humidity detected! Turning on yellow LED.'
                     }))
                     self.show_priority_message("Alerta humedad", 5)
-                elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
+                elif self.current_reading.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
                     # self.yellow_led.turn_off_device()
                     self.humidity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
                 
                 # Green LED (luminosity <= 200)
-                if siepa_data.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                if self.current_reading.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
                     self.luminosity_helper = True
                     self.green_led.turn_on_device()
                     self.mqtt_client.publish('luminosity/danger', json.dumps({
@@ -183,13 +247,13 @@ class SiepaG11App(object):
                     }))
                     self.lighting_device.turn_on_device()
                     self.show_priority_message("Alerta luz", 5)
-                elif siepa_data.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                elif self.current_reading.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
                     # self.green_led.turn_off_device()
                     self.luminosity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
                 
                 # Blue LED (air quality >= 1000)
-                if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
+                if self.current_reading.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
                     self.air_quality_helper = True
                     self.blue_led.turn_on_device()
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
@@ -197,16 +261,29 @@ class SiepaG11App(object):
                     }))
                     self.buzzer_device.turn_on_device()
                     self.show_priority_message("Alerta aire", 5)
-                elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
+                elif self.current_reading.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
                     #self.blue_led.turn_off_device()
                     self.air_quality_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
 
-                for alert in siepa_data.alert_messages():
+                for alert in self.current_reading.alert_messages():
                     self.safe_put(self.alert_queue, alert, 'last_alert_message')
 
-                for line in siepa_data.to_display_lines():
+                for line in self.current_reading.to_display_lines():
                     self.safe_put(self.display_queue, line, 'last_display_message')
+
+
+                if self.current_reading.temperature >= 28:
+                    Thread(target=self.save_alert_to_mongodb, daemon=True, args=("temperature", self.current_reading.temperature)).start()
+                if self.current_reading.humidity >= 70:
+                    Thread(target=self.save_alert_to_mongodb, daemon=True, args=("humidity", self.current_reading.humidity)).start()
+                if self.current_reading.air_quality >= 700:
+                    Thread(target=self.save_alert_to_mongodb, daemon=True, args=("air_quality", self.current_reading.air_quality)).start()
+                if self.current_reading.luminosity <= 200:
+                    Thread(target=self.save_alert_to_mongodb, daemon=True, args=("luminosity", self.current_reading.luminosity)).start()   
+                if self.current_reading.pressure > 0:
+                    Thread(target=self.save_alert_to_mongodb, daemon=True, args=("pressure", self.current_reading.pressure)).start()
+                
 
                 time.sleep(2)
 
