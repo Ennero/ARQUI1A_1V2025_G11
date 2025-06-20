@@ -1,10 +1,11 @@
 .global sum
 
 .text
-sum: // retornos x0 = suma total, x1 = contador de números
+sum: // parametros x0 = buffer ; retornos x0 = suma total, x1 = contador de números
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
+    mov x2, x0      // apuntador al buffer
     mov x0, #0      // suma total
     mov x1, #0      // contador de números
     mov x3, #0      // x3 = acumulador del número actual

@@ -30,8 +30,31 @@ class Calculator:
         )
 
         stdout, stderr = mean_result.communicate(input=self.stringify_data(data))
-
         print("Mean: " + str(stdout))
+
+    def get_variance(self, data):
+        mean_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '2'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = mean_result.communicate(input=self.stringify_data(data))
+        print("Variance: " + str(stdout))
+
+    def get_stdev(self, data):
+        mean_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '3'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = mean_result.communicate(input=self.stringify_data(data))
+        print("Standard deviation: " + str(stdout))
 
     def stringify_data(self, data):
         data_size = len(data)
@@ -47,4 +70,4 @@ class Calculator:
 if __name__ == "__main__":
     numbers = [1, 2, 47, 15, 5]
     calculator = Calculator()
-    calculator.get_mean(numbers)
+    calculator.get_stdev(numbers)

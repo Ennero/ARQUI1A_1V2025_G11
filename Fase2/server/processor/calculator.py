@@ -18,9 +18,7 @@ class MeasuresCalculator:
             "variance": None,
             "moving_average": None,
             "exponential_smoothing": None
-        }
-    
-    
+        }    
 
     def calculate(self, measure=None):
         return  
