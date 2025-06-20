@@ -239,7 +239,7 @@ class SiepaG11App(object):
                     Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
                 
                 # Green LED (luminosity <= 200)
-                if self.current_reading.luminosity <= 200 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                if self.current_reading.luminosity <= 45 and not self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
                     self.luminosity_helper = True
                     self.green_led.turn_on_device()
                     self.mqtt_client.publish('luminosity/danger', json.dumps({
@@ -247,7 +247,7 @@ class SiepaG11App(object):
                     }))
                     self.lighting_device.turn_on_device()
                     self.show_priority_message("Alerta luz", 5)
-                elif self.current_reading.luminosity > 200 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
+                elif self.current_reading.luminosity > 45 and self.green_led.mode and self.lighting_device.control == 'automatic' and self.green_led.control == 'automatic':
                     # self.green_led.turn_off_device()
                     self.luminosity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.green_led, self.lighting_device)).start()
