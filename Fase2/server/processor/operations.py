@@ -7,3 +7,12 @@ def stringify_data(data):
         styled_string += "\n"
     styled_string += "$"
     return styled_string
+
+def send_array():
+    return
+
+def stringify_data_document():
+    path = "prueba.txt"
+    file = open(path)
+    file_string = file.read().strip()
+    return file_string
