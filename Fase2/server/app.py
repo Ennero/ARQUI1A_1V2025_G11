@@ -281,7 +281,7 @@ class SiepaG11App(object):
                     Thread(target=self.save_alert_to_mongodb, daemon=True, args=("air_quality", self.current_reading.air_quality)).start()
                 if self.current_reading.luminosity <= 200:
                     Thread(target=self.save_alert_to_mongodb, daemon=True, args=("luminosity", self.current_reading.luminosity)).start()   
-                if self.current_reading.pressure > 0:
+                if self.current_reading.pressure < 600: # Not that sure about this value yet
                     Thread(target=self.save_alert_to_mongodb, daemon=True, args=("pressure", self.current_reading.pressure)).start()
                 
 
