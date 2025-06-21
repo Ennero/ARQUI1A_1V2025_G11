@@ -1,16 +1,33 @@
-aarch64-linux-gnu-as -g ./stats/main.s -o ./stats/main.o
-aarch64-linux-gnu-as -g ./stats/mean/mean.s -o ./stats/mean/mean.o
-aarch64-linux-gnu-as -g ./stats/sum/sum.s -o ./stats/sum/sum.o
-aarch64-linux-gnu-as -g ./stats/print_num/print_num.s -o ./stats/print_num/print_num.o
-aarch64-linux-gnu-as -g ./stats/sub_var/sub_var.s -o ./stats/sub_var/sub_var.o
-aarch64-linux-gnu-as -g ./stats/variance/variance.s -o ./stats/variance/variance.o
-aarch64-linux-gnu-as -g ./stats/stdev/stdev.s -o ./stats/stdev/stdev.o
-aarch64-linux-gnu-as -g ./stats/mode/mode.s -o ./stats/mode/mode.o
-aarch64-linux-gnu-as -g ./stats/numbers_array/numbers_array.s -o ./stats/numbers_array/numbers_array.o
-aarch64-linux-gnu-as -g ./stats/bubble_sort/bubble_sort.s -o ./stats/bubble_sort/bubble_sort.o
-aarch64-linux-gnu-as -g ./stats/median/median.s -o ./stats/median/median.o
-aarch64-linux-gnu-as -g ./stats/minimum/minimum.s -o ./stats/minimum/minimum.o
-aarch64-linux-gnu-as -g ./stats/maximum/maximum.s -o ./stats/maximum/maximum.o
+#!/bin/bash
 
+mkdir -p build  # crea la carpeta build si no existe
 
-aarch64-linux-gnu-ld ./stats/main.o ./stats/mean/mean.o ./stats/sum/sum.o ./stats/print_num/print_num.o ./stats/sub_var/sub_var.o ./stats/variance/variance.o ./stats/stdev/stdev.o ./stats/mode/mode.o ./stats/numbers_array/numbers_array.o ./stats/median/median.o ./stats/bubble_sort/bubble_sort.o ./stats/maximum/maximum.o ./stats/minimum/minimum.o -o ./stats/main
+# Lista de archivos fuente sin extensión ni carpeta "build"
+files=(
+  main
+  stats/mean
+  stats/sum
+  stats/print_num
+  stats/sub_var
+  stats/variance
+  stats/stdev
+  stats/mode
+  stats/numbers_array
+  stats/bubble_sort
+  stats/median
+  stats/minimum
+  stats/maximum
+)
+
+# Compilar cada archivo .s a .o dentro de build
+for f in "${files[@]}"; do
+  # extraer solo el nombre de archivo sin ruta para el .o
+  base=$(basename "$f")
+  aarch64-linux-gnu-as -g "./$f.s" -o "./build/$base.o"
+done
+
+# Crear la lista de objetos para enlazar
+objs=$(printf "./build/%s.o " "${files[@]##*/}")
+
+# Enlazar todos los objetos
+aarch64-linux-gnu-ld $objs -o ./main

@@ -22,7 +22,7 @@ class Calculator:
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '1'],
+            ['qemu-aarch64', './main', '0'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -34,7 +34,7 @@ class Calculator:
 
     def get_variance(self, data):
         mean_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '2'],
+            ['qemu-aarch64', './main', '1'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -46,7 +46,7 @@ class Calculator:
 
     def get_stdev(self, data):
         mean_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '3'],
+            ['qemu-aarch64', './main', '2'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -56,11 +56,21 @@ class Calculator:
         stdout, stderr = mean_result.communicate(input=data)
         print("Standard deviation: " + str(stdout))
 
-    # Espacio para la moda
+    def get_mode(self, data):
+        median_result = sbp.Popen(
+            ['qemu-aarch64', './main', '3'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = median_result.communicate(input=data)
+        print("Mode: " + str(stdout))
 
     def get_median(self, data):
         median_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '5'],
+            ['qemu-aarch64', './main', '4'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -72,7 +82,7 @@ class Calculator:
 
     def get_maximum(self, data):
         maximum_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '6'],
+            ['qemu-aarch64', './main', '5'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -84,7 +94,7 @@ class Calculator:
 
     def get_minimum(self, data):
         minimum_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '7'],
+            ['qemu-aarch64', './main', '6'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -93,18 +103,18 @@ class Calculator:
 
         stdout, stderr = minimum_result.communicate(input=data)
         print("Minimum: " + str(stdout))
-
+    
     def get_movil_mean(self, data):
-        minimum_result = sbp.Popen(
-            ['qemu-aarch64', './stats/main', '8'],
+        mean_result = sbp.Popen(
+            ['qemu-aarch64', './main', '0'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
             text=True
         )
 
-        stdout, stderr = minimum_result.communicate(input=data)
-        print("Movil Mean: " + str(stdout))
+        stdout, stderr = mean_result.communicate(input=data)
+        print("Movil mean: " + str(stdout))
 
     # -------------------------------------------------------------------------------
     def stringify_data(self, data):
@@ -125,7 +135,7 @@ if __name__ == "__main__":
         calculator.get_mean(numbers)
         calculator.get_variance(numbers)
         calculator.get_stdev(numbers)
-        # Espacio para la moda
+        # calculator.get_mode(numbers)
         calculator.get_median(numbers)
         calculator.get_maximum(numbers)
         calculator.get_minimum(numbers)

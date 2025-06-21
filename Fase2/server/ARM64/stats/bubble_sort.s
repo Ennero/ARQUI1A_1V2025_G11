@@ -1,7 +1,7 @@
 .global bubble_sort
 
 .text
-bubble_sort: // parametros x0 = array de números, x1 = contador de números
+bubble_sort: // parametros x0 = array de números, x1 = tamaño del array; retornos x0 = array ordenado, x1 = tamaño del array
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
@@ -51,6 +51,5 @@ loop:
         b loop                      // volver al inicio del bucle externo
     
 end_loop:
-
     ldp fp, lr, [sp], #16
     ret

@@ -2,7 +2,7 @@
 .extern sum
 
 .text
-mean: // retornos x0 = media, x1 = contador de números
+mean: // parametros x0 = buffer ; retornos x0 = media, x1 = contador de números
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
