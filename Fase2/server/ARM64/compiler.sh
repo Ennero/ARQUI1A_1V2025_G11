@@ -9,6 +9,8 @@ aarch64-linux-gnu-as -g ./stats/mode/mode.s -o ./stats/mode/mode.o
 aarch64-linux-gnu-as -g ./stats/numbers_array/numbers_array.s -o ./stats/numbers_array/numbers_array.o
 aarch64-linux-gnu-as -g ./stats/bubble_sort/bubble_sort.s -o ./stats/bubble_sort/bubble_sort.o
 aarch64-linux-gnu-as -g ./stats/median/median.s -o ./stats/median/median.o
+aarch64-linux-gnu-as -g ./stats/minimum/minimum.s -o ./stats/minimum/minimum.o
+aarch64-linux-gnu-as -g ./stats/maximum/maximum.s -o ./stats/maximum/maximum.o
 
 
-aarch64-linux-gnu-ld ./stats/main.o ./stats/mean/mean.o ./stats/sum/sum.o ./stats/print_num/print_num.o ./stats/sub_var/sub_var.o ./stats/variance/variance.o ./stats/stdev/stdev.o ./stats/mode/mode.o ./stats/numbers_array/numbers_array.o ./stats/median/median.o ./stats/bubble_sort/bubble_sort.o -o ./stats/main
+aarch64-linux-gnu-ld ./stats/main.o ./stats/mean/mean.o ./stats/sum/sum.o ./stats/print_num/print_num.o ./stats/sub_var/sub_var.o ./stats/variance/variance.o ./stats/stdev/stdev.o ./stats/mode/mode.o ./stats/numbers_array/numbers_array.o ./stats/median/median.o ./stats/bubble_sort/bubble_sort.o ./stats/maximum/maximum.o ./stats/minimum/minimum.o -o ./stats/main

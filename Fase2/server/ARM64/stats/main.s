@@ -9,6 +9,8 @@
 .extern numbers_array
 .extern median
 .extern bubble_sort
+.extern minimum
+.extern maximum
 
 .bss
 buffer: .skip 8192
@@ -78,18 +80,21 @@ do_median:
     b exit
 
 do_min:
-    bl numbers_array // x0 = array de números, x1 = contador de números
-    bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
-    ldr w0, [x0]  // cargar el primer elemento (minimo)
-    bl print_num  // print(x0)
+    // bl numbers_array // x0 = array de números, x1 = contador de números
+    // bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
+    // ldr w0, [x0]  // cargar el primer elemento (minimo)
+    // bl print_num  // print(x0)
+    // b exit
+    bl minimum
     b exit
 
 do_max:
-    bl numbers_array // x0 = array de números, x1 = contador de números
-    bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
-    sub w1, w1, #1 // x1 = contador de números - 1
-    ldr w0, [x0, w1, uxtw  #2] // cargar el último elemento (maximo)
-    bl print_num  // print(x0)
+    // bl numbers_array // x0 = array de números, x1 = contador de números
+    // bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
+    // sub w1, w1, #1 // x1 = contador de números - 1
+    // ldr w0, [x0, w1, uxtw  #2] // cargar el último elemento (maximo)
+    // bl print_num  // print(x0)
+    bl minimum
     b exit
 
 
