@@ -94,6 +94,18 @@ class Calculator:
         stdout, stderr = minimum_result.communicate(input=data)
         print("Minimum: " + str(stdout))
 
+    def get_movil_mean(self, data):
+        minimum_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '8'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = minimum_result.communicate(input=data)
+        print("Movil Mean: " + str(stdout))
+
     # -------------------------------------------------------------------------------
     def stringify_data(self, data):
         data_size = len(data)
@@ -117,4 +129,5 @@ if __name__ == "__main__":
         calculator.get_median(numbers)
         calculator.get_maximum(numbers)
         calculator.get_minimum(numbers)
+        calculator.get_movil_mean(numbers)
         

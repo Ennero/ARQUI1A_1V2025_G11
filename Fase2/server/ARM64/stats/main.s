@@ -50,6 +50,9 @@ _start:
     cmp w3, #55
     b.eq do_min
 
+    cmp w3, #56
+    b.eq do_mean
+
     b exit
 
 do_mean:
