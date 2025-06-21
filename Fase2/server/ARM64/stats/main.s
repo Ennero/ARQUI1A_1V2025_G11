@@ -7,6 +7,8 @@
 .extern stdev
 .extern mode
 .extern numbers_array
+.extern median
+.extern bubble_sort
 
 .bss
 buffer: .skip 8192
@@ -26,16 +28,25 @@ _start:
     ldr x0, =buffer
 
     cmp w3, #49
-    beq do_mean
+    b.eq do_mean
 
     cmp w3, #50
-    beq do_variance
+    b.eq do_variance
 
     cmp w3, #51
-    beq do_stdev
+    b.eq do_stdev
 
     cmp w3, #52
-    beq do_mode
+    b.eq do_mode
+
+    cmp w3, #53
+    b.eq do_median
+
+    cmp w3, #54
+    b.eq do_max
+
+    cmp w3, #55
+    b.eq do_min
 
     b exit
 
@@ -59,6 +70,28 @@ do_mode:
     bl mode      // x0 = moda, x1 = contador de números
     bl print_num // print(x0)
     b exit
+
+do_median:
+    bl numbers_array // x0 = array de números, x1 = contador de números
+    bl median     // x0 = mediana, x1 = contador de números
+    bl print_num  // print(x0)
+    b exit
+
+do_min:
+    bl numbers_array // x0 = array de números, x1 = contador de números
+    bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
+    ldr w0, [x0]  // cargar el primer elemento (minimo)
+    bl print_num  // print(x0)
+    b exit
+
+do_max:
+    bl numbers_array // x0 = array de números, x1 = contador de números
+    bl bubble_sort // ordenar el array | x0 = array de números, x1 = contador de números
+    sub w1, w1, #1 // x1 = contador de números - 1
+    ldr w0, [x0, w1, uxtw  #2] // cargar el último elemento (maximo)
+    bl print_num  // print(x0)
+    b exit
+
 
 exit:
     mov x0, #0

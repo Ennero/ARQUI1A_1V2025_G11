@@ -56,6 +56,45 @@ class Calculator:
         stdout, stderr = mean_result.communicate(input=data)
         print("Standard deviation: " + str(stdout))
 
+    # Espacio para la moda
+
+    def get_median(self, data):
+        median_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '5'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = median_result.communicate(input=data)
+        print("Median: " + str(stdout))
+
+    def get_maximum(self, data):
+        maximum_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '6'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = maximum_result.communicate(input=data)
+        print("Maximum: " + str(stdout))
+
+    def get_minimum(self, data):
+        minimum_result = sbp.Popen(
+            ['qemu-aarch64', './stats/main', '7'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = minimum_result.communicate(input=data)
+        print("Minimum: " + str(stdout))
+
+    # -------------------------------------------------------------------------------
     def stringify_data(self, data):
         data_size = len(data)
         styled_string = ""
@@ -74,3 +113,8 @@ if __name__ == "__main__":
         calculator.get_mean(numbers)
         calculator.get_variance(numbers)
         calculator.get_stdev(numbers)
+        # Espacio para la moda
+        calculator.get_median(numbers)
+        calculator.get_maximum(numbers)
+        calculator.get_minimum(numbers)
+        
