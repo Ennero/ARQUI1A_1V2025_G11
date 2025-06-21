@@ -8,6 +8,7 @@ class DisplayLCD:
         self.lcd = LCD(address=0x27)  # Common address for I2C LCDs
         self.lcd.clear()
         self.lcd.backlight(True)
+        self._show = 'readings'
 
     def write_centered(self, message: str, line: int):
         message = message.strip()
@@ -18,6 +19,16 @@ class DisplayLCD:
 
     def clear(self):
         self.lcd.clear()
+
+    @property
+    def show(self):
+        return self._show
+    @show.setter
+    def show(self, value):
+        if value in ['readings', 'statistics', 'predictions']:
+            self._show = value
+        else:
+            raise ValueError("Invalid display mode. Use 'readings' or 'status'.")
 
 # if __name__ == "__main__":
 #     display = DisplayLCD()

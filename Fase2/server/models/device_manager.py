@@ -1,6 +1,7 @@
 # utils/device_manager.py
 
 from utils.generic_device import GenericOutputDevice
+from utils.display import DisplayLCD
 
 class DeviceManager:
     _instance = None
@@ -22,3 +23,6 @@ class DeviceManager:
         self.buzzer_device = GenericOutputDevice(26)
         self.fan_device = GenericOutputDevice(1)
         self.lighting_device = GenericOutputDevice(13)
+
+        # Display
+        self.display_lcd = DisplayLCD()
