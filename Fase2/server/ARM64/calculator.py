@@ -108,10 +108,8 @@ class Calculator:
     
 if __name__ == "__main__":
     with open("prueba.txt", "r") as file:
-        #numbers = file.read()
-        data = [44, 27, 88, 44, 25, 4]
+        numbers = file.read()
         calculator = Calculator()
-        numbers = calculator.stringify_data(data)
         calculator.get_mean(numbers)
         calculator.get_variance(numbers)
         calculator.get_stdev(numbers)

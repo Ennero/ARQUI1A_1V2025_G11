@@ -3,13 +3,13 @@
 
 .section .bss
 // buffer: .skip 8156
-numSalida: .space 10
+numSalida: .space 20
 
 .section .text
 
 maximum:
-    stp fp, lr, [sp, #-16]!
-    mov fp, sp
+    // stp fp, lr, [sp, #-16]!
+    // mov fp, sp
     // Declaración de variables iniciales
     mov x2, x0              // x2 = dir(buffer) --> esta es la que se irá modificando
     mov x3, #0              // x3 = cantDigitosNumero
@@ -78,7 +78,10 @@ countResultDigits:
 
 writeTmp:
     mov x6, x3
+    add x6, x6, 1
     ldr x9, =numSalida
+    mov w7, #10
+    strb w7, [x9, x3]
     b writeResult
 
 writeResult:
@@ -101,6 +104,6 @@ printNumber:
     mov x8, #64
     svc 0
 
-    ldp fp, lr, [sp], #16
+    // ldp fp, lr, [sp], #16
     ret
     

@@ -94,7 +94,7 @@ do_max:
     // sub w1, w1, #1 // x1 = contador de números - 1
     // ldr w0, [x0, w1, uxtw  #2] // cargar el último elemento (maximo)
     // bl print_num  // print(x0)
-    bl minimum
+    bl maximum
     b exit
 
 
