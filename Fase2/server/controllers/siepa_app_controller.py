@@ -3,6 +3,7 @@ from config.db import SiepaDB
 from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
+from config.mongodb import mongodb_connection
 
 siepa_blueprint = Blueprint('siepa_controller', __name__)
 
@@ -141,6 +142,40 @@ def put_siepa_device_status(device_name):
     
     return respond_with_success({"message": f"Device {device_name} is {status}."})
 
-@siepa_blueprint.route('/siepa/devices/<mesurement>/statistics', methods=['POST'])
-def post_statistics(mesurement):
-    return respond_with_success("post_statistics")
+
+@siepa_blueprint.route('/siepa/devices/<measurement>', methods=['GET'])
+def get_devices_data(measurement):
+    
+    # URL example with params http://localhost:5000/siepa/devices/temperature?collection=sensor_readings&measurement=temperature
+    collection_query = request.args.get('collection')
+    measurement = request.args.get('measurement')
+
+    if not collection_query or not measurement:
+        return respond_with_error("Missing 'collection' or 'measurement' query parameters.")
+    
+    if collection_query not in ['sensor_readings', 'statistics', 'predictions', 'alerts']:
+        return respond_with_error("Invalid 'collection' query parameter. Must be 'readings', 'statistics', 'alerts' or 'sensor_readings'.")
+    
+    if measurement not in ['temperature', 'humidity', 'luminosity', 'air_quality', 'all', 'proximity', 'pressure']:
+        return respond_with_error("Invalid 'measurement' query parameter. Must be 'temperature', 'humidity', 'luminosity', or 'air_quality'.")
+
+    db = mongodb_connection.get_database('arqui1_siepa_g11_db')
+    collection = db[collection_query]
+
+    data = []
+
+    if measurement == 'all':
+        data = list(collection.find())
+    else:
+        data = list(collection.find({}, {f"{measurement}": 1, "timestamp": 1}))
+
+    return respond_with_success({"data": data})
+
+@siepa_blueprint.route('/siepa/calculation/<measurement>', methods=['GET'])
+def get_devices_data(measurement):
+
+    if measurement not in ['temperature', 'humidity', 'luminosity', 'air_quality', 'proximity', 'pressure']:
+        return respond_with_error("Invalid 'measurement' query parameter. Must be 'temperature', 'humidity', 'luminosity', 'air_quality', 'proximity' or 'pressure'.")
+
+
+    return respond_with_success("This endpoint is not implemented yet.")

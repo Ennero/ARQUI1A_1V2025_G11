@@ -50,6 +50,14 @@ The service file is located at
 /etc/systemd/system/siepa.service
 ```
 
+Any change in that file requires deamon and service reload
+
+```bash
+    sudo systemctl daemon-reload
+    sudo systemctl enable siepa
+    sudo systemctl restart siepa
+```
+
 #### Check Siepa services status
 
 ```bash
