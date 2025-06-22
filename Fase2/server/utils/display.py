@@ -28,7 +28,7 @@ class DisplayLCD:
         if value in ['readings', 'statistics', 'predictions']:
             self._show = value
         else:
-            raise ValueError("Invalid display mode. Use 'readings' or 'status'.")
+            raise ValueError("Invalid display mode. Use 'readings', 'statistics' or 'predictions.")
 
 # if __name__ == "__main__":
 #     display = DisplayLCD()
