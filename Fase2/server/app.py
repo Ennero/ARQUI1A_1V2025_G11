@@ -55,7 +55,7 @@ class SiepaG11App(object):
         self.air_quality_helper = False
 
         # Define output devices
-        self.display_lcd = DisplayLCD()
+        self.display_lcd = self.device_manager.display_lcd
         
         self.red_led = self.device_manager.red_led
         self.green_led = self.device_manager.green_led
@@ -292,6 +292,8 @@ class SiepaG11App(object):
                 time.sleep(1)  # Prevent tight loop on error
 
     def run_display(self):
+        if self.display_lcd.show != 'readings': return
+            
         previous_line = ""
         current_line = ""
 
@@ -323,6 +325,8 @@ class SiepaG11App(object):
                 continue
 
     def show_priority_message(self, msg: str, duration: int = 5):
+        if self.display_lcd.show != 'readings': return
+        
         """Pausa el display, muestra un mensaje por unos segundos, limpia las colas y reanuda."""
         def task():
             self.pause_display_event.set()  # Pausar display

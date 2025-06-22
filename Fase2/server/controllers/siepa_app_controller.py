@@ -3,6 +3,7 @@ from config.db import SiepaDB
 from utils.http_responder import respond_with_success, respond_with_error
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
+from config.mongodb import mongodb_connection
 
 siepa_blueprint = Blueprint('siepa_controller', __name__)
 
@@ -62,10 +63,6 @@ def put_siepa_device_control(device_name):
     if mode not in ['automatic', 'manual']:
         return respond_with_error("Invalid mode. Must be 'automatic' or 'manual'.")
     
-    # if not hasattr(SiepaG11App(), f"{device_name}_device"):
-    #     return respond_with_error(f"Invalid device name: {device_name}. Must be 'lighting', 'fan', or 'buzzer'.")
-
-    # Update the device settings
     if device_name == 'lighting':
         DeviceManager().lighting_device.control = mode
         DeviceManager().lighting_device.turn_off_device()  
@@ -91,40 +88,30 @@ def put_siepa_device_control(device_name):
 @siepa_blueprint.route('/siepa/devices/<device_name>', methods=['PUT'])
 def put_siepa_device_status(device_name):
     data = request.get_json()
-    print(data)
+    
     if not data:
         return respond_with_error("Missing JSON body")
     
     status = data.get('status')
-
-    # if status != True or status != False:
-    #     return respond_with_error("Missing status")
     
-    # if status.lower() not in ['on', 'off']:
-    #     return respond_with_error("Invalid status. Must be 'ON' or 'OFF'.")
-    
-    if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led']:
-        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', ''yellow_led''.")
+    if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led', 'display']:
+        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', 'yellow_led', 'display'.")
     
     if device_name == 'lighting':
         if status:
             DeviceManager().lighting_device.turn_on_device()
         else:
             DeviceManager().lighting_device.turn_off_device()
-        # DeviceManager().lighting_device.mode = True if status else False
     elif device_name == 'fan':
         if status:
             DeviceManager().fan_device.turn_on_device()
         else:
             DeviceManager().fan_device.turn_off_device()
-        # DeviceManager().fan_device.mode = True if status else False
     elif device_name == 'buzzer':
         if status:
             DeviceManager().buzzer_device.turn_on_device()
         else:
             DeviceManager().buzzer_device.turn_off_device()
-        # DeviceManager().buzzer_device.mode = True if status else False
-
     elif device_name == 'red_led':
         if status:
             DeviceManager().red_led.turn_on_device()
@@ -145,11 +132,50 @@ def put_siepa_device_status(device_name):
             DeviceManager().yellow_led.turn_on_device()
         else:
             DeviceManager().yellow_led.turn_off_device()
+    elif device_name == 'display':
+        if data.get('show_mode') is not None and data.get('show_mode') in ['readings', 'statistics', 'predictions']:
+            DeviceManager().display_lcd.show = data.get('show_mode')
+        else:
+            return respond_with_error("Invalid display mode. Must be 'readings', 'statistics', or 'predictions'.")
     else:
         return respond_with_error("Invalid device name provided.")
     
     return respond_with_success({"message": f"Device {device_name} is {status}."})
 
-@siepa_blueprint.route('/siepa/devices/<mesurement>/statistics', methods=['POST'])
-def post_statistics(mesurement):
-    return respond_with_success("post_statistics")
+
+@siepa_blueprint.route('/siepa/devices/<measurement>', methods=['GET'])
+def get_devices_data(measurement):
+    
+    # URL example with params http://localhost:5000/siepa/devices/temperature?collection=sensor_readings&measurement=temperature
+    collection_query = request.args.get('collection')
+    measurement = request.args.get('measurement')
+
+    if not collection_query or not measurement:
+        return respond_with_error("Missing 'collection' or 'measurement' query parameters.")
+    
+    if collection_query not in ['sensor_readings', 'statistics', 'predictions', 'alerts']:
+        return respond_with_error("Invalid 'collection' query parameter. Must be 'readings', 'statistics', 'alerts' or 'sensor_readings'.")
+    
+    if measurement not in ['temperature', 'humidity', 'luminosity', 'air_quality', 'all', 'proximity', 'pressure']:
+        return respond_with_error("Invalid 'measurement' query parameter. Must be 'temperature', 'humidity', 'luminosity', or 'air_quality'.")
+
+    db = mongodb_connection.get_database('arqui1_siepa_g11_db')
+    collection = db[collection_query]
+
+    data = []
+
+    if measurement == 'all':
+        data = list(collection.find())
+    else:
+        data = list(collection.find({}, {f"{measurement}": 1, "timestamp": 1}))
+
+    return respond_with_success({"data": data})
+
+@siepa_blueprint.route('/siepa/calculation/<measurement>', methods=['GET'])
+def get_devices_data(measurement):
+
+    if measurement not in ['temperature', 'humidity', 'luminosity', 'air_quality', 'proximity', 'pressure']:
+        return respond_with_error("Invalid 'measurement' query parameter. Must be 'temperature', 'humidity', 'luminosity', 'air_quality', 'proximity' or 'pressure'.")
+
+
+    return respond_with_success("This endpoint is not implemented yet.")
