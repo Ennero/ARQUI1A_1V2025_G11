@@ -135,7 +135,7 @@ if __name__ == "__main__":
         calculator.get_mean(numbers)
         calculator.get_variance(numbers)
         calculator.get_stdev(numbers)
-        # calculator.get_mode(numbers)
+        calculator.get_mode(numbers)
         calculator.get_median(numbers)
         calculator.get_maximum(numbers)
         calculator.get_minimum(numbers)

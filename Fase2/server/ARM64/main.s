@@ -68,8 +68,8 @@ do_stdev:
     b exit
 
 do_mode:
-    bl numbers_array // x0 = array de números, x1 = contador de números
-    bl mode      // x0 = moda, x1 = contador de números
+    bl numbers_array // x0 = array ordenado, x1 = tamaño del array
+    bl mode      // x0 = moda, x1 = frecuencia
     bl print_num // print(x0)
     b exit
 
