@@ -9,23 +9,24 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json()); // Para JSON en peticiones POST
 
-app.get('/siepa/measurements/:measurement', async (req, res) => {
+app.get('/siepa/collections/:collection', async (req, res) => {
     try {
+        // Example request: GET /siepa/collections/sensor_readings?attr=temperature&limit=30
         const db = getDB();
-        const { measurement } = req.params;
-        const { c = "sensor_readings", limit = 30 } = req.query;
+        const { collection } = req.params;
+        const { attr = "temperature", limit = 30 } = req.query;
 
         let recordsRaw
 
-        if (measurement != "all"){
-            recordsRaw = await db.collection(c).find(
+        if (collection != "all"){
+            recordsRaw = await db.collection(collection).find(
                 {},
-                { projection: { _id: 0, [measurement]: 1, timestamp: 1 } }
+                { projection: { _id: 0, [attr]: 1, timestamp: 1 } }
             ).sort({ timestamp: -1 } // -1 = newest first
             ).limit(parseInt(limit)
             ).toArray();
         } else {
-            recordsRaw = await db.collection(c).find({}).sort(
+            recordsRaw = await db.collection(collection).find({}).sort(
                 { timestamp: -1 } // -1 = newest first
             ).limit(parseInt(limit)
             ).toArray();
