@@ -77,7 +77,7 @@ openFile:
     mov x8, 63          // read
     svc 0               // syscall
 
-    mov x1, x0 // x1 = number of bytes read
+    mov x1, x0          // x1 = number of bytes read
     ldr x18, =buffer     // return dir(buffer)
     mov x0, x18         // x0 = dir(buffer)
 
