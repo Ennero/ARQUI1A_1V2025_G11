@@ -5,7 +5,6 @@ from sensors.bmp280 import BMP280
 from sensors.bh1750 import BH1750
 from sensors.ultrasonic import Ultrasonic
 from config.db import SiepaDB
-from config.server import FlaskServer
 from mqtt.client import SiepaMqttClient
 from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
@@ -73,12 +72,10 @@ class SiepaG11App(object):
         self.last_display_message = None
         self.last_alert_message = None
         
-        # Define Flask server and MQTT client
-        self.server = FlaskServer()
+        # Define MQTT client
         self.mqtt_client = SiepaMqttClient()
 
         # Threads
-        self.flask_thread = None
         self.mqtt_thread = None
         self.sensor_thread = None
         self.display_thread = None
@@ -92,10 +89,6 @@ class SiepaG11App(object):
             True,
             "automatic"  # Default mode
         )
-
-    def run_flask(self):
-        """Run Flask server in a separate thread"""
-        self.server.run()
 
     def run_mqtt(self):
         """Run MQTT client in a separate thread"""
@@ -278,10 +271,6 @@ class SiepaG11App(object):
         self.running = True
         self.stop_event.clear()
 
-        # Start Flask server thread
-        self.flask_thread = Thread(target=self.run_flask, daemon=True)
-        self.flask_thread.start()
-
         # Start MQTT client thread
         self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
         self.mqtt_thread.start()
@@ -305,10 +294,6 @@ class SiepaG11App(object):
         self.running = False
         self.stop_event.set()
 
-        # Stop Flask server
-        if hasattr(self.server, 'stop'):
-            self.server.stop()
-
         # Stop MQTT client
         if hasattr(self.mqtt_client, 'disconnect'):
             self.mqtt_client.disconnect()
@@ -320,9 +305,6 @@ class SiepaG11App(object):
         if self.mqtt_thread and self.mqtt_thread.is_alive():
             self.mqtt_thread.join(timeout=5)
             
-        if self.flask_thread and self.flask_thread.is_alive():
-            self.flask_thread.join(timeout=5)
-
         if self.display_thread and self.display_thread.is_alive():
             self.display_thread.join(timeout=5)
 
