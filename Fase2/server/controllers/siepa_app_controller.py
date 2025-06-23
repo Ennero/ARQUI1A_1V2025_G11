@@ -94,8 +94,8 @@ def put_siepa_device_status(device_name):
     
     status = data.get('status')
     
-    if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led', 'display']:
-        return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', 'yellow_led', 'display'.")
+    # if device_name not in ['lighting', 'fan', 'buzzer', 'red_led', 'green_led', 'blue_led', 'yellow_led', 'display']:
+    #     return respond_with_error("Invalid device. Must be 'lighting', 'fan', or 'buzzer', 'red_led', 'blue_led', 'green_led', 'yellow_led', 'display'.")
     
     if device_name == 'lighting':
         if status:
