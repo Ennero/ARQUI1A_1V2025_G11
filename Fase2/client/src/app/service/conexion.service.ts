@@ -2,9 +2,13 @@ import { Injectable } from '@angular/core';
 import mqtt from 'mqtt';
 import { Subject } from 'rxjs';
 
+// Acá hacemos que el servicio sea inyectable en toda la aplicación
+// Esto permite que el servicio pueda ser utilizado en cualquier componente o servicio de la aplicación
+// Y podemos crear varias instancias del servicio si es necesario, y todas compartirán los mismos datos
 @Injectable({
   providedIn: 'root'
 })
+
 export class MqttService {
   private client!: mqtt.MqttClient;
   private readonly brokerUrl = 'wss://broker.emqx.io:8084/mqtt'; // EMQX WS URL
@@ -18,6 +22,31 @@ export class MqttService {
   public dataAirQuality: { no: number, air_quality: string }[] = [];
   public dataIluminacion: { no: number, iluminacion: string }[] = [];
   public dataPresion: { no: number, presion: string }[] = [];
+
+  // Array para almacenar los datos de la base de datos
+  public dataLecturas: { no: number, fecha: string, hora: string, lectura: number }[] = [];
+  public dataEstadisticas: { no: number, fecha: string, hora: string, media: number, mediana: number, moda: number, min_max: number, desviacion: number, varianza: number }[] = [];
+  public dataPredicciones: { no: number, fecha: string, hora: string, mediaMovil: number, suavizadoExponencial: number }[] = [];
+  public dataAlertas: { no: number, fecha: string, hora: string, alerta: string }[] = [];
+  
+  // Variable para almacenar el nombre de la última tabla consultada
+  public lastTable: string = '';
+  // Variable para almacenar el nombre del sensor seleccionado y el tipo de tabla
+  public selectedSensor: string = '';
+  public selectedTable: string = '';
+
+  // VARIABLES PARA ALMACENAR LOS DATOS DE LOS CALCULOS REALIZADOS
+  // Variables para los resultados de los cálculos estatísticos
+  averageValue = 0;
+  medianValue = 0;
+  modeValue = 0;
+  minMaxValue = 0;
+  standardDeviationValue = 0;
+  varianceValue = 0;
+
+  // Variables para resultados de los modelos de predicción
+  movingAverageValue = 0;
+  exponentialSmoothingValue = 0;
 
   constructor() {
     this.connectClient();
@@ -89,6 +118,30 @@ export class MqttService {
                 this.dataPresion.forEach((item, idx) => item.no = idx + 1);
                 // Reasignar el array para forzar la actualización de la vista, así Angular detecta el cambio
                 this.dataPresion = [...this.dataPresion];
+                break;
+              case 'average':
+                this.averageValue = Number(valueFormatFixed);
+                break;
+              case 'median':
+                this.medianValue = Number(valueFormatFixed);
+                break;
+              case 'mode':
+                this.modeValue = Number(valueFormatFixed);
+                break;
+              case 'min_max':
+                this.minMaxValue = Number(valueFormatFixed);
+                break;
+              case 'standard_deviation':
+                this.standardDeviationValue = Number(valueFormatFixed);
+                break;
+              case 'variance':
+                this.varianceValue = Number(valueFormatFixed);
+                break;
+              case 'moving_average':
+                this.movingAverageValue = Number(valueFormatFixed);
+                break;
+              case 'exponential_smoothing':
+                this.exponentialSmoothingValue = Number(valueFormatFixed);
                 break;
             }
             if (typeof value === 'number' || typeof value === 'string') {
