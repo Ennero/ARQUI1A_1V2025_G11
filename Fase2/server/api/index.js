@@ -14,27 +14,34 @@ app.get('/siepa/collections/:collection', async (req, res) => {
         // Example request: GET /siepa/collections/sensor_readings?attr=temperature&limit=30
         const db = getDB();
         const { collection } = req.params;
-        const { attr = "temperature", limit = 30 } = req.query;
+        const { attr = "temperature", measurement , limit = 30 } = req.query;
 
         let recordsRaw
-
-        if (collection != "all"){
+        
+        console.log("collection", collection);
+        console.log("attr", attr);
+        console.log("measurement", measurement);
+        if(collection == "sensor_readings") {
             recordsRaw = await db.collection(collection).find(
                 {},
                 { projection: { _id: 0, [attr]: 1, timestamp: 1 } }
             ).sort({ timestamp: -1 } // -1 = newest first
             ).limit(parseInt(limit)
             ).toArray();
-        } else {
-            recordsRaw = await db.collection(collection).find({}).sort(
+        } else if (collection == "alerts") {
+            recordsRaw = await db.collection(collection).find({
+                "measurement": measurement
+            }).sort(
                 { timestamp: -1 } // -1 = newest first
             ).limit(parseInt(limit)
             ).toArray();
         }
 
-
+        let id = 0
         // Apply better format to timestamp
         const records = recordsRaw.map((record) => {
+            id++;
+
             const date = new Date(record.timestamp);
 
             const yyyy = date.getFullYear();
@@ -46,7 +53,11 @@ app.get('/siepa/collections/:collection', async (req, res) => {
 
             return {
                 ...record,
-                timestamp: `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`
+                // timestamp: `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`
+                id,
+                _value: (collection == 'sensor_readings') ? Math.trunc(record[attr]) : Math.trunc(record["value"]), // Redondear a dos decimales
+                date: `${yyyy}-${mm}-${dd}`,
+                time: `${hh}:${mi}:${ss}`
             };
         });
 

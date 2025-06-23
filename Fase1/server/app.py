@@ -193,12 +193,29 @@ class SiepaG11App(object):
     def run_display(self):
         previous_line = ""
         current_line = ""
+        current_mode = self.display_lcd.show  # Valor inicial
 
         while not self.stop_event.is_set():
             if self.pause_display_event.is_set():
-                time.sleep(0.1)  # Esperar a que termine el mensaje prioritario
+                time.sleep(0.1)
                 continue
+
             try:
+                # Detectar si se cambió el modo desde MQTT
+                if current_mode != self.display_lcd.show:
+                    print(f"Display mode has changed: {current_mode} -> {self.display_lcd.show}")
+                    current_mode = self.display_lcd.show
+
+                    # Limpiar colas
+                    with self.display_queue.mutex:
+                        self.display_queue.queue.clear()
+                    with self.alert_queue.mutex:
+                        self.alert_queue.queue.clear()
+                    self.last_display_message = None
+                    self.last_alert_message = None
+                    self.display_lcd.clear()
+
+                # Mostrar alertas si hay
                 if not self.alert_queue.empty():
                     new_line = self.alert_queue.get(timeout=1)
                     previous_line = current_line
@@ -209,17 +226,46 @@ class SiepaG11App(object):
                     time.sleep(5)
                     continue
 
-                new_line = self.display_queue.get(timeout=1)
-                previous_line = current_line
-                current_line = new_line
+                # Comportamiento por modo
+                if current_mode == 'readings':
+                    new_line = self.display_queue.get(timeout=1)
+                    previous_line = current_line
+                    current_line = new_line
 
-                self.display_lcd.clear()
-                self.display_lcd.write_centered(previous_line, 1)
-                self.display_lcd.write_centered(current_line, 2)
-                time.sleep(2)
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered(previous_line, 1)
+                    self.display_lcd.write_centered(current_line, 2)
+                    time.sleep(2)
+
+                elif current_mode == 'statistics':
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered("Media Temp:", 1)
+                    avg = self.calculate_temperature_avg()
+                    self.display_lcd.write_centered(f"{avg:.1f}°C", 2)
+                    time.sleep(5)
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered("Mode:", 1)
+                    self.display_lcd.write_centered("Statistics", 2)
+
+                elif current_mode == 'predictions':
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered("Predicción:", 1)
+                    prediction = self.generate_temperature_prediction()
+                    self.display_lcd.write_centered(f"{prediction}°C", 2)
+                    time.sleep(5)
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered("Mode:", 1)
+                    self.display_lcd.write_centered("Predictions", 2)
 
             except queue.Empty:
                 continue
+
+    def calculate_temperature_avg(self):
+        return 8
+
+    def generate_temperature_prediction(self):
+        return 8
+
 
     def show_priority_message(self, msg: str, duration: int = 5):
         """Pausa el display, muestra un mensaje por unos segundos, limpia las colas y reanuda."""
