@@ -1,5 +1,6 @@
 import time
 import random
+import json
 from paho.mqtt import client as mqtt_client
 
 class SiepaMqttClient(object):
@@ -46,10 +47,35 @@ class SiepaMqttClient(object):
                 print(f"Failed to connect, return code {rc}\n")
 
         def on_message(client, user_data, msg):
-            print(f"\nReceived message on [{msg.topic}]")
-            print(f"QoS: {msg.qos}")
-            print(f"Retained: {msg.retain}")
-            print(f"Payload: {msg.payload.decode()}")
+            topic = msg.topic
+            payload_str = msg.payload.decode()
+            print(f"Received message on [{topic}]")
+            print(f"Payload: {payload_str}")
+
+            # Intentar parsear JSON
+            try:
+                payload = json.loads(payload_str)
+            except json.JSONDecodeError:
+                print("Invalid JSON format")
+                return
+
+            # Enrutar por tópico
+            if topic == "fiusac/arqui1/g11/config":
+                print("Handling configuration update...")
+                # Aquí podrías pasar payload a otra clase
+                # config_handler.update_config(payload)
+
+            elif topic == "fiusac/arqui1/g11/device_mode":
+                print("Switching device mode...")
+                # mode_handler.set_mode(payload.get("mode", "unknown"))
+
+            elif topic == "fiusac/arqui1/g11/calculate":
+                print("Performing calculation...")
+                # result = calculator.compute(payload)
+                # mqtt_client.publish("fiusac/arqui1/g11/calculate/response", json.dumps(result))
+
+            else:
+                print("No handler for this topic.")
 
         def on_subscribe(client, user_data, mid, granted_qos):
             print(f"Subscription acknowledged for MID: {mid}")
