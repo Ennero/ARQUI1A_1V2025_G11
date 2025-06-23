@@ -45,7 +45,7 @@ readfile:
     svc 0
 
     mov x5, #0           // x5 = word counter
-    ldr x6, =fileName   // x6 = dir(fileName)
+    ldr x6, =fileName    // x6 = dir(fileName)
 
 findLineBreak:
     ldrb w7, [x6]
@@ -78,7 +78,7 @@ openFile:
     svc 0               // syscall
 
     mov x1, x0          // x1 = number of bytes read
-    ldr x18, =buffer     // return dir(buffer)
+    ldr x18, =buffer    // return dir(buffer)
     mov x0, x18         // x0 = dir(buffer)
 
     ldp fp, lr, [sp], #16

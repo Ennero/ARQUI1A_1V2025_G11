@@ -2,7 +2,8 @@
 .extern readfile
 .extern numbers_array
 .extern read_opt
-//.extern create_range_buffer
+.extern print
+.extern create_range_buffer
 
 // Menu de opciones
 // que se ejecuta en un bucle hasta que se elige salir
@@ -57,16 +58,20 @@ _start:
         read_file:
             mov x15, #0         // Limite inferior del rango (inicializado a 0)
             mov x16, #0         // Limite superior del rango (inicializado a 0)
+            mov x25, x22        // x25 = Puntero al array de números
 
             bl readfile         // x0 | x18 = direccion del archivo leido , x1= numero bytes leidos
             cmp x0, #0          // Verificar si el archivo se ha abierto correctamente
             b.lt do
 
+            mov x24, x1         // Guardar el número de bytes leídos en x24
             mov x18, x0         // Guardar la dirección del buffer leido en x18
+            mov x23, x18        // Guardar la dirección del buffer leido en x23 para usarlo más tarde
+            mov x0, x18         // x0 = dirección del buffer leido
 
             bl numbers_array    // x0 = array de numeros, x1 = contador de números
-            mov x22, x0         // Guardar la dirección del array de números en x22
             mov x17, x1         // Guardar el contador de números en x17
+            mov x22, x0         // Guardar la dirección del array de números en x22 
 
             mov x0, #1                      // file descriptor stdout
             ldr x1, =msg_file_uploaded      // direccion mensaje exito
@@ -151,11 +156,11 @@ _start:
                     sub w6, w6, #1      // Ajustar para que sea 0-indexado
 
                     // Comparo el límite inferior con el número de líneas
-                    cmp x6, x17                     // comparar con el número de líneas
-                    b.ge chose_lower_limit_error   // Si el límite inferior es mayor o igual al número de líneas
+                    cmp w6, w17                     // comparar con el número de líneas
+                    b.ge chose_lower_limit_error    // Si el límite inferior es mayor o igual al número de líneas
 
                     cmp w6, #0                      // comparar con 0
-                    b.lt chose_lower_limit_error   // Si el límite inferior es menor que 0, error
+                    b.lt chose_lower_limit_error    // Si el límite inferior es menor que 0, error
 
                     // Si todo está bien, guardar el rango escogido
                     mov w15, w6                     // Guardar el límite inferior en x16
@@ -184,13 +189,23 @@ _start:
                     // Si todo está bien, guardar el rango escogido
                     mov w16, w6                     // Guardar el límite superior en x16
                     
-
                     // Crea un buffer con el rango escogido
                     mov x0, x18             // x0 = dirección del buffer leido
-                    mov x1, x15             // x1 = límite inferior del rango
-                    mov x2, x16             // x2 = límite superior del rango
-                    //bl create_range_buffer  // x0 = buffer con el rango escogido
+                    mov x1, x24             // x1 = total bytes en el buffer leido
+                    mov x2, x15             // x2 = límite inferior en el rango 
+                    mov x3, x16             // x3 = límite superior en el rango
+                    bl create_range_buffer  // x0 = buffer con el rango escogido
                     mov x23, x0             // Guardar el buffer con el rango escogido en x23
+
+                    // Creo otro array de números con el rango escogido
+                    mov x0, x23
+                    mov x1, x24             // total bytes en el buffer leido
+                    bl numbers_array         // x0 = array de numeros, x1 = contador de números
+                    mov x25, x0             // Guardar  la dirección del array de números en x25
+
+                    mov x0, x23             // x0 = dirección del buffer con el rango escogido
+                    mov x1, x24             // x1 = total bytes en el buffer leido
+                    bl  print               // Imprimir el buffer con el rango escogido
 
                     // Rango escogido exitosamente
                     mov x0, #1                          // file descriptor stdout
@@ -207,7 +222,10 @@ _start:
                     // Resetear los límites del rango
                     mov w15, #0         // Limite inferior del rango (inicializado a 0)
                     mov w16, #0         // Limite superior del rango (inicializado a 0)
-                    
+                    mov x25, x22        // Resetear el array de números a la dirección original
+
+                    mov x23, x18        // Restaurar el buffer original en x23
+
                     // Imprimir mensaje de éxito de limpieza de filtro
                     mov x0, #1                          // file descriptor stdout
                     ldr x1, =msg_clean_filter_success   // direccion mensaje
@@ -420,7 +438,7 @@ end_msg: // apuntar final mensaje
 .equ len_msg, end_msg - msg  // longitud mensaje
 
 // Mensaje de error para opción no válida
-msg2: .asciz "Opcion no valida, intente de nuevo.\n"
+msg2: .asciz "***Opcion no valida, intente de nuevo***\n"
 end_msg2: // apuntar final mensaje error
 .equ len_msg2, end_msg2 - msg2  // longitud  mensaje error
 
@@ -450,12 +468,12 @@ msg_choose_upper_limit_end: // apuntar final mensaje
 .equ len_msg_choose_upper_limit, msg_choose_upper_limit_end - msg_choose_upper_limit
 
 // Mensaje limite inferio fuera de rango
-msg_limit_lower_out_of_range: .asciz "El limite inferior esta fuera del rango de lineas.\n"
+msg_limit_lower_out_of_range: .asciz "***El limite inferior esta fuera del rango de lineas***\n"
 end_msg_limit_lower_out_of_range: // apuntar final mensaje
 .equ len_msg_limit_lower_out_of_range, end_msg_limit_lower_out_of_range - msg_limit_lower_out_of_range
 
 // Mensahe limite superior fuera de rango
-msg_choose_range_upper_error: .asciz "El limite superior esta fuera del rango de lineas.\n"
+msg_choose_range_upper_error: .asciz "***El limite superior esta fuera del rango de lineas***\n"
 end_msg_choose_range_upper_error: // apuntar final mensaje
 .equ len_msg_choose_range_upper_error, end_msg_choose_range_upper_error - msg_choose_range_upper_error
 
