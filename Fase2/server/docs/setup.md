@@ -100,3 +100,7 @@ Any change in that file requires deamon and service reload
 ```bash
     sudo shutdown now
 ```
+
+```bash
+i2cdetect -y 1
+```

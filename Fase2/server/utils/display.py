@@ -29,8 +29,3 @@ class DisplayLCD:
             self._show = value
         else:
             raise ValueError("Invalid display mode. Use 'readings', 'statistics' or 'predictions.")
-
-# if __name__ == "__main__":
-#     display = DisplayLCD()
-#     display.write_centered("Lesbianas", 1)
-#     display.write_centered("Raspberry Pi", 2)
