@@ -18,6 +18,7 @@ files=(
   stats/median
   stats/minimum
   stats/maximum
+  stats/exp_smooth
 )
 
 # Compilar cada archivo .s a .o dentro de build

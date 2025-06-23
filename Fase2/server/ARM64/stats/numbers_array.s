@@ -4,13 +4,13 @@
 numbers: .skip 4096
 
 .text
-numbers_array: // parametros x0 = buffer ; retornos x0 = array de numeros, x1 = contador de números
+numbers_array: // parametros x0 = buffer ; retornos x0 = array de numeros, x1 = tamaño del array
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
     mov x2, x0          // apuntador al buffer
     ldr x0, =numbers    // apuntador al array de números
-    mov x1, #0          // contador de números
+    mov x1, #0          // tamaño del array
     mov w3, #0          // x3 = acumulador del número actual
     mov w4, #10         // base decimal
     mov w5, #0          // índice del array

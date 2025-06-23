@@ -12,6 +12,7 @@
 .extern bubble_sort
 .extern maximum
 .extern minimum
+.extern exp_smooth
 
 .bss
 buffer: .skip 8192
@@ -50,6 +51,9 @@ _start:
 
     cmp w3, #54
     b.eq do_min
+
+    cmp w3, #55
+    b.eq do_exp_smooth
 
     b exit
 
@@ -96,6 +100,12 @@ do_min:
     bl minimum // x0 = mínimo, x1 = contador de números
     bl itoa    // x0 = puntero al string de salida, x1 = longitud del string
     bl print   // print(x0 = string a imprimir, x1 = longitud de la cadena)
+    b exit
+
+do_exp_smooth:
+    bl numbers_array // x0 = array de números, x1 = tamaño del array
+    bl exp_smooth // x0 = buffer del suavizado, x1 = tamaño del buffer
+    bl print // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 exit:
