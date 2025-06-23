@@ -1,6 +1,7 @@
 .global _start
+.extern itoa
+.extern print
 .extern mean
-.extern print_num
 .extern sum
 .extern variance
 .extern sub_var
@@ -54,40 +55,47 @@ _start:
 
 do_mean:
     bl mean      // x0 = media, x1 = contador de números
-    bl print_num // print(x0)
+    bl itoa      // x0 = puntero al string de salida, x1 = longitud del string
+    bl print     // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_variance:
     bl variance  // x0 = varianza, x1 = contador de números
-    bl print_num // print(x0)
+    bl itoa      // x0 = puntero al string de salida, x1 = longitud del string
+    bl print     // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_stdev:
     bl stdev     // x0 = desviación estándar, x1 = contador de números
-    bl print_num // print(x0)
+    bl itoa      // x0 = puntero al string de salida, x1 = longitud del string
+    bl print     // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_mode:
     bl numbers_array // x0 = array ordenado, x1 = tamaño del array
     bl mode      // x0 = moda, x1 = frecuencia
-    bl print_num // print(x0)
+    bl itoa      // x0 = puntero al string de salida, x1 = longitud del string
+    bl print     // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_median:
     bl numbers_array // x0 = array ordenado, x1 = tamaño del array
     bl bubble_sort // ordenar el array | x0 = array ordenado de números, x1 = tamaño del array
     bl median     // x0 = mediana, x1 = contador de números
-    bl print_num  // print(x0)
+    bl itoa      // x0 = puntero al string de salida, x1 = longitud del string
+    bl print     // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_max:
     bl maximum // x0 = máximo, x1 = contador de números
-    bl print_num // print(x0)
+    bl itoa    // x0 = puntero al string de salida, x1 = longitud del string
+    bl print   // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 do_min:
     bl minimum // x0 = mínimo, x1 = contador de números
-    bl print_num // print(x0)
+    bl itoa    // x0 = puntero al string de salida, x1 = longitud del string
+    bl print   // print(x0 = string a imprimir, x1 = longitud de la cadena)
     b exit
 
 exit:

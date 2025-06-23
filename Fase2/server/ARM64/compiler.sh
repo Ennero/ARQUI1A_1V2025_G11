@@ -5,9 +5,10 @@ mkdir -p build  # crea la carpeta build si no existe
 # Lista de archivos fuente sin extensión ni carpeta "build"
 files=(
   main
+  stats/itoa
+  stats/print
   stats/mean
   stats/sum
-  stats/print_num
   stats/sub_var
   stats/variance
   stats/stdev
