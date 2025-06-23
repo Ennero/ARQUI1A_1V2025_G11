@@ -1,4 +1,3 @@
-// index.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -10,7 +9,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json()); // Para JSON en peticiones POST
 
-// Rutas
 app.get('/siepa/measurements/:measurement', async (req, res) => {
     try {
         const db = getDB();
@@ -45,14 +43,14 @@ app.get('/siepa/measurements/:measurement', async (req, res) => {
 
         res.json({ data: records });
     } catch (err) {
-        console.error('❌ Error al obtener items:', err);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        console.error('Error retrieving the records:', err);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 // Iniciar servidor
 connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+        console.log(`Server running at http://localhost:${PORT}`);
     });
 });

@@ -1,4 +1,3 @@
-// db.js
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
 
@@ -8,16 +7,16 @@ let db;
 const connectDB = async() => {
     try {
         await client.connect();
-        console.log('Conectado a MongoDB');
+        console.log('Connected to MongoDB');
         db = client.db(process.env.DB_NAME);
     } catch (error) {
-        console.error('Error al conectar a MongoDB:', error);
+        console.error('Error while connecting to MongoDB', error);
         process.exit(1);
     }
 }
 
 const getDB = () => {
-  if (!db) throw new Error('❌ La base de datos no está conectada');
+  if (!db) throw new Error('Something went wrong, DB not connected');
   return db;
 }
 
