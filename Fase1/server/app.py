@@ -5,9 +5,7 @@ from sensors.bmp280 import BMP280
 from sensors.bh1750 import BH1750
 from sensors.ultrasonic import Ultrasonic
 from config.db import SiepaDB
-from config.server import FlaskServer
 from mqtt.client import SiepaMqttClient
-from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
@@ -17,9 +15,6 @@ import RPi.GPIO as GPIO
 import time
 import json
 import queue
-# from dotenv import load_dotenv
-# import os
-
 
 class SiepaG11App(object):
 
@@ -31,8 +26,6 @@ class SiepaG11App(object):
 
     def __init__(self):
         # GPIO.setmode(GPIO.BCM)
-        # Load environment variables
-        # load_dotenv()
 
         self.device_manager = DeviceManager()
 
@@ -47,11 +40,6 @@ class SiepaG11App(object):
         # self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=50.0)
         self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=15.0)
         self.presence_helper = False
-
-        self.humidity_helper = False
-        self.temperature_helper = False
-        self.pressure_helper = False
-        self.air_quality_helper = False
 
         # Define output devices
         self.display_lcd = DisplayLCD()
@@ -73,12 +61,10 @@ class SiepaG11App(object):
         self.last_display_message = None
         self.last_alert_message = None
         
-        # Define Flask server and MQTT client
-        self.server = FlaskServer()
+        # Define MQTT client
         self.mqtt_client = SiepaMqttClient()
 
         # Threads
-        self.flask_thread = None
         self.mqtt_thread = None
         self.sensor_thread = None
         self.display_thread = None
@@ -92,10 +78,6 @@ class SiepaG11App(object):
             True,
             "automatic"  # Default mode
         )
-
-    def run_flask(self):
-        """Run Flask server in a separate thread"""
-        self.server.run()
 
     def run_mqtt(self):
         """Run MQTT client in a separate thread"""
@@ -153,16 +135,13 @@ class SiepaG11App(object):
                     # Turn on the fan devices
                     self.fan_device.turn_on_device()
                     self.show_priority_message("Alerta temp", 5)
-                    self.temperature_helper = True
                     #print("The fans are on.")
                 elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
-                    self.temperature_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
                     # Turning off the fans in 5 seconds...
                 
                 # Yellow LED (humidity >= 70)
                 if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
-                    self.humidity_helper = True
                     self.yellow_led.turn_on_device()
 
                     self.mqtt_client.publish('humidity/danger', json.dumps({
@@ -171,7 +150,6 @@ class SiepaG11App(object):
                     self.show_priority_message("Alerta humedad", 5)
                 elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
                     # self.yellow_led.turn_off_device()
-                    self.humidity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
                 
                 # Green LED (luminosity <= 200)
@@ -190,7 +168,6 @@ class SiepaG11App(object):
                 
                 # Blue LED (air quality >= 1000)
                 if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
-                    self.air_quality_helper = True
                     self.blue_led.turn_on_device()
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
                         'message': 'Low air_quality detected! Turning on blue LED.'
@@ -199,7 +176,6 @@ class SiepaG11App(object):
                     self.show_priority_message("Alerta aire", 5)
                 elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
                     #self.blue_led.turn_off_device()
-                    self.air_quality_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
 
                 for alert in siepa_data.alert_messages():
@@ -272,15 +248,10 @@ class SiepaG11App(object):
     def start(self):
         """Start all threads"""
         if self.running:
-            #print("Application is already running")
             return
 
         self.running = True
         self.stop_event.clear()
-
-        # Start Flask server thread
-        self.flask_thread = Thread(target=self.run_flask, daemon=True)
-        self.flask_thread.start()
 
         # Start MQTT client thread
         self.mqtt_thread = Thread(target=self.run_mqtt, daemon=True)
@@ -294,20 +265,14 @@ class SiepaG11App(object):
         self.display_thread = Thread(target=self.run_display, daemon=True)
         self.display_thread.start()
 
-        #print("All threads started")
 
     def stop(self):
         """Stop all threads gracefully"""
         if not self.running:
-            #print("Application is not running")
             return
 
         self.running = False
         self.stop_event.set()
-
-        # Stop Flask server
-        if hasattr(self.server, 'stop'):
-            self.server.stop()
 
         # Stop MQTT client
         if hasattr(self.mqtt_client, 'disconnect'):
@@ -320,16 +285,11 @@ class SiepaG11App(object):
         if self.mqtt_thread and self.mqtt_thread.is_alive():
             self.mqtt_thread.join(timeout=5)
             
-        if self.flask_thread and self.flask_thread.is_alive():
-            self.flask_thread.join(timeout=5)
-
         if self.display_thread and self.display_thread.is_alive():
             self.display_thread.join(timeout=5)
 
         # Cleanup GPIO pins
         GPIO.cleanup()
-
-        #print("All threads stopped")
 
     def safe_put(self, q, msg, last_msg_attr):
         last_msg = getattr(self, last_msg_attr, None)
@@ -341,8 +301,7 @@ class SiepaG11App(object):
         """Main application entry point"""
         self.display_lcd.write_centered("Bienvenido a", 1)
         self.display_lcd.write_centered("SIEPA - Grupo 11", 2)
-        #print("Starting SiepaG11App...")
-        time.sleep(4)  # Wait for 2 seconds before starting
+        time.sleep(5)  # Wait for 5 seconds before starting
         self.display_lcd.clear()
 
         try:
@@ -353,8 +312,7 @@ class SiepaG11App(object):
                 time.sleep(4)
                 
         except KeyboardInterrupt:
-            pass
-            #print("\nReceived keyboard interrupt, stopping...")
+            print("\nReceived keyboard interrupt, stopping...")
         finally:
             self.stop()
 
