@@ -75,7 +75,7 @@ class SiepaMqttClient(object):
                 # mqtt_client.publish("fiusac/arqui1/g11/calculate/response", json.dumps(result))
 
             else:
-                print("📌 No handler for this topic.")
+                print("No handler for this topic.")
 
         def on_subscribe(client, user_data, mid, granted_qos):
             print(f"Subscription acknowledged for MID: {mid}")

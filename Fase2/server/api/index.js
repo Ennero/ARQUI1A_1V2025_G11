@@ -15,14 +15,22 @@ app.get('/siepa/measurements/:measurement', async (req, res) => {
         const { measurement } = req.params;
         const { c = "sensor_readings", limit = 30 } = req.query;
 
+        let recordsRaw
 
-        const recordsRaw = await db.collection(c).find(
-            {},
-            { projection: { _id: 0, [measurement]: 1, timestamp: 1 } }
-        )
-        .sort({ timestamp: -1 }) // -1 = newest first
-        .limit(parseInt(limit))
-        .toArray();
+        if (measurement != "all"){
+            recordsRaw = await db.collection(c).find(
+                {},
+                { projection: { _id: 0, [measurement]: 1, timestamp: 1 } }
+            ).sort({ timestamp: -1 } // -1 = newest first
+            ).limit(parseInt(limit)
+            ).toArray();
+        } else {
+            recordsRaw = await db.collection(c).find({}).sort(
+                { timestamp: -1 } // -1 = newest first
+            ).limit(parseInt(limit)
+            ).toArray();
+        }
+
 
         // Apply better format to timestamp
         const records = recordsRaw.map((record) => {
