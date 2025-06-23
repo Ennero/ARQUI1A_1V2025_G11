@@ -53,8 +53,6 @@ class SiepaG11App(object):
         self.fan_device = self.device_manager.fan_device
         self.lighting_device = self.device_manager.lighting_device
 
-        # Define storage
-        self.storage = [] # We will implement MongoDB later
         self.display_queue = queue.Queue()
         self.alert_queue = queue.Queue()
 
@@ -103,9 +101,6 @@ class SiepaG11App(object):
                     luminosity=self.bh_sensor.luminosity,
                     proximity=self.ultrasonic_sensor.proximity
                 )
-
-                # Store data
-                self.storage.append(siepa_data)
 
                 # Publish to MQTT messages
                 self.mqtt_client.publish('temperature', json.dumps({'temperature': siepa_data.temperature}))
@@ -237,34 +232,62 @@ class SiepaG11App(object):
                     self.display_lcd.write_centered(current_line, 2)
                     time.sleep(2)
 
-                elif current_mode == 'statistics':
-                    self.display_lcd.clear()
-                    self.display_lcd.write_centered("Media Temp:", 1)
-                    avg = self.calculate_temperature_avg()
-                    self.display_lcd.write_centered(f"{avg:.1f}°C", 2)
-                    time.sleep(5)
-                    self.display_lcd.clear()
-                    self.display_lcd.write_centered("Mode:", 1)
-                    self.display_lcd.write_centered("Statistics", 2)
+                elif current_mode in ['statistics', 'predictions']:
+                    # implement show or not
+                    if not self.new_message_helper: return
 
-                elif current_mode == 'predictions':
                     self.display_lcd.clear()
-                    self.display_lcd.write_centered("Predicción:", 1)
-                    prediction = self.generate_temperature_prediction()
-                    self.display_lcd.write_centered(f"{prediction}°C", 2)
-                    time.sleep(5)
-                    self.display_lcd.clear()
-                    self.display_lcd.write_centered("Mode:", 1)
-                    self.display_lcd.write_centered("Predictions", 2)
+                    
+                    # Obtener el diccionario según el modo
+                    if current_mode == 'statistics':
+                        data_dict = self.get_statistics_dict()
+                    else:
+                        data_dict = self.get_predictions_dict()
+
+                    # Mostrar cada atributo con delay
+                    for key, value in data_dict.items():
+                        if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
+                            break  # Salir si cambió de modo o hay mensaje prioritario
+                        self.display_lcd.clear()
+                        self.display_lcd.write_centered(key, 1)
+                        self.display_lcd.write_centered(str(value), 2)
+                        time.sleep(1)
+
+                    self.new_message_helper = False
 
             except queue.Empty:
                 continue
 
-    def calculate_temperature_avg(self):
-        return 8
+    def get_statistics_dict(self):
+        data = self.mongo_repo.get_last_n(n=30)
+        if not data:
+            return {"Info": "No data"}
 
-    def generate_temperature_prediction(self):
-        return 8
+        # Calcular estadísticas (solo ejemplo)
+        avg_temp = sum(d["temperature"] for d in data) / len(data)
+        avg_hum = sum(d["humidity"] for d in data) / len(data)
+        avg_press = sum(d["pressure"] for d in data) / len(data)
+
+        return {
+            "Temp. Promedio": f"{avg_temp:.1f}°C",
+            "Humedad Prom.": f"{avg_hum:.1f}%",
+            "Presión Prom.": f"{avg_press:.1f} hPa"
+        }
+
+    def get_predictions_dict(self):
+        last = self.mongo_repo.get_last_n(n=1)
+        if not last:
+            return {"Info": "Sin datos"}
+
+        last_data = last[0]
+
+        # Simular predicción simple
+        return {
+            "Temp Pred.": f"{last_data['temperature'] + 0.4:.1f}°C",
+            "Humedad Pred.": f"{last_data['humidity'] + 1.0:.1f}%",
+            "Presión Pred.": f"{last_data['pressure'] - 0.5:.1f} hPa"
+        }
+
 
 
     def show_priority_message(self, msg: str, duration: int = 5):
