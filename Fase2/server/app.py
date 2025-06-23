@@ -263,7 +263,7 @@ class SiepaG11App(object):
     def run_display(self):
         previous_line = ""
         current_line = ""
-        current_mode = self.display_lcd.show  # Valor inicial
+        current_mode = self.display_lcd.show
 
         while not self.stop_event.is_set():
             if self.pause_display_event.is_set():
@@ -271,12 +271,10 @@ class SiepaG11App(object):
                 continue
 
             try:
-                # Detectar si se cambió el modo desde MQTT
                 if current_mode != self.display_lcd.show:
                     print(f"Display mode has changed: {current_mode} -> {self.display_lcd.show}")
                     current_mode = self.display_lcd.show
 
-                    # Limpiar colas
                     with self.display_queue.mutex:
                         self.display_queue.queue.clear()
                     with self.alert_queue.mutex:
@@ -285,7 +283,6 @@ class SiepaG11App(object):
                     self.last_alert_message = None
                     self.display_lcd.clear()
 
-                # Mostrar alertas si hay
                 if not self.alert_queue.empty():
                     new_line = self.alert_queue.get(timeout=1)
                     previous_line = current_line
@@ -296,7 +293,6 @@ class SiepaG11App(object):
                     time.sleep(5)
                     continue
 
-                # Comportamiento por modo
                 if current_mode == 'readings':
                     new_line = self.display_queue.get(timeout=1)
                     previous_line = current_line
@@ -308,21 +304,18 @@ class SiepaG11App(object):
                     time.sleep(2)
 
                 elif current_mode in ['statistics', 'predictions']:
-                    # implement show or not
                     if not self.new_message_helper: return
 
                     self.display_lcd.clear()
                     
-                    # Obtener el diccionario según el modo
                     if current_mode == 'statistics':
                         data_dict = self.get_statistics_dict()
                     else:
                         data_dict = self.get_predictions_dict()
 
-                    # Mostrar cada atributo con delay
                     for key, value in data_dict.items():
                         if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
-                            break  # Salir si cambió de modo o hay mensaje prioritario
+                            break
                         self.display_lcd.clear()
                         self.display_lcd.write_centered(key, 1)
                         self.display_lcd.write_centered(str(value), 2)
