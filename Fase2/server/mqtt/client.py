@@ -1,6 +1,10 @@
 import time
 import random
+import json
+from models.device_manager import DeviceManager
 from paho.mqtt import client as mqtt_client
+from config.mongodb import mongodb_connection
+from pymongo import DESCENDING
 
 class SiepaMqttClient(object):
 
@@ -46,10 +50,123 @@ class SiepaMqttClient(object):
                 print(f"Failed to connect, return code {rc}\n")
 
         def on_message(client, user_data, msg):
-            print(f"\nReceived message on [{msg.topic}]")
-            print(f"QoS: {msg.qos}")
-            print(f"Retained: {msg.retain}")
-            print(f"Payload: {msg.payload.decode()}")
+            topic = msg.topic
+            payload_str = msg.payload.decode()
+            print(f"Received message on [{topic}]")
+            print(f"Payload: {payload_str}")
+
+            # Intentar parsear JSON
+            try:
+                payload = json.loads(payload_str)
+            except json.JSONDecodeError:
+                print("Invalid JSON format")
+                return
+
+            # Enrutar por tópico
+            if topic == "fiusac/arqui1/g11/config":
+                device_name = payload.get("device_name", "unknown")
+                control = payload.get("control", "unknown")
+                display_mode = payload.get("show_mode", None)
+
+                # Topic: fiusac/arqui1/g11/config
+                # For LEDs and Actuators, payload should be like:
+                # {"device_name": "red_led", "control": "manual"}
+                # For display, payload should be like:
+                # {"device_name": "display", "show_mode": "readings"}
+
+                if device_name == 'lighting':
+                    DeviceManager().lighting_device.control = control
+                    DeviceManager().lighting_device.turn_off_device()  
+                elif device_name == 'fan':
+                    DeviceManager().fan_device.control = control
+                    DeviceManager().fan_device.turn_off_device()  
+                elif device_name == 'buzzer':
+                    DeviceManager().buzzer_device.control = control
+                    DeviceManager().buzzer_device.turn_off_device()
+                elif device_name == 'red_led':
+                    DeviceManager().red_led.control = control
+                    DeviceManager().red_led.turn_off_device()
+                elif device_name == 'green_led':
+                    DeviceManager().green_led.control = control
+                    DeviceManager().green_led.turn_off_device()
+                elif device_name == 'blue_led':
+                    DeviceManager().blue_led.turn_off_device()
+                elif device_name == 'yellow_led':
+                    DeviceManager().yellow_led.control = control
+                    DeviceManager().yellow_led.turn_off_device()
+                elif device_name == 'display':
+                    if display_mode is not None and display_mode in ['readings', 'statistics', 'predictions']:
+                        DeviceManager().display_lcd.show = display_mode
+                    else:
+                        print("Invalid display mode provided.")
+
+            elif topic == "fiusac/arqui1/g11/device_mode":
+                device_name = payload.get("device_name", "unknown")
+                status = bool(payload.get("status", "unknown"))
+
+                # Topic: fiusac/arqui1/g11/device_mode
+                # For Leds and actuators, payload should be like:
+                # {"device_name": "red_led", "status": true}
+
+                if device_name == 'lighting':
+                    if status:
+                        DeviceManager().lighting_device.turn_on_device()
+                    else:
+                        DeviceManager().lighting_device.turn_off_device()
+                elif device_name == 'fan':
+                    if status:
+                        DeviceManager().fan_device.turn_on_device()
+                    else:
+                        DeviceManager().fan_device.turn_off_device()
+                elif device_name == 'buzzer':
+                    if status:
+                        DeviceManager().buzzer_device.turn_on_device()
+                    else:
+                        DeviceManager().buzzer_device.turn_off_device()
+                elif device_name == 'red_led':
+                    if status:
+                        DeviceManager().red_led.turn_on_device()
+                    else:
+                        DeviceManager().red_led.turn_off_device()
+                elif device_name == 'green_led':
+                    if status:
+                        DeviceManager().green_led.turn_on_device()
+                    else:
+                        DeviceManager().green_led.turn_off_device()
+                elif device_name == 'blue_led':
+                    if status:
+                        DeviceManager().blue_led.turn_on_device()
+                    else:
+                        DeviceManager().blue_led.turn_off_device()
+                elif device_name == 'yellow_led':
+                    if status:
+                        DeviceManager().yellow_led.turn_on_device()
+                    else:
+                        DeviceManager().yellow_led.turn_off_device()
+                else:
+                    print(f"Invalid device name provided: {device_name}")
+
+            elif topic == "fiusac/arqui1/g11/calculate":
+                print("Performing calculation...")
+
+                db = mongodb_connection.get_database('arqui1_siepa_g11_db')
+                collection = db['sensor_readings']
+                # Get the last 30 documents, sorted by _id in descending order
+                last_30_docs = list(collection.find().sort('_id', DESCENDING).limit(30))
+                last_30_docs.reverse()
+
+                dict_result = {} # Here we send the las 30 readings to ARM and get the result
+                
+                # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
+                if DeviceManager().display_lcd.show in ['predictions', 'statistics']:
+                    DeviceManager().new_message_helper = True
+
+                # Respond to the MQTT topic with the result
+                mqtt_client.publish("fiusac/arqui1/g11/calculate/result", json.dumps(dict_result))
+
+
+            else:
+                print("No handler for this topic.")
 
         def on_subscribe(client, user_data, mid, granted_qos):
             print(f"Subscription acknowledged for MID: {mid}")
