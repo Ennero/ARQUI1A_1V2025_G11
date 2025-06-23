@@ -199,6 +199,24 @@ export class Exit {
     });
   }
 
+  enviarConfiguracionLCD(modo: string) {
+     // Url del servidor al que se enviará el comando
+    const url = `http://172.20.10.2:5000/siepa/devices/modo`; // Backend
+
+    let status = null;
+
+    this.http.put(url, { modo: modo }).subscribe({
+      next: (response) => {
+        console.log('Comando enviado exitosamente:', response);
+        Swal.fire('Éxito', `El modo del LCD se ha cambiado a ${modo}.`, 'success');
+      },
+      error: (error) => {
+        console.error('Error al enviar el comando:', error);
+        Swal.fire('Error', 'El modo del LCD no se pudo cambiar. Inténtelo de nuevo más tarde.', 'error');
+      }
+    });
+  }
+
   puedeEncenderVentilador() {
   return this.modoManualTemperatura;
   }

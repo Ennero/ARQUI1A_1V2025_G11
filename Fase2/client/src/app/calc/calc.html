@@ -36,19 +36,19 @@
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-activity"></i> Media</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(averageValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-bar-chart-steps"></i> Mediana</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(medianValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-clipboard-data-fill"></i> Moda</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(modeValue) }}</div>
                     </div>
                 </mat-card>
                 
@@ -57,19 +57,19 @@
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Min / Max</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(minMaxValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-pie-chart"></i> Desviación Estándar</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(standardDeviationValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-pie-chart-fill"></i> Varianza</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(varianceValue) }}</div>
                     </div>
                 </mat-card>
             </div>
@@ -81,13 +81,13 @@
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-graph-up-arrow"></i> Media Móvil</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(movingAverageValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-graph-up"></i> Suavizado Exponencial</h3>
-                        <div class="subpanel-dato">-</div>
+                        <div class="subpanel-dato">{{ displayValue(exponentialSmoothingValue) }}</div>
                     </div>
                 </mat-card>
             </div>
