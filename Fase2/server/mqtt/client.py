@@ -169,7 +169,11 @@ class SiepaMqttClient(object):
                 last_30_docs.reverse()
 
                 # Through a list comprehension, we format the last 30 readings to only numbers
-                arr_last_30_readings = [ doc[measurement] for doc in last_30_docs ]
+                # We truncate and ensure the're not None values
+                arr_last_30_readings = [
+                    int(doc[measurement]) for doc in last_30_docs
+                    if measurement in doc and isinstance(doc[measurement], (int, float)) and doc[measurement] is not None
+                ]
                 
                 # Perform algorithm
                 if calculate == 'stats':
@@ -198,7 +202,7 @@ class SiepaMqttClient(object):
                         "statistics": dict_stats_result,
                         "predictions": dict_predictions_result
                     }
-                    
+
                     print(f"Calculation result: {dict_result}")
                 
                 # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
