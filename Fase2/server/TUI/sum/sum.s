@@ -1,12 +1,12 @@
 .global sum
 
 .text
-sum: // parametros x0 = buffer ; retornos x0 = suma total, x1 = contador de números
+sum: // parametros x18 = buffer ; retornos x19 = suma total, x1 = contador de números
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x0      // apuntador al buffer
-    mov x0, #0      // suma total
+    mov x2, x18      // apuntador al buffer
+    mov x19, #0      // suma total
     mov x1, #0      // contador de números
     mov x3, #0      // x3 = acumulador del número actual
     mov x4, #10     // base decimal
@@ -28,7 +28,7 @@ loop:
 skip_loop:
     add x1, x1, #1  // incrementar contador
     add x2, x2, #1  // avanzar a la siguiente línea
-    add x0, x0, x3  // sumar el número actual a la suma total
+    add x19, x19, x3  // sumar el número actual a la suma total
     mov x3, #0      // reiniciar el acumulador para el siguiente número
     b loop
 

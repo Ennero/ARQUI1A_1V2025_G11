@@ -4,6 +4,20 @@
 .extern read_opt
 .extern print
 .extern create_range_buffer
+.extern minimum
+.extern itoa
+.extern printNum
+.extern maximum
+.extern mean
+.extern sum
+.extern bubble_sort
+.extern median
+.extern mode
+.extern variance
+.extern sub_var
+.extern stdev
+.extern writeXML
+
 
 // Menu de opciones
 // que se ejecuta en un bucle hasta que se elige salir
@@ -58,20 +72,21 @@ _start:
         read_file:
             mov x15, #0         // Limite inferior del rango (inicializado a 0)
             mov x16, #0         // Limite superior del rango (inicializado a 0)
-            mov x25, x22        // x25 = Puntero al array de números
 
             bl readfile         // x0 | x18 = direccion del archivo leido , x1= numero bytes leidos
             cmp x0, #0          // Verificar si el archivo se ha abierto correctamente
             b.lt do
 
             mov x24, x1         // Guardar el número de bytes leídos en x24
-            mov x18, x0         // Guardar la dirección del buffer leido en x18
-            mov x23, x18        // Guardar la dirección del buffer leido en x23 para usarlo más tarde
-            mov x0, x18         // x0 = dirección del buffer leido
+            mov x23, x0         // Guardar la dirección del buffer leido en x23
+            mov x18, x23        // Guardar la dirección del buffer leido en x18 para usarlo más tarde
+            mov x0, x23         // x0 = dirección del buffer leido
 
             bl numbers_array    // x0 = array de numeros, x1 = contador de números
             mov x17, x1         // Guardar el contador de números en x17
             mov x22, x0         // Guardar la dirección del array de números en x22 
+            mov x25, x22        // x25 = Puntero al array de números
+            mov x28, x17        // x28 = Contador de números (para usar en las funciones estadísticas)
 
             mov x0, #1                      // file descriptor stdout
             ldr x1, =msg_file_uploaded      // direccion mensaje exito
@@ -141,7 +156,6 @@ _start:
                     b do2 // Volver al submenu
 
                 choose_range:
-                    
                     // Imprimir mensaje para escoger rango inferior
                     mov x0, #1                              // file descriptor stdout
                     ldr x1, =msg_choose_lower_limit         // direccion mensaje
@@ -190,22 +204,19 @@ _start:
                     mov w16, w6                     // Guardar el límite superior en x16
                     
                     // Crea un buffer con el rango escogido
-                    mov x0, x18             // x0 = dirección del buffer leido
+                    mov x0, x23             // x0 = dirección del buffer leido
                     mov x1, x24             // x1 = total bytes en el buffer leido
                     mov x2, x15             // x2 = límite inferior en el rango 
                     mov x3, x16             // x3 = límite superior en el rango
                     bl create_range_buffer  // x0 = buffer con el rango escogido
-                    mov x23, x0             // Guardar el buffer con el rango escogido en x23
+                    mov x18, x0             // Guardar el buffer con el rango escogido en x18
 
                     // Creo otro array de números con el rango escogido
-                    mov x0, x23
+                    mov x0, x18             // x0 = dirección del buffer con el rango escogido
                     mov x1, x24             // total bytes en el buffer leido
-                    bl numbers_array         // x0 = array de numeros, x1 = contador de números
+                    bl numbers_array        // x0 = array de numeros, x1 = contador de números
                     mov x25, x0             // Guardar  la dirección del array de números en x25
-
-                    mov x0, x23             // x0 = dirección del buffer con el rango escogido
-                    mov x1, x24             // x1 = total bytes en el buffer leido
-                    bl  print               // Imprimir el buffer con el rango escogido
+                    mov x28, x1             // Guardar el contador de números en x28
 
                     // Rango escogido exitosamente
                     mov x0, #1                          // file descriptor stdout
@@ -218,13 +229,15 @@ _start:
 
 
                 clean_filter:
-                    
                     // Resetear los límites del rango
                     mov w15, #0         // Limite inferior del rango (inicializado a 0)
                     mov w16, #0         // Limite superior del rango (inicializado a 0)
-                    mov x25, x22        // Resetear el array de números a la dirección original
 
-                    mov x23, x18        // Restaurar el buffer original en x23
+                    mov x18, x23        // Resetear el buffer con el archivo leido
+
+                    bl numbers_array    // x0 = array de numeros, x1 = contador de números
+                    mov x25, x0         // Guardar la dirección del array de números en x25
+                    mov x28, x1         // Guardar el contador de números en x28
 
                     // Imprimir mensaje de éxito de limpieza de filtro
                     mov x0, #1                          // file descriptor stdout
@@ -234,7 +247,6 @@ _start:
                     svc #0                              // llamada al sistema
 
                     b do2 // Volver al submenu
-
 
                 select_stats:
                     // Imprimir el mensaje del submenu de opciones estadisticas
@@ -247,6 +259,7 @@ _start:
                     // 7. Varianza
                     // 8. Media Movil
                     // 9. Suavizado Exponencial
+                    // 10 Imprimir todo
                     // 0. Regresar
                     // Seleccione una opcion
                     mov x0, #1                          // file descriptor stdout
@@ -254,6 +267,8 @@ _start:
                     mov x2, len_msg_menu_stats          // longitud mensaje
                     mov x8, #64                         // syscall_num write
                     svc #0                              // llamada al sistema
+
+                    mov x27, #0                          // eliminar el filtro para todos
 
                     // Leer la opción del usuario
                     bl read_opt         // x0 = opción leída
@@ -286,7 +301,10 @@ _start:
                     cmp w6, #9          // comparar 9 (Suavizado Exponencial)
                     b.eq exponential_smoothing
 
-                    cmp w6, #0         // comparar 10 (Regresar)
+                    cmp w6, #10         // comparar 10 (Imprimir todo)
+                    b.eq print_all
+
+                    cmp w6, #0         // comparar 0 (Regresar)
                     b.eq do2
 
                     // Si la opción no es válida, volver al inicio del bucle
@@ -308,6 +326,13 @@ _start:
 
                         // Aquí iría la lógica para calcular el valor mínimo
 
+                        bl minimum
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq max_value
+
                         b select_stats // Volver al submenu
                                     
                     max_value:
@@ -318,6 +343,13 @@ _start:
                         svc #0                              // llamada al sistema
 
                         // Aquí iría la lógica para calcular el valor máximo
+
+                        bl maximum
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq mean_value
 
                         b select_stats // Volver al submenu
 
@@ -330,6 +362,13 @@ _start:
 
                         // Aquí iría la lógica para calcular la media
 
+                        bl mean
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq median_value
+
                         b select_stats // Volver al submenu
 
                     median_value:
@@ -340,6 +379,13 @@ _start:
                         svc #0                                  // llamada al sistema
 
                         // Aquí iría la lógica para calcular la mediana
+
+                        bl median
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq mode_value
 
                         b select_stats // Volver al submenu
 
@@ -352,6 +398,13 @@ _start:
 
                         // Aquí iría la lógica para calcular la moda
 
+                        bl mode
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq std_dev_value
+
                         b select_stats // Volver al submenu
 
                     std_dev_value:
@@ -362,6 +415,13 @@ _start:
                         svc #0                                  // llamada al sistema
 
                         // Aquí iría la lógica para calcular la desviación estándar
+
+                        bl stdev
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq variance_value
 
                         b select_stats // Volver al submenu
 
@@ -374,6 +434,13 @@ _start:
 
                         // Aquí iría la lógica para calcular la varianza
                         
+                        bl variance
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq moving_average
+
                         b select_stats // Volver al submenu
 
                     moving_average:
@@ -384,6 +451,13 @@ _start:
                         svc #0                                  // llamada al sistema
 
                         // Aquí iría la lógica para calcular la media móvil
+
+                        bl mean
+                        bl itoa
+                        bl printNum
+
+                        cmp x27, #1111
+                        b.eq exponential_smoothing
 
                         b select_stats // Volver al submenu
 
@@ -396,8 +470,17 @@ _start:
 
                         // Aquí iría la lógica para calcular el suavizado exponencial
 
+                        mov x19, 1234
+                        bl itoa
+                        bl printNum
+
                         b select_stats // Volver al submenu
-        
+                    
+                    print_all:
+                        // Imprimir todos los valores calculados
+                        mov x27, #1111
+                        b min_value
+
 
                 export_xml:
                     // Aquí iría la lógica para exportar a XML
@@ -408,6 +491,8 @@ _start:
                     mov x2, len_msg_export_xml_success   // longitud mensaje
                     mov x8, #64                         // syscall_num write
                     svc #0                              // llamada al sistema
+
+                    bl writeXML
 
                     b do2 // Volver al submenu
 
@@ -433,7 +518,7 @@ end_welcome_msg: // apuntar final mensaje
 .equ len_welcome_msg, end_welcome_msg - welcome_msg  // longitud mensaje
 
 // Mensajes del menu
-msg: .asciz "\nMENU:\n1. Leer Archivo de Datos\n0. Salir\nSeleccione una opcion: "
+msg: .asciz "\n- MENU:\n1. Leer Archivo de Datos\n0. Salir\nSeleccione una opcion: "
 end_msg: // apuntar final mensaje
 .equ len_msg, end_msg - msg  // longitud mensaje
 
@@ -443,12 +528,12 @@ end_msg2: // apuntar final mensaje error
 .equ len_msg2, end_msg2 - msg2  // longitud  mensaje error
 
 //Mensaje submenu 
-msg3: .asciz "\nMENU:\n1. Escoger rango de lineas\n2. Limpiar filtrado\n3. Seleccionar funciones estadisticas y de prediccion\n4. Exportar a XML\n0. Regresar al menu principal\nSeleccione una opcion: "
+msg3: .asciz "\n- MENU:\n1. Escoger rango de lineas\n2. Limpiar filtrado\n3. Seleccionar funciones estadisticas y de prediccion\n4. Exportar a XML\n0. Regresar al menu principal\nSeleccione una opcion: "
 end_msg3: // apuntar final mensaje menu 2
 .equ len_msg3, end_msg3 - msg3  // longitud mensaje menu
 
 //Mensaje opciones de los stats
-msg_menu_stats: .asciz "\nOPCIONES:\n1. Valor Minimo\n2. Valor Maximo\n3. Media\n4. Mediana\n5. Moda\n6. Desviación Estándar\n7. Varianza\n8. Media Movil\n9. Suavizado Exponencial\n0. Regresar\nSeleccione una opcion: "
+msg_menu_stats: .asciz "\n- OPCIONES:\n1. Valor Minimo\n2. Valor Maximo\n3. Media\n4. Mediana\n5. Moda\n6. Desviación Estándar\n7. Varianza\n8. Media Movil\n9. Suavizado Exponencial\n10. Ejecutar todas las operaciones\n0. Regresar\nSeleccione una opcion: "
 end_msg_menu_stats: // apuntar final mensaje menu xml
 .equ len_msg_menu_stats, end_msg_menu_stats - msg_menu_stats  // longitud mensaje
 
@@ -468,12 +553,12 @@ msg_choose_upper_limit_end: // apuntar final mensaje
 .equ len_msg_choose_upper_limit, msg_choose_upper_limit_end - msg_choose_upper_limit
 
 // Mensaje limite inferio fuera de rango
-msg_limit_lower_out_of_range: .asciz "***El limite inferior esta fuera del rango de lineas***\n"
+msg_limit_lower_out_of_range: .asciz "***** El limite inferior esta fuera del rango de lineas *****\n"
 end_msg_limit_lower_out_of_range: // apuntar final mensaje
 .equ len_msg_limit_lower_out_of_range, end_msg_limit_lower_out_of_range - msg_limit_lower_out_of_range
 
 // Mensahe limite superior fuera de rango
-msg_choose_range_upper_error: .asciz "***El limite superior esta fuera del rango de lineas***\n"
+msg_choose_range_upper_error: .asciz "***** El limite superior esta fuera del rango de lineas *****\n"
 end_msg_choose_range_upper_error: // apuntar final mensaje
 .equ len_msg_choose_range_upper_error, end_msg_choose_range_upper_error - msg_choose_range_upper_error
 

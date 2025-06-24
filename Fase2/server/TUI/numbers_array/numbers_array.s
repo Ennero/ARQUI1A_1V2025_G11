@@ -8,7 +8,7 @@ numbers_array: // parametros x0 = buffer ; retornos x0 = array de numeros, x1 = 
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x0          // apuntador al buffer
+    mov x2, x18         // apuntador al buffer
     ldr x0, =numbers    // apuntador al array de números
     mov x1, #0          // contador de números
     mov w3, #0          // x3 = acumulador del número actual
