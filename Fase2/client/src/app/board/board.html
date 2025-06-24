@@ -1,0 +1,59 @@
+<app-header></app-header>
+<div class="dashboard-bg">
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Resultados Históricos</h1>
+        <mat-card class="panel panel-top">
+            <!-- Panel Superior logo y título-->
+            <div class="dashboard-top-panel">
+                <img src="assets/base.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Historial de Datos calculados</h1>
+            </div>
+            <!-- Panel para la selección de datos-->
+            <!-- Panel para la selección de datos-->
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                        <h3><i class="bi bi-table"></i> Tabla a solicitar</h3>
+                        <h3><i class="bi bi-cpu"></i> Sensor a solicitar</h3>
+                    </div>
+                    <div class="select-row">
+                        <mat-form-field appearance="fill" class="sensor-select">    
+                            <mat-select [(ngModel)]="selectedTable">
+                                <mat-option *ngFor="let table of tableTypes" [value]="table.value">
+                                    {{table.viewValue}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="fill" class="sensor-select">    
+                            <mat-select [(ngModel)]="selectedSensor">
+                                <mat-option *ngFor="let sensor of sensorTypes" [value]="sensor.value">
+                                    {{sensor.viewValue}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-raised-button color="primary" class="sensor-btn" (click)="simularDatos()" [disabled]="!selectedSensor">
+                            Enviar selección
+                        </button>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel-graph">
+                    <div class="table-scroll">
+                        <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
+                            <!-- Definición de las columnas -->
+                             <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+                                <th mat-header-cell *matHeaderCellDef> 
+                                    {{ columnLabels[column] || (column | titlecase) }} 
+                                </th>
+                                <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+                    </div>
+                </mat-card>
+            </div>
+        </mat-card>
+    </div>
+</div>
