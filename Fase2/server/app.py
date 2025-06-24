@@ -13,6 +13,7 @@ from models.device_manager import DeviceManager
 from config.mongodb import mongodb_connection
 from pymongo import DESCENDING
 from threading import Thread, Event
+from datetime import datetime
 import board
 import RPi.GPIO as GPIO
 import time
@@ -310,9 +311,9 @@ class SiepaG11App(object):
                     self.display_lcd.clear()
                     
                     if current_mode == 'statistics':
-                        data_dict = self.get_statistics_dict()
+                        data_dict = self.get_last_calculation_dict('statistics')
                     else:
-                        data_dict = self.get_predictions_dict()
+                        data_dict = self.get_last_calculation_dict('predictions')
 
                     for key, value in data_dict.items():
                         if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
@@ -327,20 +328,33 @@ class SiepaG11App(object):
             except queue.Empty:
                 continue
 
-    def get_statistics_dict(self):
-        last_dict = self.stadistics_collection.find(sort=[('_id', DESCENDING)])
-        del last_dict['timestamp']  # Remove timestamp from the last reading
-        del last_dict['_id']  # Remove timestamp from the last reading
+    def get_last_calculation_dict(self, collection):
+        # Get the last document
+        if not collection:
+            return {}
         
-        return last_dict
-        
+        if collection == 'statistics':
+            last_dict = self.stadistics_collection.find_one(sort=[('_id', DESCENDING)])
+        elif collection == 'predictions':
+            last_dict = self.predictions_collection.find_one(sort=[('_id', DESCENDING)])
+        else:
+            return {}
 
-    def get_predictions_dict(self):
-        last_dict = self.predictions_collection.find(sort=[('_id', DESCENDING)])
-        del last_dict['timestamp']  # Remove timestamp from the last reading
-        del last_dict['_id']  # Remove timestamp from the last reading
-        
+        if not last_dict:
+            return {}
+
+        # Extract timestamp
+        timestamp = last_dict.get('timestamp')
+        if isinstance(timestamp, datetime):
+            last_dict['date'] = timestamp.strftime('%Y-%m-%d')
+            last_dict['time'] = timestamp.strftime('%H:%M:%S')
+
+        # Clean up unnecessary fields
+        last_dict.pop('timestamp', None)
+        last_dict.pop('_id', None)
+
         return last_dict
+        
 
     def show_priority_message(self, msg: str, duration: int = 5):
         if self.display_lcd.show != 'readings': return

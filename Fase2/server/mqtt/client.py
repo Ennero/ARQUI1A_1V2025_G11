@@ -3,6 +3,7 @@ import random
 import json
 from models.device_manager import DeviceManager
 from paho.mqtt import client as mqtt_client
+from datetime import datetime
 from config.mongodb import mongodb_connection
 from ARM64.calculator import Calculator
 from pymongo import DESCENDING
@@ -169,22 +170,26 @@ class SiepaMqttClient(object):
 
                 # Through a list comprehension, we format the last 30 readings to only numbers
                 arr_last_30_readings = [ doc[measurement] for doc in last_30_docs ]
-
+                
                 # Perform algorithm
                 if calculate == 'stats':
                     print("Calculating statistics...")
-                    dict_result = Calculator().calculate(arr_last_30_readings)
+                    dict_result = Calculator().calculate_stats(arr_last_30_readings)
+                    dict_result['timestamp'] = datetime.now()
                     db['statistics'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
                     print(f"Calculation result: {dict_result}")
                 elif calculate == 'predictions':
                     print("Calculating predictions...")
-                    dict_result = Calculator().calculate(arr_last_30_readings)
+                    dict_result = Calculator().calculate_predictions(arr_last_30_readings)
+                    dict_result['timestamp'] = datetime.now()
                     db['predictions'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
                     print(f"Calculation result: {dict_result}")
                 elif calculate == 'all':
                     print("Calculating both statistics and predictions...")
-                    dict_stats_result = Calculator().calculate(arr_last_30_readings)
-                    dict_predictions_result = Calculator().calculate(arr_last_30_readings)
+                    dict_stats_result = Calculator().calculate_stats(arr_last_30_readings)
+                    dict_stats_result['timestamp'] = datetime.now()
+                    dict_predictions_result = Calculator().calculate_predictions(arr_last_30_readings)
+                    dict_predictions_result['timestamp'] = datetime.now()
                     db['statistics'].insert_one(dict_stats_result) # Now, we are ready to save the calculations in mongodb
                     db['predictions'].insert_one(dict_predictions_result) # Now, we are ready to save the calculations in mongodb
                     
@@ -193,6 +198,7 @@ class SiepaMqttClient(object):
                         "statistics": dict_stats_result,
                         "predictions": dict_predictions_result
                     }
+                    
                     print(f"Calculation result: {dict_result}")
                 
                 # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
