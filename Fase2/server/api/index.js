@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json()); // Para JSON en peticiones POST
+app.use(express.json());
 
 app.get('/siepa/collections/:collection', async (req, res) => {
     try {
