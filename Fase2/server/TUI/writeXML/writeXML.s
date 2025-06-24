@@ -17,7 +17,8 @@ fileName: .space 30
 writeBuffer: .space 2048
 
 .section .data
-welcomeMsg: .asciz "\nBienvenido, escribe el nombre que tendra el archivo XML (no mas de 25 digitos).\n" // length = 81
+welcomeMsg: .asciz "\n\n======= BIENVENIDO A LA SECCION ESCRIBIR XML =======\n" // length = 55
+intructionMsg: .asciz "\nInstrucciones: \n1. Sigue la sintaxis: nombre.xml\n2. Nombres con longitud menores a 25 caracteres\n"
 fileNameMsg: .asciz "\nNombre del archivo: " // length = 21
 
 .section .text
@@ -28,7 +29,15 @@ writeXML:
     // Write the welcome msg
     mov x0, #1
     ldr x1, =welcomeMsg
-    mov x2, #81
+    mov x2, #55
+    mov x8, #64
+    svc #0
+
+    // Write the instruction Msg 
+
+    mov x0, #1
+    ldr x1, =intructionMsg
+    mov x2, #98
     mov x8, #64
     svc #0
 

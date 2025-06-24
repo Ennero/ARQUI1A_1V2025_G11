@@ -1,7 +1,7 @@
 .global readfile
 
 .section .data
-readfileSectionWelcome: .asciz "Subiendo el archivo...\n"
+readfileSectionWelcome: .asciz "\n\n==== BIENVENIDO A LA FUNCIONALIDAD LEER ARCHIVO ====\n"
 readfileSectionWelcomeEnd: // end of readfileSectionWelcome
 .equ readfileSectionWelcomeLen, readfileSectionWelcomeEnd - readfileSectionWelcome  // length
 

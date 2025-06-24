@@ -26,6 +26,7 @@ class Calculator:
             "variance": self.get_variance(data),
             "moving_average": self.get_movil_mean(data)
         }
+        return self.last_request
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
