@@ -165,7 +165,14 @@ class SiepaMqttClient(object):
 
                 db = mongodb_connection.get_database('arqui1_siepa_g11_db')
                 collection = db['sensor_readings']
-                last_30_docs = list(collection.find({}, { '_id': 1, [measurement]: 1}).sort('_id', DESCENDING).limit(30))
+                last_30_docs = list(
+                    collection.find(
+                        { measurement: { "$exists": True, "$ne": None } },  # ensures value is not null
+                        { '_id': 1, [measurement]: 1 }
+                ).sort(
+                    '_id', DESCENDING
+                ).limit(30)
+            )
                 last_30_docs.reverse()
 
                 # Through a list comprehension, we format the last 30 readings to only numbers
