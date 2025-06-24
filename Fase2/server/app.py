@@ -11,6 +11,7 @@ from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
 from config.mongodb import mongodb_connection
+from pymongo import DESCENDING
 from threading import Thread, Event
 import board
 import RPi.GPIO as GPIO
@@ -327,34 +328,19 @@ class SiepaG11App(object):
                 continue
 
     def get_statistics_dict(self):
-        data = self.mongo_repo.get_last_n(n=30)
-        if not data:
-            return {"Info": "No data"}
-
-        # Calcular estadísticas (solo ejemplo)
-        avg_temp = sum(d["temperature"] for d in data) / len(data)
-        avg_hum = sum(d["humidity"] for d in data) / len(data)
-        avg_press = sum(d["pressure"] for d in data) / len(data)
-
-        return {
-            "Temp. Promedio": f"{avg_temp:.1f}°C",
-            "Humedad Prom.": f"{avg_hum:.1f}%",
-            "Presión Prom.": f"{avg_press:.1f} hPa"
-        }
+        last_dict = self.stadistics_collection.find(sort=[('_id', DESCENDING)])
+        del last_dict['timestamp']  # Remove timestamp from the last reading
+        del last_dict['_id']  # Remove timestamp from the last reading
+        
+        return last_dict
+        
 
     def get_predictions_dict(self):
-        last = self.mongo_repo.get_last_n(n=1)
-        if not last:
-            return {"Info": "Sin datos"}
-
-        last_data = last[0]
-
-        # Simular predicción simple
-        return {
-            "Temp Pred.": f"{last_data['temperature'] + 0.4:.1f}°C",
-            "Humedad Pred.": f"{last_data['humidity'] + 1.0:.1f}%",
-            "Presión Pred.": f"{last_data['pressure'] - 0.5:.1f} hPa"
-        }
+        last_dict = self.predictions_collection.find(sort=[('_id', DESCENDING)])
+        del last_dict['timestamp']  # Remove timestamp from the last reading
+        del last_dict['_id']  # Remove timestamp from the last reading
+        
+        return last_dict
 
     def show_priority_message(self, msg: str, duration: int = 5):
         if self.display_lcd.show != 'readings': return
