@@ -104,8 +104,7 @@ do_min:
 
 do_exp_smooth:
     bl numbers_array // x0 = array de números, x1 = tamaño del array
-    bl exp_smooth // x0 = buffer del suavizado, x1 = tamaño del buffer
-    bl print // print(x0 = string a imprimir, x1 = longitud de la cadena)
+    bl exp_smooth
     b exit
 
 exit:

@@ -39,5 +39,6 @@ get_digit:
     bne get_digit
 
 exit:
+    add x0, x0, #1          // ajustar el puntero al inicio del string
     ldp fp, lr, [sp], #16   // Epílogo
     ret

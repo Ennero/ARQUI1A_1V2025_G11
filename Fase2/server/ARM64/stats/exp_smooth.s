@@ -1,81 +1,64 @@
 .global exp_smooth
 .extern itoa
-
-.bss
-smooth: .skip 8192
+.extern print
 
 .text
-exp_smooth: // x0 = array de numeros, x1 = tamaño del array ; x0 = buffer del suavizado, x1 = tamaño del buffer
+exp_smooth: // x0 = array de numeros, x1 = tamaño del array
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x0      // apuntador al array de números
+    mov x2, x0      // array de números
     mov x3, x1      // tamaño del array
-    mov x4, #0      // longitud de smooth
-    mov x5, #0      // indice i del array de números
-    mov x6, #0      // At (valor actual)
-    mov x7, #0      // At-1 (valor previo)
-    mov x8, #0      // Ft-1 (valor suavizado previo)
-    mov x9, #0      // Ft (valor suavizado actual)
-    ldr x11, =smooth // apuntador al buffer de suavizado
-    mov x10, #300   // a = 0.3 (factor de suavizado)
-    mov x12, #1000 // factor de escala para evitar decimales
+    mov x5, #0      // índice i
+    mov x7, #0      // At-1
+    mov x8, #0      // Ft-1
+    mov x10, #300   // a = 0.3 (escalado 1000)
+    mov x11, #1000  // escala
 
 loop:
-    cmp x5, x3      // comparar i con el tamaño del array
-    bge exit        // si i >= tamaño del array, salir
+    cmp x5, x3
+    bge exit
 
-    // mientras i < tamaño del array hacer
+    ldr w6, [x2, w5, uxtw #2]   // At
+    cmp x5, #0
+    bne calc_smooth
 
-    ldr w6, [x2, w5, uxtw #2] // w9 = At
-    cmp w5, #0 // si i es 0, no hay suavizado previo
-    bne calc_smooth // si i es 0, saltar a copy
-
+    // Primera iteración: Ft = At
     mov x9, x6
-    b copy
+    b print_smooth
 
 calc_smooth:
-    sub w9, w7, w8 // w9 = At-1 - Ft-1
-    mul w9, w9, w10 // w9 = a (At-1 - Ft-1) * 1000
-    sdiv w9, w9, w12 // w9 = a (At-1 - Ft-1)
-    add w9, w8, w9 // w9 = Ft = Ft-1 + a (At-1 - Ft-1)
+    sub w9, w7, w8      // At-1 - Ft-1
+    mul w9, w9, w10     // * a (escalado)
+    sdiv w9, w9, w11    // / 1000
+    add w9, w8, w9      // Ft = Ft-1 + a (At-1 - Ft-1)
 
-copy:
+print_smooth:
     mov x19, x2
     mov x20, x3
-    mov x21, x4
-    mov x22, x5
-    mov x23, x6
-    mov x24, x7
-    mov x25, x8
-    mov x26, x9
+    mov x21, x5
+    mov x22, x6
+    mov x23, x7
+    mov x24, x8
+    mov x25, x9
+
     mov x0, x9
-    bl itoa // x0 = puntero al string de salida, x1 = longitud del string
+    bl itoa      // x0 = ptr, x1 = len
+    bl print     // imprimir string
+
     mov x2, x19
     mov x3, x20
-    mov x4, x21
-    mov x5, x22
-    mov x6, x23
-    mov x7, x24
-    mov x8, x25
-    mov x9, x26
-    add x4, x4, x1 // longitud del string de salida
+    mov x5, x21
+    mov x6, x22
+    mov x7, x23
+    mov x8, x24
+    mov x9, x25
 
-copy_loop:
-    cbz x1, done_copy // si x1 es 0, salir del bucle
-    ldrb w7, [x0], 1
-    strb w7, [x11], 1 // copiar el byte al buffer de suavizado
-    sub x1, x1, #1 // decrementar el tamaño del array
-    b copy_loop
-
-done_copy:
-    mov w8, w9 // Ft-1 = Ft
-    mov w7, w6 // At-1 = At
-    add w5, w5, #1 // incrementar el índice i
+    mov x7, x6    // At-1 = At
+    mov x8, x9    // Ft-1 = Ft
+    add x5, x5, #1
     b loop
 
 exit:
-    ldr x0, =smooth // apuntar x0 al buffer de suavizado
-    mov x1, x4      // tamaño del buffer de suavizado
     ldp fp, lr, [sp], #16
     ret
