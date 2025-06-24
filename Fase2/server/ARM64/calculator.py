@@ -2,34 +2,46 @@ import subprocess as sbp
 
 class Calculator:
     def __init__(self):
-        self.last_request = {
+        self.last_stats = {
             "mean": None,
             "median": None,
             "mode": None,
             "minimum": None,
             "maximum": None,
-            "standard_deviation": None,
             "variance": None,
+            "standard_deviation": None
+        }
+
+        self.last_predictions = {
             "moving_average": None,
             "exponential_smoothing": None
         }    
     
 
-    def calculate(self, data):
+    def calculate_stats(self, data):
         data = self.stringify_data(data)
-        self.last_request = {
+
+        self.last_stats = {
             "mean": self.get_mean(data),
             "median": self.get_median(data),
             "mode": self.get_mode(data),
             "minimum": self.get_minimum(data),
             "maximum": self.get_maximum(data),
-            "standard_deviation": self.get_stdev(data),
             "variance": self.get_variance(data),
+            "standard_deviation": self.get_stdev(data)
+        }
+
+        return self.last_stats
+
+    def calculate_predictions(self, data):
+        data = self.stringify_data(data)
+
+        self.last_predictions = {
             "moving_average": self.get_movil_mean(data),
             "exponential_smoothing": self.get_exponential_smoothing(data)
         }
 
-        return self.last_request
+        return self.last_predictions
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
@@ -163,16 +175,14 @@ class Calculator:
 
     
 if __name__ == "__main__":
-    with open("prueba.txt", "r") as file:
-        numbers = file.read()
-        calculator = Calculator()
-        calculator.get_mean(numbers)
-        calculator.get_variance(numbers)
-        calculator.get_stdev(numbers)
-        calculator.get_mode(numbers)
-        calculator.get_median(numbers)
-        calculator.get_maximum(numbers)
-        calculator.get_minimum(numbers)
-        calculator.get_movil_mean(numbers)
-        calculator.get_exponential_smoothing(numbers)
+    calc = Calculator()
+    data = [1, 7, 3, 4, 5, 6, 7, 8, 9, 10]
+    
+    print("Calculating statistics...")
+    stats = calc.calculate_stats(data)
+    print(stats)
+
+    print("Calculating predictions...")
+    predictions = calc.calculate_predictions(data)
+    print(predictions)
         
