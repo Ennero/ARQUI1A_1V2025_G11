@@ -4,6 +4,7 @@ import json
 from models.device_manager import DeviceManager
 from paho.mqtt import client as mqtt_client
 from config.mongodb import mongodb_connection
+from ARM64.calculator import Calculator
 from pymongo import DESCENDING
 
 class SiepaMqttClient(object):
@@ -32,7 +33,6 @@ class SiepaMqttClient(object):
             'proximity',
             'luminosity',
             'motion_detected',
-            'proximity'
         ]
 
     def connect(self):
@@ -147,15 +147,53 @@ class SiepaMqttClient(object):
                     print(f"Invalid device name provided: {device_name}")
 
             elif topic == "fiusac/arqui1/g11/calculate":
-                print("Performing calculation...")
+                # Topic: fiusac/arqui1/g11/calculate
+                # Payload should be like:
+                # {"measurement": "temperature", calculate: "stats/predictions/all" }
+                measurement = payload.get("measurement", "unknown")
+                calculate = payload.get("calculate", "stats/predictions/all")
+
+                # Validations
+                if measurement not in self._allowed_topics:
+                    print(f"Measurement '{measurement}' is not allowed. Allowed measurements are: {self._allowed_topics}")
+                    return
+                
+                if calculate not in ['stats', 'predictions', 'all']:
+                    print(f"Calculation type '{calculate}' is not recognized. Allowed types are: 'stats', 'predictions', 'all'")
+                    return
 
                 db = mongodb_connection.get_database('arqui1_siepa_g11_db')
                 collection = db['sensor_readings']
-                # Get the last 30 documents, sorted by _id in descending order
-                last_30_docs = list(collection.find().sort('_id', DESCENDING).limit(30))
+                last_30_docs = list(collection.find({}, { '_id': 1, [measurement]: 1}).sort('_id', DESCENDING).limit(30))
                 last_30_docs.reverse()
 
-                dict_result = {} # Here we send the las 30 readings to ARM and get the result
+                # Through a list comprehension, we format the last 30 readings to only numbers
+                arr_last_30_readings = [ doc[measurement] for doc in last_30_docs ]
+
+                # Perform algorithm
+                if calculate == 'stats':
+                    print("Calculating statistics...")
+                    dict_result = Calculator().calculate(arr_last_30_readings)
+                    db['statistics'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
+                    print(f"Calculation result: {dict_result}")
+                elif calculate == 'predictions':
+                    print("Calculating predictions...")
+                    dict_result = Calculator().calculate(arr_last_30_readings)
+                    db['predictions'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
+                    print(f"Calculation result: {dict_result}")
+                elif calculate == 'all':
+                    print("Calculating both statistics and predictions...")
+                    dict_stats_result = Calculator().calculate(arr_last_30_readings)
+                    dict_predictions_result = Calculator().calculate(arr_last_30_readings)
+                    db['statistics'].insert_one(dict_stats_result) # Now, we are ready to save the calculations in mongodb
+                    db['predictions'].insert_one(dict_predictions_result) # Now, we are ready to save the calculations in mongodb
+                    
+                    # Combine to have a single result
+                    dict_result = {
+                        "statistics": dict_stats_result,
+                        "predictions": dict_predictions_result
+                    }
+                    print(f"Calculation result: {dict_result}")
                 
                 # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
                 if DeviceManager().display_lcd.show in ['predictions', 'statistics']:
