@@ -16,6 +16,7 @@ class Calculator:
     
 
     def calculate(self, data):
+        data = self.stringify_data(data)
         self.last_request = {
             "mean": self.get_mean(data),
             "median": self.get_median(data),
@@ -24,8 +25,11 @@ class Calculator:
             "maximum": self.get_maximum(data),
             "standard_deviation": self.get_stdev(data),
             "variance": self.get_variance(data),
-            "moving_average": self.get_movil_mean(data)
+            "moving_average": self.get_movil_mean(data),
+            "exponential_smoothing": self.get_exponential_smoothing(data)
         }
+
+        return self.last_request
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
