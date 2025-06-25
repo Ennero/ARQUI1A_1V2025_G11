@@ -17,6 +17,8 @@
 .extern sub_var
 .extern stdev
 .extern writeXML
+.extern exp_smooth
+.extern numbers_array2
 
 
 // Menu de opciones
@@ -88,6 +90,12 @@ _start:
             mov x25, x22        // x25 = Puntero al array de números
             mov x28, x17        // x28 = Contador de números (para usar en las funciones estadísticas)
 
+            // Arreglo solo el suavizado exponencial
+            mov x0, x23         // x0 = dirección del buffer leido
+            bl numbers_array2   // x0 = array de numeros, x1 = contador de números
+            mov x14, x0         // x14 = Puntero al array de números
+            mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
+
             mov x0, #1                      // file descriptor stdout
             ldr x1, =msg_file_uploaded      // direccion mensaje exito
             mov x2, len_msg_file_uploaded   // longitud mensaje
@@ -156,6 +164,13 @@ _start:
                     b do2 // Volver al submenu
 
                 choose_range:
+                    // Imprimir mensaje de bienvenida
+                    mov x0, #1
+                    ldr x1, =msg_select_ranges
+                    mov x2, len_msg_select_ranges
+                    mov x8, #64
+                    svc 0
+
                     // Imprimir mensaje para escoger rango inferior
                     mov x0, #1                              // file descriptor stdout
                     ldr x1, =msg_choose_lower_limit         // direccion mensaje
@@ -218,6 +233,13 @@ _start:
                     mov x25, x0             // Guardar  la dirección del array de números en x25
                     mov x28, x1             // Guardar el contador de números en x28
 
+                    // Guardo en el array solo para el suavizado exponencial
+                    mov x0, x18         // x0 = dirección del buffer con el rango escogido
+                    mov x1, x24         // total bytes en el buffer leido
+                    bl numbers_array2   // x0 = array de numeros, x1 = contador de números
+                    mov x14, x0         // x14 = Puntero al array de números
+                    mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
+
                     // Rango escogido exitosamente
                     mov x0, #1                          // file descriptor stdout
                     ldr x1, =msg_choosing_range_success // direccion mensaje
@@ -238,6 +260,12 @@ _start:
                     bl numbers_array    // x0 = array de numeros, x1 = contador de números
                     mov x25, x0         // Guardar la dirección del array de números en x25
                     mov x28, x1         // Guardar el contador de números en x28
+
+                    // Arreglo solo para el suavizado
+                    mov x18, x23        // Resetear el buffer con el archivo leido
+                    bl numbers_array2    // x0 = array de numeros, x1 = contador de números
+                    mov x14, x0         // x14 = Puntero al array de números
+                    mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
 
                     // Imprimir mensaje de éxito de limpieza de filtro
                     mov x0, #1                          // file descriptor stdout
@@ -267,7 +295,6 @@ _start:
                     mov x2, len_msg_menu_stats          // longitud mensaje
                     mov x8, #64                         // syscall_num write
                     svc #0                              // llamada al sistema
-
                     mov x27, #0                          // eliminar el filtro para todos
 
                     // Leer la opción del usuario
@@ -318,6 +345,8 @@ _start:
 
 
                     min_value:
+                        bl add_double_break_line
+
                         mov x0, #1                          // file descriptor stdout
                         ldr x1, =msg_min_value              // direccion mensaje
                         mov x2, len_msg_min_value           // longitud mensaje
@@ -332,7 +361,8 @@ _start:
 
                         cmp x27, #1111
                         b.eq max_value
-
+                        
+                        bl add_break_line                        
                         b select_stats // Volver al submenu
                                     
                     max_value:
@@ -350,7 +380,7 @@ _start:
 
                         cmp x27, #1111
                         b.eq mean_value
-
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     mean_value:
@@ -369,6 +399,7 @@ _start:
                         cmp x27, #1111
                         b.eq median_value
 
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     median_value:
@@ -387,6 +418,7 @@ _start:
                         cmp x27, #1111
                         b.eq mode_value
 
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     mode_value:
@@ -405,6 +437,7 @@ _start:
                         cmp x27, #1111
                         b.eq std_dev_value
 
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     std_dev_value:
@@ -422,7 +455,8 @@ _start:
 
                         cmp x27, #1111
                         b.eq variance_value
-
+                        
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     variance_value:
@@ -441,6 +475,7 @@ _start:
                         cmp x27, #1111
                         b.eq moving_average
 
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     moving_average:
@@ -459,6 +494,7 @@ _start:
                         cmp x27, #1111
                         b.eq exponential_smoothing
 
+                        bl add_break_line
                         b select_stats // Volver al submenu
 
                     exponential_smoothing:
@@ -470,10 +506,10 @@ _start:
 
                         // Aquí iría la lógica para calcular el suavizado exponencial
 
-                        mov x19, 1234
-                        bl itoa
-                        bl printNum
+                        bl exp_smooth
 
+                        cmp x27, #1111
+                        b.eq return_to_principal_menu_desition
                         b select_stats // Volver al submenu
                     
                     print_all:
@@ -486,13 +522,13 @@ _start:
                     // Aquí iría la lógica para exportar a XML
                     // Pero de momento solo saltará mensaje de exito
 
+                    bl writeXML
+
                     mov x0, #1                          // file descriptor stdout
                     ldr x1, =msg_export_xml_success     // direccion mensaje
                     mov x2, len_msg_export_xml_success   // longitud mensaje
                     mov x8, #64                         // syscall_num write
                     svc #0                              // llamada al sistema
-
-                    bl writeXML
 
                     b do2 // Volver al submenu
 
@@ -510,110 +546,166 @@ _start:
         mov x0, #0          // código de salida 0
         svc #0              // llamada al sistema
 
+add_break_line:
+    stp fp, lr, [sp, #-16]!
+    mov fp, sp
+
+    mov x0, 1
+    ldr x1, =break_line
+    mov x2, 1
+    mov x8, 64
+    svc 0
+
+    ldp fp, lr, [sp], #16
+    ret
+
+add_double_break_line:
+    stp fp, lr, [sp, #-16]!
+    mov fp, sp
+
+    mov x0, 1
+    ldr x1, =double_break_line
+    mov x2, 2
+    mov x8, 64
+    svc 0
+
+    ldp fp, lr, [sp], #16
+    ret
+
+return_to_principal_menu_desition:
+    mov x27, 0
+    mov x0, 1
+    ldr x1, =return_statistics_section_msg
+    mov x2, len_return_statistics_section_msg
+    mov x8, #64
+    svc 0
+
+    bl read_opt         // x0 = opción leída
+    mov w6, w0          // Guardar la opción leída en w6
+
+    cmp w6, #1
+    b.eq select_stats
+
+    b return_to_principal_menu_desition
+
+
 
 .data
+return_statistics_section_msg: .asciz "\n---> Presiona 1 para retornar al menu de estadisticas..."
+end_return_statistics_section_msg:
+.equ len_return_statistics_section_msg, end_return_statistics_section_msg - return_statistics_section_msg  // longitud mensaje
+
 //Mensaje de bienvenida
-welcome_msg: .asciz "====== Bienvenido a TUI (Text User Interface) ======\n"
+welcome_msg: .asciz "\n====== Bienvenido a TUI (Text User Interface) ======"
 end_welcome_msg: // apuntar final mensaje
 .equ len_welcome_msg, end_welcome_msg - welcome_msg  // longitud mensaje
 
 // Mensajes del menu
-msg: .asciz "\n- MENU:\n1. Leer Archivo de Datos\n0. Salir\nSeleccione una opcion: "
+msg: .asciz "\n\n================== MENU DE INICIO ==================\n\n1. Leer Archivo de Datos\n0. Salir\nSeleccione una opcion: "
 end_msg: // apuntar final mensaje
 .equ len_msg, end_msg - msg  // longitud mensaje
 
 // Mensaje de error para opción no válida
-msg2: .asciz "***Opcion no valida, intente de nuevo***\n"
+msg2: .asciz "\n\n***Opcion no valida, intente de nuevo***\n"
 end_msg2: // apuntar final mensaje error
 .equ len_msg2, end_msg2 - msg2  // longitud  mensaje error
 
 //Mensaje submenu 
-msg3: .asciz "\n- MENU:\n1. Escoger rango de lineas\n2. Limpiar filtrado\n3. Seleccionar funciones estadisticas y de prediccion\n4. Exportar a XML\n0. Regresar al menu principal\nSeleccione una opcion: "
+msg3: .asciz "\n\n================== MENU PRINCIPAL ==================\n\n1. Escoger rango de lineas\n2. Limpiar filtrado\n3. Seleccionar funciones estadisticas y de prediccion\n4. Exportar a XML\n0. Regresar al menu principal\nSeleccione una opcion: "
 end_msg3: // apuntar final mensaje menu 2
 .equ len_msg3, end_msg3 - msg3  // longitud mensaje menu
 
 //Mensaje opciones de los stats
-msg_menu_stats: .asciz "\n- OPCIONES:\n1. Valor Minimo\n2. Valor Maximo\n3. Media\n4. Mediana\n5. Moda\n6. Desviación Estándar\n7. Varianza\n8. Media Movil\n9. Suavizado Exponencial\n10. Ejecutar todas las operaciones\n0. Regresar\nSeleccione una opcion: "
+msg_menu_stats: .asciz "\n\n======= SELECCIONE LA ESTADÍSTICA A CALCULAR =======\n\n1. Valor Minimo\n2. Valor Maximo\n3. Media\n4. Mediana\n5. Moda\n6. Desviación Estándar\n7. Varianza\n8. Media Movil\n9. Suavizado Exponencial\n10. Ejecutar todas las operaciones\n0. Regresar\n\nSeleccione una opcion: "
 end_msg_menu_stats: // apuntar final mensaje menu xml
 .equ len_msg_menu_stats, end_msg_menu_stats - msg_menu_stats  // longitud mensaje
 
 // Mensaje de archivo cargado
-msg_file_uploaded: .asciz "¡¡¡Archivo cargado exitosamente!!!\n"
+msg_file_uploaded: .asciz "\n\n¡¡¡Archivo cargado exitosamente!!!\n"
 end_msg_file_uploaded: // apuntar final mensaje
 .equ len_msg_file_uploaded, end_msg_file_uploaded - msg_file_uploaded  // longitud mensaje
 
+// Mensaje sección de elegir rangos
+msg_select_ranges: .asciz "\n\n==== BIENVENIDO A LA SECCION ELECCION DE RANGOS ====\n"
+end_msg_select_ranges: // apuntar final mensaje
+.equ len_msg_select_ranges, end_msg_select_ranges - msg_select_ranges  // longitud mensaje
+
 // Mensaje para escoger limite inferior
-msg_choose_lower_limit: .asciz "Ingrese el limite inferior del rango (empieza en 1): "
+msg_choose_lower_limit: .asciz "\nIngrese el limite inferior del rango (empieza en 1): "
 msg_choose_lower_limit_end: // apuntar final mensaje
 .equ len_msg_choose_lower_limit, msg_choose_lower_limit_end - msg_choose_lower_limit
 
 // Mensaje para escoger limite superior
-msg_choose_upper_limit: .asciz "Ingrese el limite superior del rango: "
+msg_choose_upper_limit: .asciz "\n\nIngrese el limite superior del rango: "
 msg_choose_upper_limit_end: // apuntar final mensaje
 .equ len_msg_choose_upper_limit, msg_choose_upper_limit_end - msg_choose_upper_limit
 
 // Mensaje limite inferio fuera de rango
-msg_limit_lower_out_of_range: .asciz "***** El limite inferior esta fuera del rango de lineas *****\n"
+msg_limit_lower_out_of_range: .asciz "\n\n***** El limite inferior esta fuera del rango de lineas *****\n"
 end_msg_limit_lower_out_of_range: // apuntar final mensaje
 .equ len_msg_limit_lower_out_of_range, end_msg_limit_lower_out_of_range - msg_limit_lower_out_of_range
 
 // Mensahe limite superior fuera de rango
-msg_choose_range_upper_error: .asciz "***** El limite superior esta fuera del rango de lineas *****\n"
+msg_choose_range_upper_error: .asciz "\n\n***** El limite superior esta fuera del rango de lineas *****\n"
 end_msg_choose_range_upper_error: // apuntar final mensaje
 .equ len_msg_choose_range_upper_error, end_msg_choose_range_upper_error - msg_choose_range_upper_error
 
 // Mensaje de rango seleccionado exitosamente
-msg_choosing_range_success: .asciz "¡¡¡Rango de lineas seleccionado exitosamente!!!\n"
+msg_choosing_range_success: .asciz "\n\n¡¡¡Rango de lineas seleccionado exitosamente!!!\n"
 end_msg_choosing_range_success: // apuntar final mensaje
 .equ len_choosing_range_success, end_msg_choosing_range_success - msg_choosing_range_success  // longitud mensaje
 
-msg_clean_filter_success: .asciz "¡¡¡Filtrado limpiado exitosamente!!!\n"
+msg_clean_filter_success: .asciz "\n\n¡¡¡Filtrado limpiado exitosamente!!!\n"
 end_msg_clean_filter: // apuntar final mensaje
 .equ len_msg_clean_filter, end_msg_clean_filter - msg_clean_filter_success  // longitud mensaje 
 
-msg_min_value: .asciz "\nValor mínimo calculado:\n"
+msg_min_value: .asciz "\n\nValor mínimo calculado: "
 end_msg_min_value: // apuntar final mensaje
 .equ len_msg_min_value, end_msg_min_value - msg_min_value  // longitud mensaje
 
-msg_max_value: .asciz "\nValor máximo calculado:\n"
+msg_max_value: .asciz "\n\nValor máximo calculado: "
 end_msg_max_value: // apuntar final mensaje
 .equ len_msg_max_value, end_msg_max_value - msg_max_value  // longitud mensaje
 
-msg_mean_value: .asciz "\nMedia calculada:\n"
+msg_mean_value: .asciz "\n\nMedia calculada: "
 end_msg_mean_value: // apuntar final mensaje
 .equ len_msg_mean_value, end_msg_mean_value - msg_mean_value  // longitud mensaje
 
-msg_median_value: .asciz "\nMediana calculada:\n"
+msg_median_value: .asciz "\n\nMediana calculada: "
 end_msg_median_value: // apuntar final mensaje
 .equ len_msg_median_value, end_msg_median_value - msg_median_value
 
-msg_mode_value: .asciz "\nModa calculada:\n"
+msg_mode_value: .asciz "\n\nModa calculada: "
 end_msg_mode_value: // apuntar final mensaje
 .equ len_msg_mode_value, end_msg_mode_value - msg_mode_value  // longitud mensaje
 
-msg_std_dev_value: .asciz "\nDesviación Estándar calculada:\n"
+msg_std_dev_value: .asciz "\n\nDesviación Estándar calculada: "
 end_msg_std_dev_value: // apuntar final mensaje
 .equ len_msg_std_dev_value, end_msg_std_dev_value - msg_std_dev_value
 
-msg_variance_value: .asciz "\nVarianza calculada:\n"
+msg_variance_value: .asciz "\n\nVarianza calculada: "
 end_msg_variance_value: // apuntar final mensaje
 .equ len_msg_variance_value, end_msg_variance_value - msg_variance_value
 
-msg_moving_average: .asciz "\nMedia Móvil calculada:\n"
+msg_moving_average: .asciz "\n\nMedia Móvil calculada: "
 end_msg_moving_average: // apuntar final mensaje
 .equ len_msg_moving_average, end_msg_moving_average - msg_moving_average
 
-msg_exponential_smoothing: .asciz "\nSuavizado Exponencial calculado:\n"
+msg_exponential_smoothing: .asciz "\n\nSuavizado Exponencial calculado:\n"
 end_msg_exponential_smoothing: // apuntar final mensaje
 .equ len_msg_exponential_smoothing, end_msg_exponential_smoothing - msg_exponential_smoothing
 
-msg_export_xml_success: .asciz "¡¡¡Exportado a XML exitosamente!!!\n"
+msg_export_xml_success: .asciz "\n\n¡¡¡Exportado a XML exitosamente!!!\n"
 end_msg_export_xml_success: // apuntar final mensaje
 .equ len_msg_export_xml_success, end_msg_export_xml_success - msg_export_xml_success  // longitud mensaje
 
-msg_exit: .asciz "Saliendo del programa...\n"
+msg_exit: .asciz "\n\nTen un buen dia!, saliendo sel programa...\n"
 end_exit: // apuntar final mensaje
 .equ len_exit, end_exit - msg_exit  // longitud mensaje
+
+break_line: .asciz "\n"
+
+double_break_line: .asciz "\n"
 
 .bss
 input: .space 10        // buffer para la entrada del usuario

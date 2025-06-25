@@ -1,25 +1,45 @@
-aarch64-linux-gnu-as -g ./menu.s -o ./menu.o
-aarch64-linux-gnu-as -g ./readfile/readfile.s -o ./readfile/readfile.o
-aarch64-linux-gnu-as -g ./numbers_array/numbers_array.s -o ./numbers_array/numbers_array.o
-aarch64-linux-gnu-as -g ./read_opt/read_opt.s -o ./read_opt/read_opt.o
-aarch64-linux-gnu-as -g ./create_range_buffer/create_range_buffer.s -o ./create_range_buffer/create_range_buffer.o
-aarch64-linux-gnu-as -g ./print/print.s -o ./print/print.o
-aarch64-linux-gnu-as -g ./minimum/minimum.s -o ./minimum/minimum.o
-aarch64-linux-gnu-as -g ./itoa/itoa.s -o ./itoa/itoa.o
-aarch64-linux-gnu-as -g ./printNum/printNum.s -o ./printNum/printNum.o
-aarch64-linux-gnu-as -g ./maximum/maximum.s -o ./maximum/maximum.o
-aarch64-linux-gnu-as -g ./mean/mean.s -o ./mean/mean.o
-aarch64-linux-gnu-as -g ./sum/sum.s -o ./sum/sum.o
-aarch64-linux-gnu-as -g ./bubble_sort/bubble_sort.s -o ./bubble_sort/bubble_sort.o
-aarch64-linux-gnu-as -g ./median/median.s -o ./median/median.o
-aarch64-linux-gnu-as -g ./mode/mode.s -o ./mode/mode.o
-aarch64-linux-gnu-as -g ./sub_var/sub_var.s -o ./sub_var/sub_var.o
-aarch64-linux-gnu-as -g ./variance/variance.s -o ./variance/variance.o
-aarch64-linux-gnu-as -g ./stdev/stdev.s -o ./stdev/stdev.o
-aarch64-linux-gnu-as -g ./writeXML/writeXML.s -o ./writeXML/writeXML.o
+#!/bin/bash
 
+mkdir -p build  # crea la carpeta build si no existe
 
-aarch64-linux-gnu-ld ./menu.o ./readfile/readfile.o ./numbers_array/numbers_array.o ./read_opt/read_opt.o ./create_range_buffer/create_range_buffer.o ./print/print.o ./minimum/minimum.o ./itoa/itoa.o ./printNum/printNum.o  ./maximum/maximum.o ./mean/mean.o ./sum/sum.o ./bubble_sort/bubble_sort.o ./median/median.o ./mode/mode.o ./sub_var/sub_var.o ./variance/variance.o  ./stdev/stdev.o ./writeXML/writeXML.o -o ./menu
+# Lista de archivos fuente sin extensión ni carpeta "build"
+files=(
+  menu
+  functions/readfile
+  functions/numbers_array
+  functions/read_opt
+  functions/create_range_buffer
+  functions/print
+  functions/minimum
+  functions/maximum
+  functions/itoa
+  functions/printNum
+  functions/mean
+  functions/sum
+  functions/bubble_sort
+  functions/median
+  functions/mode
+  functions/sub_var
+  functions/variance
+  functions/stdev
+  functions/writeXML
+  functions/exp_smooth
+  functions/convert
+  functions/exp_smoothXML
+  functions/numbers_array2
+)
 
+# Compilar cada archivo .s a .o dentro de build
+for f in "${files[@]}"; do
+  # extraer solo el nombre de archivo sin ruta para el .o
+  base=$(basename "$f")
+  aarch64-linux-gnu-as -g "./$f.s" -o "./build/$base.o"
+done
+
+# Crear la lista de objetos para enlazar
+objs=$(printf "./build/%s.o " "${files[@]##*/}")
+
+# Enlazar todos los objetos
+aarch64-linux-gnu-ld $objs -o ./menu
 
 qemu-aarch64 ./menu
