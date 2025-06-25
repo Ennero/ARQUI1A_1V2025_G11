@@ -45,7 +45,7 @@ class Calculator:
     
     def get_mean(self, data):
         mean_result = sbp.Popen(
-            ['', './main', '0'],
+            ['./main', '0'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -58,7 +58,7 @@ class Calculator:
 
     def get_variance(self, data):
         mean_result = sbp.Popen(
-            ['', './main', '1'],
+            ['./main', '1'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -71,7 +71,7 @@ class Calculator:
 
     def get_stdev(self, data):
         mean_result = sbp.Popen(
-            ['', './main', '2'],
+            ['./main', '2'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -84,7 +84,7 @@ class Calculator:
 
     def get_mode(self, data):
         median_result = sbp.Popen(
-            ['', './main', '3'],
+            ['./main', '3'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -97,7 +97,7 @@ class Calculator:
 
     def get_median(self, data):
         median_result = sbp.Popen(
-            ['', './main', '4'],
+            ['./main', '4'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -110,7 +110,7 @@ class Calculator:
 
     def get_maximum(self, data):
         maximum_result = sbp.Popen(
-            ['', './main', '5'],
+            ['./main', '5'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -123,7 +123,7 @@ class Calculator:
 
     def get_minimum(self, data):
         minimum_result = sbp.Popen(
-            ['', './main', '6'],
+            ['./main', '6'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -136,7 +136,7 @@ class Calculator:
     
     def get_movil_mean(self, data):
         mean_result = sbp.Popen(
-            ['', './main', '0'],
+            ['./main', '0'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -150,7 +150,7 @@ class Calculator:
     def get_exponential_smoothing(self, data):
         smoothing_result = sbp.Popen(
             # ['qemu-aarch64','./main', '7'],
-            ['','./main', '7'],
+            ['./main', '7'],
             stdin=sbp.PIPE,
             stdout=sbp.PIPE,
             stderr=sbp.PIPE,
@@ -186,4 +186,4 @@ if __name__ == "__main__":
     print("Calculating predictions...")
     predictions = calc.calculate_predictions(data)
     print(predictions)
-        
+

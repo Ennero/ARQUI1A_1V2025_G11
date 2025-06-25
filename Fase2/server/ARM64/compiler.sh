@@ -25,11 +25,11 @@ files=(
 for f in "${files[@]}"; do
   # extraer solo el nombre de archivo sin ruta para el .o
   base=$(basename "$f")
-  aarch64-linux-gnu-as -g "./$f.s" -o "./build/$base.o"
+  as -g "./$f.s" -o "./build/$base.o"
 done
 
 # Crear la lista de objetos para enlazar
 objs=$(printf "./build/%s.o " "${files[@]##*/}")
 
 # Enlazar todos los objetos
-aarch64-linux-gnu-ld $objs -o ./main
+ld $objs -o ./main
