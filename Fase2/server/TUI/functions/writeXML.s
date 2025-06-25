@@ -17,7 +17,8 @@
 
 .section .bss
 fileName: .space 30
-writeBuffer: .space 16384 // 16KB buffer for writing XML content
+//writeBuffer: .space 16384 // 16KB buffer for writing XML content
+writeBuffer: .space 163840 // 16KB buffer for writing XML content
 prueba2: .space 2
 
 .section .data
