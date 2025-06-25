@@ -2,11 +2,11 @@
 .extern numbers_array
 
 .text
-mode: // parametros x25 = array de números, x1 = tamaño de array ; retornos x19 = moda , x1 = frecuencia
+mode: // parametros x14 = array de números, x1 = tamaño de array ; retornos x19 = moda , x1 = frecuencia
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x25     // array de números
+    mov x2, x14     // array de números
     mov x19, #0     // moda
     mov w3, #0      // indice i
     mov w4, w28     // tamaño del array
