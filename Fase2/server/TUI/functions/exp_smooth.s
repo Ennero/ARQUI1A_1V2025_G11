@@ -1,14 +1,16 @@
 .global exp_smooth
 .extern itoa
-.extern print
+// .extern print
+.extern convert
+.extern printNum
 
 .text
 exp_smooth: // x0 = array de numeros, x1 = tamaño del array
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x0      // array de números
-    mov x3, x1      // tamaño del array
+    mov x2, x25//x1      // array de números
+    mov x3, x28//x1      // tamaño del array
     mov x5, #0      // índice i
     mov x7, #0      // At-1
     mov x8, #0      // Ft-1
@@ -17,7 +19,10 @@ exp_smooth: // x0 = array de numeros, x1 = tamaño del array
 
 loop:
     cmp x5, x3
-    bge exit
+    b.ge exit
+
+    cmp x5, #10
+    b.ge exit
 
     ldr w6, [x2, w5, uxtw #2]   // At
     cmp x5, #0
@@ -34,31 +39,33 @@ calc_smooth:
     add w9, w8, w9      // Ft = Ft-1 + a (At-1 - Ft-1)
 
 print_smooth:
-    mov x19, x2
-    mov x20, x3
-    mov x21, x5
-    mov x22, x6
-    mov x23, x7
-    mov x24, x8
-    mov x25, x9
+    // Guardar registros en el stack (x2–x9)
+    sub sp, sp, #64         // Reservar espacio para 8 registros (8 x 8 bytes)
+    stp x2, x3, [sp, #0]
+    stp x4, x5, [sp, #16]
+    stp x6, x7, [sp, #32]
+    stp x8, x9, [sp, #48]
 
-    mov x0, x9
-    bl itoa      // x0 = ptr, x1 = len
-    bl print     // imprimir string
+    // Llamar a itoa y print
+    mov x19, x9              // Ft
+    bl itoa
+    bl printNum
 
-    mov x2, x19
-    mov x3, x20
-    mov x5, x21
-    mov x6, x22
-    mov x7, x23
-    mov x8, x24
-    mov x9, x25
 
-    mov x7, x6    // At-1 = At
-    mov x8, x9    // Ft-1 = Ft
+    // Restaurar registros desde el stack
+    ldp x2, x3, [sp, #0]
+    ldp x4, x5, [sp, #16]
+    ldp x6, x7, [sp, #32]
+    ldp x8, x9, [sp, #48]
+    add sp, sp, #64         // Liberar espacio del stack
+
+    // Continuar con el cálculo
+    mov x7, x6              // At-1 = At
+    mov x8, x9              // Ft-1 = Ft
     add x5, x5, #1
     b loop
 
 exit:
     ldp fp, lr, [sp], #16
     ret
+    

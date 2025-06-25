@@ -23,6 +23,9 @@ files=(
   functions/variance
   functions/stdev
   functions/writeXML
+  functions/exp_smooth
+  functions/convert
+  functions/exp_smoothXML
 )
 
 # Compilar cada archivo .s a .o dentro de build

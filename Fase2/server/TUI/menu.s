@@ -17,6 +17,7 @@
 .extern sub_var
 .extern stdev
 .extern writeXML
+.extern exp_smooth
 
 
 // Menu de opciones
@@ -485,9 +486,7 @@ _start:
 
                         // Aquí iría la lógica para calcular el suavizado exponencial
 
-                        mov x19, 1234
-                        bl itoa
-                        bl printNum
+                        bl exp_smooth
 
                         cmp x27, #1111
                         b.eq return_to_principal_menu_desition
@@ -554,6 +553,7 @@ add_double_break_line:
     ret
 
 return_to_principal_menu_desition:
+    mov x27, 0
     mov x0, 1
     ldr x1, =return_statistics_section_msg
     mov x2, len_return_statistics_section_msg
@@ -671,7 +671,7 @@ msg_moving_average: .asciz "\n\nMedia Móvil calculada: "
 end_msg_moving_average: // apuntar final mensaje
 .equ len_msg_moving_average, end_msg_moving_average - msg_moving_average
 
-msg_exponential_smoothing: .asciz "\n\nSuavizado Exponencial calculado: "
+msg_exponential_smoothing: .asciz "\n\nSuavizado Exponencial calculado:\n"
 end_msg_exponential_smoothing: // apuntar final mensaje
 .equ len_msg_exponential_smoothing, end_msg_exponential_smoothing - msg_exponential_smoothing
 

@@ -11,10 +11,12 @@
 .extern sub_var
 .extern stdev
 .extern writeXML
+.extern exp_smoothXML
+.extern convert
 
 .section .bss
 fileName: .space 30
-writeBuffer: .space 2048
+writeBuffer: .space 8192
 
 .section .data
 welcomeMsg: .asciz "\n\n======= BIENVENIDO A LA SECCION ESCRIBIR XML =======\n" // length = 55
@@ -915,22 +917,17 @@ openExponentialSoftenerTag:
     strb w7, [x26, x27]
     add x27, x27, #1
 
-    // set values to exponential softener
-    mov x19, #1234
-    bl itoa
-    mov x5, #0          // counter
-
-exponentialSoftenerValue:
-    ldrb w7, [x20, x5]
-    strb w7, [x26, x27]
-    add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
-    b.eq closeExponentialSoftenerTag
-    add x5, x5, 1
-    b exponentialSoftenerValue
+    bl exp_smoothXML
 
 closeExponentialSoftenerTag:
+    mov w7, #10         // '\n'
+    strb w7, [x26, x27]
+    add x27, x27, #1
+
+    mov w7, #9         // '\t'
+    strb w7, [x26, x27]
+    add x27, x27, #1
+
     mov w7, #60         // '<'
     strb w7, [x26, x27]
     add x27, x27, #1
