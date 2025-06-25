@@ -26,6 +26,7 @@ files=(
   functions/exp_smooth
   functions/convert
   functions/exp_smoothXML
+  functions/numbers_array2
 )
 
 # Compilar cada archivo .s a .o dentro de build

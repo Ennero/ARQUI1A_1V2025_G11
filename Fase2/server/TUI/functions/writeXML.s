@@ -16,7 +16,7 @@
 
 .section .bss
 fileName: .space 30
-writeBuffer: .space 8192
+writeBuffer: .space 16384 // 16KB buffer for writing XML content
 
 .section .data
 welcomeMsg: .asciz "\n\n======= BIENVENIDO A LA SECCION ESCRIBIR XML =======\n" // length = 55

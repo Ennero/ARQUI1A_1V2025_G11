@@ -9,8 +9,8 @@ exp_smoothXML: // x0 = array de numeros, x1 = tamaño del array
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
-    mov x2, x22//x1      // array de números
-    mov x3, x28//x1      // tamaño del array
+    mov x2, x14//x1      // array de números
+    mov x3, x13//x1      // tamaño del array
     mov x5, #0      // índice i
     mov x7, #0      // At-1
     mov x8, #0      // Ft-1
@@ -19,9 +19,6 @@ exp_smoothXML: // x0 = array de numeros, x1 = tamaño del array
 
 loop:
     cmp x5, x3
-    b.ge exit
-
-    cmp x5, #10
     b.ge exit
 
     ldr w6, [x2, w5, uxtw #2]   // At

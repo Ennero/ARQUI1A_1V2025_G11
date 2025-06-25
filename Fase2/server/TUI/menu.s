@@ -18,6 +18,7 @@
 .extern stdev
 .extern writeXML
 .extern exp_smooth
+.extern numbers_array2
 
 
 // Menu de opciones
@@ -88,6 +89,12 @@ _start:
             mov x22, x0         // Guardar la dirección del array de números en x22 
             mov x25, x22        // x25 = Puntero al array de números
             mov x28, x17        // x28 = Contador de números (para usar en las funciones estadísticas)
+
+            // Arreglo solo el suavizado exponencial
+            mov x0, x23         // x0 = dirección del buffer leido
+            bl numbers_array2   // x0 = array de numeros, x1 = contador de números
+            mov x14, x0         // x14 = Puntero al array de números
+            mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
 
             mov x0, #1                      // file descriptor stdout
             ldr x1, =msg_file_uploaded      // direccion mensaje exito
@@ -226,6 +233,13 @@ _start:
                     mov x25, x0             // Guardar  la dirección del array de números en x25
                     mov x28, x1             // Guardar el contador de números en x28
 
+                    // Guardo en el array solo para el suavizado exponencial
+                    mov x0, x18         // x0 = dirección del buffer con el rango escogido
+                    mov x1, x24         // total bytes en el buffer leido
+                    bl numbers_array2   // x0 = array de numeros, x1 = contador de números
+                    mov x14, x0         // x14 = Puntero al array de números
+                    mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
+
                     // Rango escogido exitosamente
                     mov x0, #1                          // file descriptor stdout
                     ldr x1, =msg_choosing_range_success // direccion mensaje
@@ -246,6 +260,12 @@ _start:
                     bl numbers_array    // x0 = array de numeros, x1 = contador de números
                     mov x25, x0         // Guardar la dirección del array de números en x25
                     mov x28, x1         // Guardar el contador de números en x28
+
+                    // Arreglo solo para el suavizado
+                    mov x18, x23        // Resetear el buffer con el archivo leido
+                    bl numbers_array2    // x0 = array de numeros, x1 = contador de números
+                    mov x14, x0         // x14 = Puntero al array de números
+                    mov x13, x1         // x13 = Contador de números (para usar en el suavizado exponencial)
 
                     // Imprimir mensaje de éxito de limpieza de filtro
                     mov x0, #1                          // file descriptor stdout
