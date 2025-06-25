@@ -11,7 +11,9 @@ from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
 from config.mongodb import mongodb_connection
+from pymongo import DESCENDING
 from threading import Thread, Event
+from datetime import datetime
 import board
 import RPi.GPIO as GPIO
 import time
@@ -309,9 +311,9 @@ class SiepaG11App(object):
                     self.display_lcd.clear()
                     
                     if current_mode == 'statistics':
-                        data_dict = self.get_statistics_dict()
+                        data_dict = self.get_last_calculation_dict('statistics')
                     else:
-                        data_dict = self.get_predictions_dict()
+                        data_dict = self.get_last_calculation_dict('predictions')
 
                     for key, value in data_dict.items():
                         if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
@@ -326,35 +328,33 @@ class SiepaG11App(object):
             except queue.Empty:
                 continue
 
-    def get_statistics_dict(self):
-        data = self.mongo_repo.get_last_n(n=30)
-        if not data:
-            return {"Info": "No data"}
+    def get_last_calculation_dict(self, collection):
+        # Get the last document
+        if not collection:
+            return {}
+        
+        if collection == 'statistics':
+            last_dict = self.stadistics_collection.find_one(sort=[('_id', DESCENDING)])
+        elif collection == 'predictions':
+            last_dict = self.predictions_collection.find_one(sort=[('_id', DESCENDING)])
+        else:
+            return {}
 
-        # Calcular estadísticas (solo ejemplo)
-        avg_temp = sum(d["temperature"] for d in data) / len(data)
-        avg_hum = sum(d["humidity"] for d in data) / len(data)
-        avg_press = sum(d["pressure"] for d in data) / len(data)
+        if not last_dict:
+            return {}
 
-        return {
-            "Temp. Promedio": f"{avg_temp:.1f}°C",
-            "Humedad Prom.": f"{avg_hum:.1f}%",
-            "Presión Prom.": f"{avg_press:.1f} hPa"
-        }
+        # Extract timestamp
+        timestamp = last_dict.get('timestamp')
+        if isinstance(timestamp, datetime):
+            last_dict['date'] = timestamp.strftime('%Y-%m-%d')
+            last_dict['time'] = timestamp.strftime('%H:%M:%S')
 
-    def get_predictions_dict(self):
-        last = self.mongo_repo.get_last_n(n=1)
-        if not last:
-            return {"Info": "Sin datos"}
+        # Clean up unnecessary fields
+        last_dict.pop('timestamp', None)
+        last_dict.pop('_id', None)
 
-        last_data = last[0]
-
-        # Simular predicción simple
-        return {
-            "Temp Pred.": f"{last_data['temperature'] + 0.4:.1f}°C",
-            "Humedad Pred.": f"{last_data['humidity'] + 1.0:.1f}%",
-            "Presión Pred.": f"{last_data['pressure'] - 0.5:.1f} hPa"
-        }
+        return last_dict
+        
 
     def show_priority_message(self, msg: str, duration: int = 5):
         if self.display_lcd.show != 'readings': return
