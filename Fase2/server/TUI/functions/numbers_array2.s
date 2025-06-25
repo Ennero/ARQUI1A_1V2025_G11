@@ -2,7 +2,7 @@
 
 .bss
 //numbers2: .skip 4096
-numbers2: .skip 42000
+numbers2: .skip 20480
 
 .text
 numbers_array2: // parametros x0 = buffer ; retornos x0 = array de numeros, x1 = contador de números

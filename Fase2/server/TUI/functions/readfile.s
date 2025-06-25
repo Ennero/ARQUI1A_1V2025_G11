@@ -16,7 +16,7 @@ fileErrorEnd: // end of fileError
 .section .bss
 fileName: .space 30
 //buffer: .skip 8192
-buffer: .skip 42000
+buffer: .skip 51200
 
 .section .text
 readfile:
@@ -75,7 +75,7 @@ openFile:
     mov x0, x9
     ldr x1, =buffer
     //mov x2, 8192        // size address
-    mov x2, 42000        // size address
+    mov x2, 51200        // size address
     mov x8, 63          // read
     svc 0               // syscall
 
