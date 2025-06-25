@@ -2,20 +2,22 @@
 
 .section .text
 // Values as arguments:
-//      x20 = space of memory that saves the result
-//      x21 = #digits
+//      x20 -> x0 = space of memory that saves the result
+//      x21 -> x1 = #digits
 printNum:
     stp fp, lr, [sp, #-16]!
     mov fp, sp
 
     // print action
     mov w7, #10
-    strb w7, [x20, x21]
-    add x21, x21, 1
+    strb w7, [x0, x1]
+    add x1, x1, 1
+    mov x3, x1
+    mov x4, x0
     
     mov x0, 1
-    mov x1, x20
-    mov x2, x21
+    mov x1, x4
+    mov x2, x3
     mov x8, #64
     svc 0
 

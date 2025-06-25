@@ -57,11 +57,11 @@ openValueTag:
 
 addValue:
     // x26 = dirección de memoria, x27 = contador de digitos, x5 = contador general, x19 = número a guardar
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeValueTag
     add x5, x5, 1
     b addValue

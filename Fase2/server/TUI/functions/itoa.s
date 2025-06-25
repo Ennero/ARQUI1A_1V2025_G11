@@ -55,5 +55,7 @@ convertionProcess:
 returnValues:
     // x20 = dir(asciiValue)
     // x21 = #digits
+    mov x0, x20
+    mov x1, x21
     ldp fp, lr, [sp], #16
     ret

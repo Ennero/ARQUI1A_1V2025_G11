@@ -13,15 +13,18 @@
 .extern writeXML
 .extern exp_smoothXML
 .extern convert
+.extern printNum
 
 .section .bss
 fileName: .space 30
 writeBuffer: .space 16384 // 16KB buffer for writing XML content
+prueba2: .space 2
 
 .section .data
 welcomeMsg: .asciz "\n\n======= BIENVENIDO A LA SECCION ESCRIBIR XML =======\n" // length = 55
 intructionMsg: .asciz "\nInstrucciones: \n1. Sigue la sintaxis: nombre.xml\n2. Nombres con longitud menores a 25 caracteres\n"
 fileNameMsg: .asciz "\nNombre del archivo: " // length = 21
+pruebaMsg: .asciz "\n\npn" // lenght = 4
 
 .section .text
 writeXML:
@@ -76,7 +79,6 @@ setPositionToNull:
     // set initial conditions
     mov x27, #0              // x27 = position counter
     ldr x26, =writeBuffer   // x26 = dir(writeBuffer)
-
 
 openEstadisticasTag:
     mov w7, #60             // <
@@ -135,7 +137,6 @@ openEstadisticasTag:
     strb w7, [x26, x27]
     add x27, x27, #1
 
-
 openMeanTag:
     mov w7, #10         // '\n'
     strb w7, [x26, x27]
@@ -173,17 +174,17 @@ openMeanTag:
     strb w7, [x26, x27]
     add x27, x27, #1
 
-    // set values to mean
+    // set values to median
     bl mean
     bl itoa
     mov x5, #0          // counter
 
 meanValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeMeanTag
     add x5, x5, 1
     b meanValue
@@ -272,11 +273,11 @@ openMedianTag:
     mov x5, #0          // counter
 
 medianValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeMedianTag
     add x5, x5, 1
     b medianValue
@@ -359,13 +360,14 @@ openModeTag:
     bl mode
     bl itoa
     mov x5, #0          // counter
+    ldr x4, =prueba2
 
 modeValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeModeTag
     add x5, x5, 1
     b modeValue
@@ -434,11 +436,11 @@ openMinTag:
     mov x5, #0          // counter
 
 minValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeMinTag
     add x5, x5, 1
     b minValue
@@ -503,11 +505,11 @@ openMaxTag:
     mov x5, #0          // counter
 
 maxValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeMaxTag
     add x5, x5, 1
     b maxValue
@@ -600,11 +602,11 @@ openDeviationTag:
     mov x5, #0          // counter
 
 deviationValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeDeviationTag
     add x5, x5, 1
     b deviationValue
@@ -717,11 +719,11 @@ openVarianceTag:
     mov x5, #0          // counter
 
 varianceValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeVarianceTag
     add x5, x5, 1
     b varianceValue
@@ -818,11 +820,11 @@ openMovilMeanTag:
     mov x5, #0          // counter
 
 movilMeanValue:
-    ldrb w7, [x20, x5]
+    ldrb w7, [x0, x5]
     strb w7, [x26, x27]
     add x27, x27, 1
-    sub x21, x21, 1
-    cmp x21, 0
+    sub x1, x1, 1
+    cmp x1, 0
     b.eq closeMovilMeanTag
     add x5, x5, 1
     b movilMeanValue
@@ -1065,6 +1067,30 @@ writeXmlFile:
     mov x0, x9          // file descriptor
     mov x8, 57          // close
     svc 0               // syscall
+
+    ldp fp, lr, [sp], #16
+    ret
+
+testPrint:
+    stp fp, lr, [sp, #-16]!
+    mov fp, sp
+    mov x0, 1
+    ldr x1, =pruebaMsg
+    mov x2, 4
+    mov x8, 64
+    svc 0
+
+    ldp fp, lr, [sp], #16
+    ret
+
+testPrint2:
+    stp fp, lr, [sp, #-16]!
+    mov fp, sp
+    mov x0, 1
+    ldr x1, =prueba2
+    mov x2, 2
+    mov x8, 64
+    svc 0
 
     ldp fp, lr, [sp], #16
     ret

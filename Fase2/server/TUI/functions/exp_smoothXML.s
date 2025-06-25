@@ -43,7 +43,7 @@ print_smooth:
     stp x6, x7, [sp, #32]
     stp x8, x9, [sp, #48]
 
-    // Llamar a itoa y print
+    // Llamar a convert
     mov x19, x9              // Ft
     bl convert
 

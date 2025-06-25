@@ -21,7 +21,8 @@ loop:
     cmp x5, x3
     b.ge exit
 
-
+    cmp x5, #10
+    b.ge exit
 
     ldr w6, [x2, w5, uxtw #2]   // At
     cmp x5, #0
