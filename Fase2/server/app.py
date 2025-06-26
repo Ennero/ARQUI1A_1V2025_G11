@@ -323,8 +323,9 @@ class SiepaG11App(object):
                         self.display_lcd.clear()
                         self.display_lcd.write_centered(key, 1)
                         self.display_lcd.write_centered(str(value), 2)
-                        time.sleep(1)
+                        time.sleep(2)
 
+                    self.display_lcd.clear()
                     self.new_message_helper = False
 
             except queue.Empty:
