@@ -1,5 +1,3 @@
-# utils/device_manager.py
-
 from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
 
@@ -26,3 +24,5 @@ class DeviceManager:
 
         # Display
         self.display_lcd = DisplayLCD()
+
+        self.new_message_helper = False

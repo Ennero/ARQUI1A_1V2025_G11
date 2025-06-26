@@ -1,5 +1,3 @@
-# utils/device_manager.py
-
 from utils.generic_device import GenericOutputDevice
 
 class DeviceManager:
