@@ -190,27 +190,31 @@ class SiepaMqttClient(object):
                     print("Calculating statistics...")
                     dict_result = Calculator().calculate_stats(arr_last_30_readings)
                     dict_result['timestamp'] = datetime.now()
+                    dict_result['measurement'] = measurement
                     db['statistics'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
                     print(f"Calculation result: {dict_result}")
                 elif calculate == 'predictions':
                     print("Calculating predictions...")
                     dict_result = Calculator().calculate_predictions(arr_last_30_readings)
                     dict_result['timestamp'] = datetime.now()
+                    dict_result['measurement'] = measurement
                     db['predictions'].insert_one(dict_result) # Now, we are ready to save the calculations in mongodb
                     print(f"Calculation result: {dict_result}")
                 elif calculate == 'all':
                     print("Calculating both statistics and predictions...")
                     dict_stats_result = Calculator().calculate_stats(arr_last_30_readings)
                     dict_stats_result['timestamp'] = datetime.now()
+                    dict_stats_result['measurement'] = measurement
                     dict_predictions_result = Calculator().calculate_predictions(arr_last_30_readings)
                     dict_predictions_result['timestamp'] = datetime.now()
+                    dict_predictions_result['measurement'] = measurement
                     db['statistics'].insert_one(dict_stats_result) # Now, we are ready to save the calculations in mongodb
                     db['predictions'].insert_one(dict_predictions_result) # Now, we are ready to save the calculations in mongodb
                     
                     # Combine to have a single result
                     dict_result = {
                         "statistics": dict_stats_result,
-                        "predictions": dict_predictions_result
+                        "predictions": dict_predictions_result,
                     }
 
                     print(f"Calculation result: {dict_result}")
