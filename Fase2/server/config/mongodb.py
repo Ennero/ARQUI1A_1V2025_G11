@@ -36,6 +36,12 @@ class MongoDBConnection:
     def get_database(self, db_name: str):
         return self.client[db_name]
     
+    def get_last_document(self, db_name: str, collection_name: str):
+        db = self.get_database(db_name)
+        collection = db[collection_name]
+        last_document = collection.find_one(sort=[('_id', -1)])
+        return last_document
+    
     def close_connection(self):
         if self.client:
             self.client.close()
