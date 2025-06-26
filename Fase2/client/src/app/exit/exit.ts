@@ -165,6 +165,50 @@ export class Exit {
     });
   }
 
+  cambiarModo(actuador: string){
+    const topic = `fiusac/arqui1/g11/device_mode`;
+    let modo = "automatic";
+
+    if (actuador === 'fan') {
+      this.modoManualTemperatura = !this.modoManualTemperatura; // Cambiar el estado del modo manual
+      modo = this.modoManualTemperatura ? 'manual' : 'automatic';
+    } else if (actuador === 'lighting') {
+      this.modoManualIluminacion = !this.modoManualIluminacion; // Cambiar el estado del modo manual
+      modo = this.modoManualIluminacion ? 'manual' : 'automatic';
+    } else if (actuador === 'buzzer') {
+      this.modoManualAire = !this.modoManualAire; // Cambiar el estado del modo manual
+      modo = this.modoManualAire ? 'manual' : 'automatic';
+    }
+
+    const message = JSON.stringify({ device_name: `${actuador}`, control: `${modo}` });
+        this.mqttService.publish(topic, message);
+
+        Swal.fire('Éxito', `Comando publicado para el actuador ${actuador}.`, 'success');
+  }
+
+  cambiarEstadoLed(led: string) {
+      const topic = `fiusac/arqui1/g11/device_mode`;
+      let statusLed = false;
+      if (led === 'red_led') {
+        this.statusLedRoja = !this.statusLedRoja; // Cambiar el estado del led rojo
+        statusLed = this.statusLedRoja;
+      } else if (led === 'green_led') {
+        this.statusLedVerde = !this.statusLedVerde; // Cambiar el estado del led verde
+        statusLed = this.statusLedVerde;
+      } else if (led === 'blue_led') {
+        this.statusLedAzul = !this.statusLedAzul; // Cambiar el estado del led azul
+        statusLed = this.statusLedAzul;
+      } else if (led === 'yellow_led') {
+        this.statusLedAmarilla = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
+        statusLed = this.statusLedAmarilla;
+      }
+      const message = JSON.stringify({ device_name: `${led}`, status: `${statusLed}` });
+
+      this.mqttService.publish(topic, message);
+
+      Swal.fire('Éxito', `Comando publicado para el led ${led}.`, 'success');
+  }
+
   enviarComando(actuador: string) {
     // Url del servidor al que se enviará el comando
     const url = `http://172.20.10.2:5000/siepa/devices/${actuador}`; // Backend
@@ -199,22 +243,31 @@ export class Exit {
     });
   }
 
+  enviarMensajeActuador(actuador: string) {
+    const topic = `fiusac/arqui1/g11/device_mode`;
+    let message = 'Mensaje de prueba'; // Mensaje por defecto
+    if (actuador === 'buzzer') {
+      this.statusDeviceBuzzer = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
+      message = JSON.stringify({ device_name: `${actuador}`, status: `${this.statusDeviceBuzzer ? "true" : ""}` });
+    } else if (actuador === 'lighting') {
+      this.statusDeviceLighting = !this.statusDeviceLighting; // Cambiar el estado de la iluminación
+      message = JSON.stringify({ device_name: `${actuador}`, status: `${this.statusDeviceLighting ? "true" : ""}` });
+    } else if (actuador === 'fan') {
+      this.statusDeviceFan = !this.statusDeviceFan; // Cambiar el estado del ventilador
+      message = JSON.stringify({ device_name: `${actuador}`, status: `${this.statusDeviceFan ? "true" : ""}` });
+    }
+
+    this.mqttService.publish(topic, message);
+    Swal.fire('Éxito', `Comando publicado para el actuador ${actuador}.`, 'success');
+  }
+
   enviarConfiguracionLCD(modo: string) {
-     // Url del servidor al que se enviará el comando
-    const url = `http://172.20.10.2:5000/siepa/devices/modo`; // Backend
+    const topic = `fiusac/arqui1/g11/device_mode`;
+    const message = JSON.stringify({ device_name: `display`, show_mode: `${modo}` });
 
-    let status = null;
+    this.mqttService.publish(topic, message);
 
-    this.http.put(url, { modo: modo }).subscribe({
-      next: (response) => {
-        console.log('Comando enviado exitosamente:', response);
-        Swal.fire('Éxito', `El modo del LCD se ha cambiado a ${modo}.`, 'success');
-      },
-      error: (error) => {
-        console.error('Error al enviar el comando:', error);
-        Swal.fire('Error', 'El modo del LCD no se pudo cambiar. Inténtelo de nuevo más tarde.', 'error');
-      }
-    });
+    Swal.fire('Éxito', `La configuración del LCD a ${modo} ha salido con éxito.`, 'success');
   }
 
   puedeEncenderVentilador() {

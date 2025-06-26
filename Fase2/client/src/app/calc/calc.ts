@@ -8,6 +8,7 @@ import { NgForOf } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { MqttService } from '../service/conexion.service';
 import Swal from 'sweetalert2';
+import Chart from 'chart.js/auto';
 import { Subscription } from 'rxjs';
 
 
@@ -19,6 +20,9 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./calc.css']
 })
 export class Calc {
+
+  private charts: { [key: string]: Chart } = {};
+
   constructor(private http: HttpClient, private mqttService: MqttService) {}
   sensorTypes = [
     { value: 'proximity', viewValue: 'Proximidad' },
@@ -33,13 +37,15 @@ export class Calc {
   averageValue = 0;
   medianValue = 0;
   modeValue = 0;
-  minMaxValue = 0;
+  minValue = 0;
+  maxValue = 0;
   standardDeviationValue = 0;
   varianceValue = 0;
 
   // Variables para resultados de los modelos de predicción
   movingAverageValue = 0;
   exponentialSmoothingValue = 0;
+  exponentialSmoothingList: {no: number, suavizado: number}[] = [];
 
   selectedSensor = '';
   private mqttSub!: Subscription;
@@ -47,8 +53,10 @@ export class Calc {
   ngOnInit() {
     // Suscribirse a los cambios del sensor seleccionado en el servicio MQTT
     this.mqttSub = this.mqttService.message$.subscribe(({topic, value}) => {
+      console.log('Mensaje recibido desde calc:', topic, value);
       // Extraer el tipo de valor del topic
       const medida = topic.split('/').pop();
+      console.log('Medida:', medida, 'Valor:', value);
       switch (medida) {
         case 'average':
           this.averageValue = Number(Number(value).toFixed(2)) ?? 0;
@@ -62,9 +70,13 @@ export class Calc {
           this.modeValue = Number(Number(value).toFixed(2)) ?? 0;
           this.mqttService.modeValue = this.modeValue;
           break;
-        case 'min_max':
-          this.minMaxValue = Number(Number(value).toFixed(2)) ?? 0;
-          this.mqttService.minMaxValue = this.minMaxValue;
+        case 'min':
+          this.minValue = Number(Number(value).toFixed(2)) ?? 0;
+          this.mqttService.minValue = this.minValue;
+          break;
+        case 'max':
+          this.maxValue = Number(Number(value).toFixed(2)) ?? 0;
+          this.mqttService.maxValue = this.maxValue;
           break;
         case 'standard_deviation':
           this.standardDeviationValue = Number(Number(value).toFixed(2)) ?? 0;
@@ -82,6 +94,28 @@ export class Calc {
           this.exponentialSmoothingValue = Number(Number(value).toFixed(2)) ?? 0;
           this.mqttService.exponentialSmoothingValue = this.exponentialSmoothingValue;
           break;
+        case 'result':
+          const resultData = JSON.parse(value);
+          console.log('Datos recibidos desde calc:', resultData);
+
+          this.averageValue = this.mqttService.averageValue = Number(resultData.average ?? 0);
+          this.medianValue = this.mqttService.medianValue = Number(resultData.median ?? 0);
+          this.modeValue = this.mqttService.modeValue = Number(resultData.mode ?? 0);
+          this.minValue = this.mqttService.minValue = Number(resultData.minValue ?? 0);
+          this.maxValue = this.mqttService.maxValue = Number(resultData.maxValue ?? 0);
+          this.standardDeviationValue = this.mqttService.standardDeviationValue = Number(resultData.standard_deviation ?? 0);
+          this.varianceValue = this.mqttService.varianceValue = Number(resultData.variance ?? 0);
+          this.movingAverageValue = this.mqttService.movingAverageValue = Number(resultData.moving_average ?? 0);
+          
+          // Guardamos el valor de suavizado exponencial la lista
+          const expList = Array.isArray(resultData.exponential_smoothing) ? resultData.exponential_smoothing : [];
+          const expListobjetos = expList.map((valor: any, idx: number) => ({ no: idx + 1, suavizado: valor }));
+          this.exponentialSmoothingList = this.mqttService.exponentialSmoothingList = expListobjetos;
+          this.exponentialSmoothingValue = this.mqttService.exponentialSmoothingValue = expList.length > 0 ? expList[expList.length - 1] : 0;
+
+          // Actualizar el gráfico de suavizado exponencial
+          this.updateChart('suavizadoChart', this.exponentialSmoothingList, 'suavizado');
+          break;
       }
     });
 
@@ -90,52 +124,38 @@ export class Calc {
     this.averageValue = this.mqttService.averageValue;
     this.medianValue = this.mqttService.medianValue;
     this.modeValue = this.mqttService.modeValue;
-    this.minMaxValue = this.mqttService.minMaxValue;
+    this.minValue = this.mqttService.minValue;
+    this.maxValue = this.mqttService.maxValue;
     this.standardDeviationValue = this.mqttService.standardDeviationValue;
     this.varianceValue = this.mqttService.varianceValue;
     this.movingAverageValue = this.mqttService.movingAverageValue;
     this.exponentialSmoothingValue = this.mqttService.exponentialSmoothingValue;
   }
 
-  ngOnDestroy() {
-    this.mqttSub?.unsubscribe(); // Desuscribirse de los mensajes MQTT al destruir el componente
+  ngAfterViewInit() {
+    this.charts['suavizado'] = this.createChart('suavizadoChart', 'Suavizado Exponencial', this.exponentialSmoothingList, 'suavizado', '#0bab64');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('suavizadoChart', this.mqttService.exponentialSmoothingList, 'suavizado');
   }
 
+  updateChart(chartId: string, dataSource: any[], key: string) {
+    const chart = Chart.getChart(chartId);
+    if (chart) {
+      chart.data.labels = dataSource.map(d => d.no);
+      chart.data.datasets[0].data = dataSource.map(d => parseFloat(d[key]));
+      chart.update();
+    }
+  }
 
-  onSendELiminar(){
-    console.log('Enviando datos para el sensor:', this.selectedSensor);
-    // Url del servidor al que se enviará el comando
-    const url = `http://172.20.10.2:5000/siepa/devices/${this.selectedSensor}`; // Backend
-    const sensor = this.selectedSensor;
-
-    this.http.put<any>(url, { sensor: sensor }).subscribe({
-          next: (response) => {
-            // Actualizamos el valor de las variables con los datos recibidos
-            this.mqttService.averageValue = this.averageValue = Number(Number(response.average).toFixed(2)) ?? 0;
-            this.mqttService.medianValue = this.medianValue = Number(Number(response.median).toFixed(2)) ?? 0;
-            this.mqttService.modeValue = this.modeValue = Number(Number(response.mode).toFixed(2)) ?? 0;
-            this.mqttService.minMaxValue = this.minMaxValue = Number(Number(response.minMax).toFixed(2)) ?? 0;
-            this.mqttService.standardDeviationValue = this.standardDeviationValue = Number(Number(response.standardDeviation).toFixed(2)) ?? 0;
-            this.mqttService.varianceValue = this.varianceValue = Number(Number(response.variance).toFixed(2)) ?? 0;
-            this.mqttService.movingAverageValue = this.movingAverageValue = Number(Number(response.movingAverage).toFixed(2)) ?? 0;
-            this.mqttService.exponentialSmoothingValue = this.exponentialSmoothingValue = Number(Number(response.exponentialSmoothing).toFixed(2)) ?? 0;
-
-            this.mqttService.selectedSensor = this.selectedSensor; // Guardar el sensor seleccionado en el servicio
-
-            Swal.fire('Éxito', `El comando para sensor ${sensor} se ha enviado correctamente.`, 'success');
-          },
-          error: (error) => {
-            console.error('Error al enviar el comando:', error);
-            Swal.fire('Error', 'No se pudo enviar el comando. Inténtelo de nuevo más tarde.', 'error');
-          }
-        });
+  ngOnDestroy() {
+    this.mqttSub?.unsubscribe(); // Desuscribirse de los mensajes MQTT al destruir el componente
   }
 
   onSend() {
     console.log('Enviando comando para el sensor:', this.selectedSensor);
     this.mqttService.selectedSensor = this.selectedSensor; // Guardar el sensor seleccionado en el servicio
-    const topic = `fiusac/arqui1/g11/data/${this.selectedSensor}`;
-    const message = JSON.stringify({ comando: 'calcular' });
+    const topic = `fiusac/arqui1/g11/calculate`;
+    const message = JSON.stringify({ measurement: `${this.selectedSensor}`, calculate: 'all' });
 
     this.mqttService.publish(topic, message);
 
@@ -145,5 +165,72 @@ export class Calc {
   // Método para devolver el valor para los cálculos estadísticos
   displayValue(value: number): string {
     return value === 0 ? '-' : value.toString();
+  }
+
+  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+    // Crear una nueva instancia de Chart.js
+    return new Chart(canvasId, {
+      type,
+      data: {
+        // Asignar las etiquetas de los datos, en este caso los números de los registros
+        labels: dataSource.map(d => d.no),
+        datasets: [{
+          label, // La etiqueta del dataset
+          data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
+          borderColor: color,
+          backgroundColor: (ctx: { chart: any; }) => {
+            const chart = ctx.chart;
+            const {ctx: canvas, chartArea} = chart;
+            if (!chartArea) return color;
+            // Degradado vertical
+            const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, color + 'BB'); // más opaco arriba
+            gradient.addColorStop(1, color + '11'); // más transparente abajo
+            return gradient;
+          },
+          pointBackgroundColor: color,
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.4, // curva suave
+          borderWidth: 3,
+        }]
+      },
+      options: {
+        responsive: true, // Hacer el gráfico responsivo
+        plugins: {
+          legend: {
+            display: true, // Mostrar la leyenda
+            labels: {
+              color: '#22543d',
+              font: { weight: 'bold', size: 14 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0bab64',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#22543d',
+            borderWidth: 1,
+            padding: 12
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          },
+          y: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
   }
 }

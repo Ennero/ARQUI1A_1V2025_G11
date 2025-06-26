@@ -73,14 +73,6 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
   private charts: { [key: string]: Chart } = {};
 
   ngOnInit(): void {
-
-    // En el componente, al suscribirte:
-    // this.mqttService.message$
-    //   .pipe(throttleTime(1000)) // máximo una actualización por segundo
-    //   .subscribe(({ topic, value }) => {
-    //     // tu lógica...
-    //   });
-    // Suscribirse a los mensajes WebSocket
     this.mqttSub = this.mqttService.message$.subscribe(({ topic, value }) => {
       
       // Extraer el tipo de sensor del topic
@@ -145,70 +137,70 @@ export class History implements AfterViewInit, OnInit, OnDestroy{
     if (this.mqttSub) this.mqttSub.unsubscribe();
   }
 
-    createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
-      // Crear una nueva instancia de Chart.js
-      return new Chart(canvasId, {
-        type,
-        data: {
-          // Asignar las etiquetas de los datos, en este caso los números de los registros
-          labels: dataSource.map(d => d.no),
-          datasets: [{
-            label, // La etiqueta del dataset
-            data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
-            borderColor: color,
-            backgroundColor: (ctx: { chart: any; }) => {
-              const chart = ctx.chart;
-              const {ctx: canvas, chartArea} = chart;
-              if (!chartArea) return color;
-              // Degradado vertical
-              const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-              gradient.addColorStop(0, color + 'BB'); // más opaco arriba
-              gradient.addColorStop(1, color + '11'); // más transparente abajo
-              return gradient;
-            },
-            pointBackgroundColor: color,
-            pointBorderColor: '#fff',
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            fill: true,
-            tension: 0.4, // curva suave
-            borderWidth: 3,
-          }]
-        },
-        options: {
-          responsive: true, // Hacer el gráfico responsivo
-          plugins: {
-            legend: {
-              display: true, // Mostrar la leyenda
-              labels: {
-                color: '#22543d',
-                font: { weight: 'bold', size: 14 }
-              }
-            },
-            tooltip: {
-              backgroundColor: '#0bab64',
-              titleColor: '#fff',
-              bodyColor: '#fff',
-              borderColor: '#22543d',
-              borderWidth: 1,
-              padding: 12
+  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+    // Crear una nueva instancia de Chart.js
+    return new Chart(canvasId, {
+      type,
+      data: {
+        // Asignar las etiquetas de los datos, en este caso los números de los registros
+        labels: dataSource.map(d => d.no),
+        datasets: [{
+          label, // La etiqueta del dataset
+          data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
+          borderColor: color,
+          backgroundColor: (ctx: { chart: any; }) => {
+            const chart = ctx.chart;
+            const {ctx: canvas, chartArea} = chart;
+            if (!chartArea) return color;
+            // Degradado vertical
+            const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, color + 'BB'); // más opaco arriba
+            gradient.addColorStop(1, color + '11'); // más transparente abajo
+            return gradient;
+          },
+          pointBackgroundColor: color,
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.4, // curva suave
+          borderWidth: 3,
+        }]
+      },
+      options: {
+        responsive: true, // Hacer el gráfico responsivo
+        plugins: {
+          legend: {
+            display: true, // Mostrar la leyenda
+            labels: {
+              color: '#22543d',
+              font: { weight: 'bold', size: 14 }
             }
           },
-          scales: {
-            x: {
-              grid: { color: '#e3e8ee' },
-              ticks: { color: '#22543d', font: { weight: 'bold' } }
-            },
-            y: {
-              grid: { color: '#e3e8ee' },
-              ticks: { color: '#22543d', font: { weight: 'bold' } }
-            }
-          },
-          animation: {
-            duration: 900,
-            easing: 'easeOutQuart'
+          tooltip: {
+            backgroundColor: '#0bab64',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#22543d',
+            borderWidth: 1,
+            padding: 12
           }
+        },
+        scales: {
+          x: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          },
+          y: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
         }
-      });
+      }
+    });
   }
 }

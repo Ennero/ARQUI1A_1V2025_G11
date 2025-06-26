@@ -51,13 +51,18 @@
                         <div class="subpanel-dato">{{ displayValue(modeValue) }}</div>
                     </div>
                 </mat-card>
-                
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Min</h3>
+                        <div class="subpanel-dato">{{ displayValue(minValue) }}</div>
+                    </div>
+                </mat-card>
             </div>
             <div class="panel panel-segundo">
                 <mat-card class="subpanel">
                     <div class="subpanel-data">
-                        <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Min / Max</h3>
-                        <div class="subpanel-dato">{{ displayValue(minMaxValue) }}</div>
+                        <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Max</h3>
+                        <div class="subpanel-dato">{{ displayValue(maxValue) }}</div>
                     </div>
                 </mat-card>
                 <mat-card class="subpanel">
@@ -88,6 +93,16 @@
                     <div class="subpanel-data">
                         <h3 class="subpanel-title"><i class="bi bi-graph-up"></i> Suavizado Exponencial</h3>
                         <div class="subpanel-dato">{{ displayValue(exponentialSmoothingValue) }}</div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-bar-chart-fill"></i> Gráfica del Suavizado Exponencial</h3>
+                        <mat-card class="subpanel-graph">
+                            <canvas id="suavizadoChart"></canvas>
+                        </mat-card>
                     </div>
                 </mat-card>
             </div>
