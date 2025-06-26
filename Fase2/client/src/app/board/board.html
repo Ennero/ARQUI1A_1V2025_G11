@@ -26,12 +26,14 @@
                         </mat-form-field>
                         <mat-form-field appearance="fill" class="sensor-select">    
                             <mat-select [(ngModel)]="selectedSensor">
-                                <mat-option *ngFor="let sensor of sensorTypes" [value]="sensor.value">
+                                <mat-option *ngFor="let sensor of sensorTypes" 
+                                            [value]="sensor.value"
+                                            [disabled]="sensor.value === 'all' && isAllSensorDisabled()">
                                     {{sensor.viewValue}}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <button mat-raised-button color="primary" class="sensor-btn" (click)="simularDatos()" [disabled]="!selectedSensor">
+                        <button mat-raised-button color="primary" class="sensor-btn" (click)="onSend()" [disabled]="!selectedSensor">
                             Enviar selección
                         </button>
                     </div>

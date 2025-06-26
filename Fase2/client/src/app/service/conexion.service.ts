@@ -24,10 +24,10 @@ export class MqttService {
   public dataPresion: { no: number, presion: string }[] = [];
 
   // Array para almacenar los datos de la base de datos
-  public dataLecturas: { no: number, fecha: string, hora: string, lectura: number }[] = [];
-  public dataEstadisticas: { no: number, fecha: string, hora: string, media: number, mediana: number, moda: number, min_max: number, desviacion: number, varianza: number }[] = [];
-  public dataPredicciones: { no: number, fecha: string, hora: string, mediaMovil: number, suavizadoExponencial: number }[] = [];
-  public dataAlertas: { no: number, fecha: string, hora: string, alerta: string }[] = [];
+  public dataLecturas: { id: number, date: string, time: string, _value: number }[] = [];
+  public dataEstadisticas: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
+  public dataPredicciones: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
+  public dataAlertas: { id: number, date: string, time: string, _value: string }[] = [];
   
   // Variable para almacenar el nombre de la última tabla consultada
   public lastTable: string = '';
@@ -36,17 +36,19 @@ export class MqttService {
   public selectedTable: string = '';
 
   // VARIABLES PARA ALMACENAR LOS DATOS DE LOS CALCULOS REALIZADOS
-  // Variables para los resultados de los cálculos estatísticos
+  // Variables para los resultados de los cálculos estadísticos
   averageValue = 0;
   medianValue = 0;
   modeValue = 0;
-  minMaxValue = 0;
+  minValue = 0;
+  maxValue = 0;
   standardDeviationValue = 0;
   varianceValue = 0;
 
   // Variables para resultados de los modelos de predicción
   movingAverageValue = 0;
   exponentialSmoothingValue = 0;
+  exponentialSmoothingList: {no: number, suavizado: number}[] = [];
 
   constructor() {
     this.connectClient();
@@ -78,6 +80,7 @@ export class MqttService {
             const valueFormatFixed = isNaN(valueFormat) ? value : valueFormat.toFixed(2);
 
             console.log(`📬 Mensaje recibido en el topic: ${topic} con valor: ${value}`);
+            console.log('La carga de datos es:', data);
             switch (sensor) {
               case 'humidity':
                 // // Actualizar el array de humedad, manteniendo solo los últimos 20 valores, de lo contrario elimina el primero
@@ -128,8 +131,11 @@ export class MqttService {
               case 'mode':
                 this.modeValue = Number(valueFormatFixed);
                 break;
-              case 'min_max':
-                this.minMaxValue = Number(valueFormatFixed);
+              case 'min':
+                this.minValue = Number(valueFormatFixed);
+                break;
+              case 'max':
+                this.maxValue = Number(valueFormatFixed);
                 break;
               case 'standard_deviation':
                 this.standardDeviationValue = Number(valueFormatFixed);
@@ -142,6 +148,29 @@ export class MqttService {
                 break;
               case 'exponential_smoothing':
                 this.exponentialSmoothingValue = Number(valueFormatFixed);
+                break;
+              case 'result':
+                console.log('Datos recibidos del servidor:', data);
+                const resultData = data;
+
+                this.averageValue = this.averageValue = Number(resultData.average ?? 0);
+                this.medianValue = this.medianValue = Number(resultData.median ?? 0);
+                this.modeValue = this.modeValue = Number(resultData.mode ?? 0);
+                this.minValue = this.minValue = Number(resultData.min_max ?? 0);
+                this.standardDeviationValue = this.standardDeviationValue = Number(resultData.standard_deviation ?? 0);
+                this.varianceValue = this.varianceValue = Number(resultData.variance ?? 0);
+                this.movingAverageValue = this.movingAverageValue = Number(resultData.moving_average ?? 0);
+                
+                
+                this.movingAverageValue =  Number(resultData.moving_average ?? 0);
+          
+                // Guardamos el valor de suavizado exponencial la lista
+                const expList = Array.isArray(resultData.exponential_smoothing) ? resultData.exponential_smoothing : [];
+                const expListobjetos = expList.map((valor: any, idx: number) => ({ no: idx + 1, suavizado: valor }));
+                this.exponentialSmoothingList = expListobjetos;
+                this.exponentialSmoothingValue = expList.length > 0 ? expList[expList.length - 1] : 0;
+                // EMITIR EL MENSAJE PARA EL COMPONENTE
+                this.messageSubject.next({ topic, value: JSON.stringify(data) });
                 break;
             }
             if (typeof value === 'number' || typeof value === 'string') {
