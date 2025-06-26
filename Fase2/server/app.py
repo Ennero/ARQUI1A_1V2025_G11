@@ -160,6 +160,8 @@ class SiepaG11App(object):
                     proximity=self.ultrasonic_sensor.proximity
                 )
 
+                self.current_reading.ensure_none_null_values()
+
                 if current_time - last_save_time >= 30:
                     try:
                         # self.save_sensor_data_to_mongodb()
