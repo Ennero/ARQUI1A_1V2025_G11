@@ -308,7 +308,7 @@ class SiepaG11App(object):
                     time.sleep(2)
 
                 elif current_mode in ['statistics', 'predictions']:
-                    if not self.new_message_helper: return
+                    if not DeviceManager().new_message_helper: return
 
                     self.display_lcd.clear()
                     
@@ -327,6 +327,7 @@ class SiepaG11App(object):
 
                     self.display_lcd.clear()
                     self.new_message_helper = False
+                    DeviceManager().new_message_helper = False
 
             except queue.Empty:
                 continue
