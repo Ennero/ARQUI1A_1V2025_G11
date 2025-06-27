@@ -28,7 +28,7 @@ export class MqttService {
   public dataEstadisticas: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
   public dataPredicciones: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
   public dataAlertas: { id: number, date: string, time: string, _value: string }[] = [];
-  
+
   // Variable para almacenar el nombre de la última tabla consultada
   public lastTable: string = '';
   // Variable para almacenar el nombre del sensor seleccionado y el tipo de tabla
@@ -40,8 +40,8 @@ export class MqttService {
   averageValue = 0;
   medianValue = 0;
   modeValue = 0;
-  minValue = 0;
-  maxValue = 0;
+  minimum = 0;
+  maximum = 0;
   standardDeviationValue = 0;
   varianceValue = 0;
 
@@ -132,10 +132,10 @@ export class MqttService {
                 this.modeValue = Number(valueFormatFixed);
                 break;
               case 'min':
-                this.minValue = Number(valueFormatFixed);
+                this.minimum = Number(valueFormatFixed);
                 break;
               case 'max':
-                this.maxValue = Number(valueFormatFixed);
+                this.maximum = Number(valueFormatFixed);
                 break;
               case 'standard_deviation':
                 this.standardDeviationValue = Number(valueFormatFixed);
@@ -156,14 +156,14 @@ export class MqttService {
                 this.averageValue = this.averageValue = Number(resultData.average ?? 0);
                 this.medianValue = this.medianValue = Number(resultData.median ?? 0);
                 this.modeValue = this.modeValue = Number(resultData.mode ?? 0);
-                this.minValue = this.minValue = Number(resultData.min_max ?? 0);
+                this.minimum = this.minimum = Number(resultData.min_max ?? 0);
                 this.standardDeviationValue = this.standardDeviationValue = Number(resultData.standard_deviation ?? 0);
                 this.varianceValue = this.varianceValue = Number(resultData.variance ?? 0);
                 this.movingAverageValue = this.movingAverageValue = Number(resultData.moving_average ?? 0);
-                
-                
+
+
                 this.movingAverageValue =  Number(resultData.moving_average ?? 0);
-          
+
                 // Guardamos el valor de suavizado exponencial la lista
                 const expList = Array.isArray(resultData.exponential_smoothing) ? resultData.exponential_smoothing : [];
                 const expListobjetos = expList.map((valor: any, idx: number) => ({ no: idx + 1, suavizado: valor }));

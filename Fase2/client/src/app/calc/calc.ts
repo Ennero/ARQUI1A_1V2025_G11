@@ -32,13 +32,13 @@ export class Calc {
     { value: 'temperature', viewValue: 'Temperatura' },
     { value: 'pressure', viewValue: 'Presión' },
   ];
-  
+
   // Variables para los resultados de los cálculos estatísticos
   averageValue = 0;
   medianValue = 0;
   modeValue = 0;
-  minValue = 0;
-  maxValue = 0;
+  minimum = 0;
+  maximum = 0;
   standardDeviationValue = 0;
   varianceValue = 0;
 
@@ -58,7 +58,7 @@ export class Calc {
       const medida = topic.split('/').pop();
       console.log('Medida:', medida, 'Valor:', value);
       switch (medida) {
-        case 'average':
+        case 'mean':
           this.averageValue = Number(Number(value).toFixed(2)) ?? 0;
           this.mqttService.averageValue = this.averageValue;
           break;
@@ -71,12 +71,12 @@ export class Calc {
           this.mqttService.modeValue = this.modeValue;
           break;
         case 'min':
-          this.minValue = Number(Number(value).toFixed(2)) ?? 0;
-          this.mqttService.minValue = this.minValue;
+          this.minimum = Number(Number(value).toFixed(2)) ?? 0;
+          this.mqttService.minimum = this.minimum;
           break;
         case 'max':
-          this.maxValue = Number(Number(value).toFixed(2)) ?? 0;
-          this.mqttService.maxValue = this.maxValue;
+          this.maximum = Number(Number(value).toFixed(2)) ?? 0;
+          this.mqttService.maximum = this.maximum;
           break;
         case 'standard_deviation':
           this.standardDeviationValue = Number(Number(value).toFixed(2)) ?? 0;
@@ -98,17 +98,17 @@ export class Calc {
           const resultData = JSON.parse(value);
           console.log('Datos recibidos desde calc:', resultData);
 
-          this.averageValue = this.mqttService.averageValue = Number(resultData.average ?? 0);
-          this.medianValue = this.mqttService.medianValue = Number(resultData.median ?? 0);
-          this.modeValue = this.mqttService.modeValue = Number(resultData.mode ?? 0);
-          this.minValue = this.mqttService.minValue = Number(resultData.minValue ?? 0);
-          this.maxValue = this.mqttService.maxValue = Number(resultData.maxValue ?? 0);
-          this.standardDeviationValue = this.mqttService.standardDeviationValue = Number(resultData.standard_deviation ?? 0);
-          this.varianceValue = this.mqttService.varianceValue = Number(resultData.variance ?? 0);
-          this.movingAverageValue = this.mqttService.movingAverageValue = Number(resultData.moving_average ?? 0);
-          
+          this.averageValue = this.mqttService.averageValue = Number(resultData.statistics.mean ?? 0);
+          this.medianValue = this.mqttService.medianValue = Number(resultData.statistics.median ?? 0);
+          this.modeValue = this.mqttService.modeValue = Number(resultData.statistics.mode ?? 0);
+          this.minimum = this.mqttService.minimum = Number(resultData.statistics.minimum ?? 0);
+          this.maximum = this.mqttService.maximum = Number(resultData.statistics.maximum ?? 0);
+          this.standardDeviationValue = this.mqttService.standardDeviationValue = Number(resultData.statistics.standard_deviation ?? 0);
+          this.varianceValue = this.mqttService.varianceValue = Number(resultData.statistics.variance ?? 0);
+          this.movingAverageValue = this.mqttService.movingAverageValue = Number(resultData.predictions.moving_average ?? 0);
+
           // Guardamos el valor de suavizado exponencial la lista
-          const expList = Array.isArray(resultData.exponential_smoothing) ? resultData.exponential_smoothing : [];
+          const expList = Array.isArray(resultData.predictions.exponential_smoothing) ? resultData.predictions.exponential_smoothing : [];
           const expListobjetos = expList.map((valor: any, idx: number) => ({ no: idx + 1, suavizado: valor }));
           this.exponentialSmoothingList = this.mqttService.exponentialSmoothingList = expListobjetos;
           this.exponentialSmoothingValue = this.mqttService.exponentialSmoothingValue = expList.length > 0 ? expList[expList.length - 1] : 0;
@@ -124,8 +124,8 @@ export class Calc {
     this.averageValue = this.mqttService.averageValue;
     this.medianValue = this.mqttService.medianValue;
     this.modeValue = this.mqttService.modeValue;
-    this.minValue = this.mqttService.minValue;
-    this.maxValue = this.mqttService.maxValue;
+    this.minimum = this.mqttService.minimum;
+    this.maximum = this.mqttService.maximum;
     this.standardDeviationValue = this.mqttService.standardDeviationValue;
     this.varianceValue = this.mqttService.varianceValue;
     this.movingAverageValue = this.mqttService.movingAverageValue;
