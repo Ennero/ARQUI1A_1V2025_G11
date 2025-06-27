@@ -27,13 +27,13 @@ files=(
   functions/convert
   functions/exp_smoothXML
   functions/numbers_array2
+  functions/formatError
 )
 
 # Compilar cada archivo .s a .o dentro de build
 for f in "${files[@]}"; do
   # extraer solo el nombre de archivo sin ruta para el .o
   base=$(basename "$f")
-#   aarch64-linux-gnu-as -g "./$f.s" -o "./build/$base.o"
   as -g "./$f.s" -o "./build/$base.o"
 done
 
@@ -41,8 +41,6 @@ done
 objs=$(printf "./build/%s.o " "${files[@]##*/}")
 
 # Enlazar todos los objetos
-# aarch64-linux-gnu-ld $objs -o ./menu
 ld $objs -o ./menu
 
-# qemu-aarch64 ./menu
 ./menu

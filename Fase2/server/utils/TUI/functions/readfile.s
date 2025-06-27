@@ -1,5 +1,7 @@
 .global readfile
 
+.extern formatError
+
 .section .data
 readfileSectionWelcome: .asciz "\n\n==== BIENVENIDO A LA FUNCIONALIDAD LEER ARCHIVO ====\n"
 readfileSectionWelcomeEnd: // end of readfileSectionWelcome
@@ -80,8 +82,9 @@ openFile:
     svc 0               // syscall
 
     mov x1, x0          // x1 = number of bytes read
-    ldr x18, =buffer     // return dir(buffer)
-    mov x0, x18         // x0 = dir(buffer)
+    ldr x0, =buffer     // return dir(buffer)
+
+    bl formatError // Check if the format is correct
 
     ldp fp, lr, [sp], #16
     ret
@@ -96,4 +99,3 @@ error:
     mov x0, #-1          // Return 0 on error
     ldp fp, lr, [sp], #16
     ret
-
