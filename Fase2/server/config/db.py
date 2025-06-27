@@ -114,7 +114,7 @@ class SiepaDB:
         if self._air_quality >= 700:
             messages.append("Aire contaminado")
         
-        if self._luminosity <= 200:
+        if self._luminosity <= 45:
             messages.append("Poca luz")
         
         return messages
