@@ -201,7 +201,7 @@ export class Exit {
   }
 
   enviarConfiguracionLCD(modo: string) {
-    const topic = `fiusac/arqui1/g11/device_mode`;
+    const topic = `fiusac/arqui1/g11/config`;
     const message = JSON.stringify({ device_name: `display`, show_mode: `${modo}` });
 
     this.mqttService.publish(topic, message);

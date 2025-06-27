@@ -96,7 +96,10 @@ class SiepaMqttClient(object):
                     DeviceManager().yellow_led.control = control
                     DeviceManager().yellow_led.turn_off_device()
                 elif device_name == 'display':
-                    if display_mode is not None and display_mode in ['readings', 'statistics', 'predictions']:
+                    print("================================================================================================================")
+                    print(f"Display mode set to: {display_mode}")
+                    print("================================================================================================================")
+                    if display_mode in ['readings', 'statistics', 'predictions']:
                         DeviceManager().display_lcd.show = display_mode
                     else:
                         print("Invalid display mode provided.")
