@@ -220,7 +220,7 @@ class SiepaMqttClient(object):
                     DeviceManager().new_message_helper = True
 
                 # Respond to the MQTT topic with the result
-                mqtt_client.publish("fiusac/arqui1/g11/calculate/result", json.dumps(dict_result))
+                self._client.publish("fiusac/arqui1/g11/calculate/result", payload=json.dumps(dict_result, default=str), qos=1)
 
 
             else:
