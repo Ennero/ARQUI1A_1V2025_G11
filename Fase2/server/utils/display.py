@@ -25,7 +25,4 @@ class DisplayLCD:
         return self._show
     @show.setter
     def show(self, value):
-        if value in ['readings', 'statistics', 'predictions']:
-            self._show = value
-        else:
-            raise ValueError("Invalid display mode. Use 'readings', 'statistics' or 'predictions.")
+        self._show = value
