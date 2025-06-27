@@ -128,25 +128,25 @@ class SiepaMqttClient(object):
                     else:
                         DeviceManager().buzzer_device.turn_off_device()
                 elif device_name == 'red_led':
-                    if DeviceManager().red_led.control != 'manual': return
+                    # if DeviceManager().red_led.control != 'manual': return
                     if status:
                         DeviceManager().red_led.turn_on_device()
                     else:
                         DeviceManager().red_led.turn_off_device()
                 elif device_name == 'green_led':
-                    if DeviceManager().green_led.control != 'manual': return
+                    # if DeviceManager().green_led.control != 'manual': return
                     if status:
                         DeviceManager().green_led.turn_on_device()
                     else:
                         DeviceManager().green_led.turn_off_device()
                 elif device_name == 'blue_led':
-                    if DeviceManager().blue_led.control != 'manual': return
+                    # if DeviceManager().blue_led.control != 'manual': return
                     if status:
                         DeviceManager().blue_led.turn_on_device()
                     else:
                         DeviceManager().blue_led.turn_off_device()
                 elif device_name == 'yellow_led':
-                    if DeviceManager().yellow_led.control != 'manual': return
+                    # if DeviceManager().yellow_led.control != 'manual': return
                     if status:
                         DeviceManager().yellow_led.turn_on_device()
                     else:
