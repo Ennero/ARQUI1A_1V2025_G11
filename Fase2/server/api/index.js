@@ -30,13 +30,19 @@ app.get('/siepa/collections/:collection', async (req, res) => {
                 projection = { _id: 0, [attr]: 1, timestamp: 1 };
             }
         } else if (collection === "alerts") {
+            if (attr !== "all") {
+                projection = { _id: 0, value: 1, timestamp: 1 };
+            }
+        } else if (collection === "statistics") {
             if (!measurement) {
-                return res.status(400).json({ error: "Measurement parameter is required for alerts." });
+                return res.status(400).json({ error: "Measurement parameter is required for statistics collection." });
             }
             query.measurement = measurement;
         } else {
             return res.status(404).json({ error: "Unsupported collection." });
         }
+
+        console.log(`Fetching records from ${collection} collection with attr: ${attr}, measurement: ${measurement}, limit: ${limitInt}`);
 
         const recordsRaw = await db.collection(collection)
             .find(query, attr !== "all" ? { projection } : {})
@@ -45,6 +51,8 @@ app.get('/siepa/collections/:collection', async (req, res) => {
             .toArray();
 
         let id = 0;
+
+        console.log(`Retrieved ${recordsRaw.length} records from ${collection} collection.`);
 
         const records = recordsRaw.map(record => {
             id++;
@@ -63,7 +71,7 @@ app.get('/siepa/collections/:collection', async (req, res) => {
                 value = (typeof raw === 'number') ? Math.trunc(raw) : raw;
             }
 
-            if(attr === "all") {
+            if(attr === "all" && collection === "sensor_readings") {
                 record = {
                     ...record,
                     temperature: (typeof record.temperature === 'number') ? Math.trunc(record.temperature) : record.temperature,
@@ -74,8 +82,18 @@ app.get('/siepa/collections/:collection', async (req, res) => {
                     proximity: (typeof record.proximity === 'number') ? Math.trunc(record.proximity) : record.proximity,
                 }
                 // value = (typeof raw === 'number') ? Math.trunc(raw) : raw;
+            } else if (attr === "all" && collection === "alerts") {
+                record = {
+                    ...record,
+                    type: record.measurement,
+                    value: (typeof record.value === 'number') ? Math.trunc(record.value) : record.value,
+                }
+            } else if (collection === "statistics") {
+                record = {
+                    ...record,
+                    type_data: record.measurement,
+                }
             }
-
             return {
                 id,
                 ...record,
@@ -84,6 +102,9 @@ app.get('/siepa/collections/:collection', async (req, res) => {
                 time
             };
         });
+
+        console.log(`Processed ${records.length} records for response.`);
+        console.log(`Response data:`, records);
 
         res.json({ data: records });
 

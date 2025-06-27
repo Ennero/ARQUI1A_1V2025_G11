@@ -166,6 +166,19 @@
   transition: color 0.3s;
 }
 
+.subpanel-graph {
+  padding: 18px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(34,84,61,0.10);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100% ;
+}
+
 .sensor-btn {
   background: linear-gradient(90deg, #22543d 60%, #8d6748 100%);
   color: #fff;

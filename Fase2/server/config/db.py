@@ -1,4 +1,5 @@
 from datetime import datetime
+from config.mongodb import mongodb_connection
 
 class SiepaDB:
 
@@ -117,3 +118,22 @@ class SiepaDB:
             messages.append("Poca luz")
         
         return messages
+
+    def ensure_none_null_values(self):
+        last_document = mongodb_connection.get_last_document("arqui1_siepa_g11_db", "sensor_readings")
+
+        if last_document is None:
+            return
+
+        if self._temperature is None:
+            self._temperature = last_document.get("temperature", 0)
+        if self._humidity is None:
+            self._humidity = last_document.get("humidity", 0)
+        if self._pressure is None:
+            self._pressure = last_document.get("pressure", 0)
+        if self._air_quality is None:
+            self._air_quality = last_document.get("air_quality", 0)
+        if self._luminosity is None:
+            self._luminosity = last_document.get("luminosity", 0)
+        if self._proximity is None:
+            self._proximity = last_document.get("proximity", 0)
