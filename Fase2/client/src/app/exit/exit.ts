@@ -139,7 +139,7 @@ export class Exit {
   }
 
   cambiarModo(actuador: string){
-    const topic = `fiusac/arqui1/g11/device_mode`;
+    const topic = `fiusac/arqui1/g11/config`;
     let modo = "automatic";
 
     if (actuador === 'fan') {
