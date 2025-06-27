@@ -7,19 +7,22 @@ import { MatTableModule } from '@angular/material/table';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
 import { NgForOf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { MqttService } from '../service/conexion.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Modal } from '../modal/modal';
 
 @Component({
   selector: 'app-board',
-  imports: [Header, MatCardModule, MatSelectModule, MatButtonModule, MatTableModule, FormsModule, HttpClientModule, NgForOf, TitleCasePipe],
+  imports: [Header, MatCardModule, MatSelectModule, MatButtonModule, MatTableModule, FormsModule, HttpClientModule, NgForOf, TitleCasePipe, NgIf, MatDialogModule],
   templateUrl: './board.html',
   styleUrl: './board.css'
 })
 export class Board {
 
-  constructor(private http: HttpClient, private mqttService: MqttService) {}
+  constructor(private http: HttpClient, private mqttService: MqttService, private dialog: MatDialog) {}
 
   displayedColumns: string[] = ['no', 'fecha', 'hora', 'valor'];
   dataSource: any[] = [];
@@ -30,14 +33,15 @@ export class Board {
     date: 'Fecha',
     time: 'Hora',
     _value: 'Valor',
-    media: 'Media',
-    mediana: 'Mediana',
-    moda: 'Moda',
-    min_max: 'Min/Max',
-    desviacion: 'Desviación',
-    varianza: 'Varianza',
-    mediaMovil: 'Media Móvil',
-    suavizadoExponencial: 'Suavizado Exponencial',
+    mean: 'Media',
+    median: 'Mediana',
+    mode: 'Moda',
+    minimum: 'Minimo',
+    maximum: 'Máximo',
+    standard_deviation: 'Desviación',
+    variance: 'Varianza',
+    moving_average: 'Media Móvil',
+    exponential_smoothing: 'Suavizado Exponencial',
     alert: 'Valor de Alerta',
     proximity: 'Proximidad',
     air_quality: 'Calidad del Aire',
@@ -63,12 +67,20 @@ export class Board {
   tableTypes = [
     { value: 'sensor_readings', viewValue: 'Lecturas de los sensores' },
     { value: 'statistics', viewValue: 'Resultados estadisticos' },
-    { value: 'predicciones', viewValue: 'Resultados predicciones' },
+    { value: 'predictions', viewValue: 'Resultados predicciones' },
     { value: 'alerts', viewValue: 'Alertas' },
   ]
 
   selectedSensor = '';
   selectedTable = '';
+
+  // Método para abrir el modal:
+  openPredictionModal(lista: number[]) {
+    this.dialog.open(Modal, {
+      data: lista,
+      width: '800px'
+    });
+  }
 
   actualizarTabla() {
     switch (this.selectedTable) {
@@ -83,14 +95,14 @@ export class Board {
         this.mqttService.lastTable = 'sensor_readings'; // Guardar la última tabla consultada
         break;
       case 'statistics':
-        this.displayedColumns = ['no', 'fecha', 'hora', 'type_data', 'valor'];
+        this.displayedColumns = ['id', 'date', 'time' ,'mean', 'median', 'mode', 'minimum', 'maximum', 'variance', 'standard_deviation'];
         this.dataSource = this.mqttService.dataEstadisticas;
         this.mqttService.lastTable = 'statistics';
         break;
-      case 'predicciones':
-        this.displayedColumns = ['no', 'fecha', 'hora', 'type_data', 'valor'];
+      case 'predictions':
+        this.displayedColumns = ['id', 'date', 'time', 'moving_average', 'exponential_smoothing', 'detalles'];
         this.dataSource = this.mqttService.dataPredicciones;
-        this.mqttService.lastTable = 'predicciones'; // Guardar la última tabla consultada
+        this.mqttService.lastTable = 'predictions'; // Guardar la última tabla consultada
         break;
       case 'alerts':
         if (this.selectedSensor === 'all') {
@@ -138,6 +150,13 @@ export class Board {
         Swal.fire('Error', 'No se pueden consultar estadísticos de todos los sensores.Selecciona uno específico.', 'error');
         return;
       }
+    } else if (this.selectedTable === 'predictions') {
+      url = `http://localhost:3001/siepa/collections/${this.selectedTable}?attr=all&measurement=${this.selectedSensor}&limit=${20}`; // Backend
+      this.dataSource = this.mqttService.dataPredicciones;
+      if (this.selectedSensor === 'all') {
+        Swal.fire('Error', 'No se pueden consultar predicciones de todos los sensores.Selecciona uno específico.', 'error');
+        return;
+      }
     }
 
     this.http.get<any>(url).subscribe({
@@ -154,30 +173,25 @@ export class Board {
               this.mqttService.dataAlertas = response.data;
               this.dataSource = this.mqttService.dataAlertas;
             } else if (table === 'statistics') {
-              const estadistico = response.data[0];
-              console.log('Datos estadísticos recibidos:', estadistico);
-              const estadisticos = [
-                { label: 'Media', key: 'mean' },
-                { label: 'Mediana', key: 'median' },
-                { label: 'Moda', key: 'mode' },
-                { label: 'Mínimo', key: 'minimum' },
-                { label: 'Máximo', key: 'maximum' },
-                { label: 'Varianza', key: 'variance' },
-                { label: 'Desviación estándar', key: 'standard_deviation' }
-              ];
-
-              this.mqttService.dataEstadisticas = estadisticos.map((est, idx) => ({
-                no: idx + 1,
-                fecha: estadistico.date,
-                hora: estadistico.time,
-                type_data: est.label,
-                valor: estadistico[est.key]
+              this.mqttService.dataEstadisticas = response.data;
+              this.dataSource = this.mqttService.dataEstadisticas;
+            } else if (table === 'predictions') {
+              this.mqttService.dataPredicciones = response.data.map((prediccion: any, index: number) => ({
+                id: index + 1,
+                date: prediccion.date,
+                time: prediccion.time,
+                moving_average: prediccion.moving_average,
+                exponential_smoothing: Array.isArray(prediccion.exponential_smoothing)
+                  ? prediccion.exponential_smoothing[prediccion.exponential_smoothing.length - 1]
+                  : null,
+                exponential_smoothing_list: prediccion.exponential_smoothing // Guardamos la lista completa
               }));
-
-  this.dataSource = this.mqttService.dataEstadisticas;
             }
+            this.displayedColumns = ['id', 'date', 'time', 'moving_average', 'exponential_smoothing', 'detalles'];
+            this.dataSource = this.mqttService.dataPredicciones;
             this.actualizarTabla(); // Actualizar la tabla mostrada
             Swal.fire('Éxito', `El comando para sensor ${sensor} y tabla ${table} se ha enviado correctamente.`, 'success');
+            console.log('Datos de predicciones:', this.mqttService.dataPredicciones);
           },
           error: (error) => {
             console.error('Error al enviar el comando:', error);
@@ -200,10 +214,10 @@ export class Board {
           this.dataSource = this.mqttService.dataLecturas;
         }
       } else if (this.mqttService.lastTable === 'statistics') {
-        this.displayedColumns = ['no', 'fecha', 'hora', 'type_data', 'valor'];
+        this.displayedColumns = ['id', 'date', 'time', 'mean', 'median', 'mode', 'minimum', 'maximum', 'variance', 'standard_deviation'];
         this.dataSource = this.mqttService.dataEstadisticas;
-      } else if (this.mqttService.lastTable === 'predicciones') {
-        this.displayedColumns = ['no', 'fecha', 'hora', 'type_data', 'valor'];
+      } else if (this.mqttService.lastTable === 'predictions') {
+        this.displayedColumns = ['id', 'date', 'time', 'moving_average', 'exponential_smoothing', 'detalles'];
         this.dataSource = this.mqttService.dataPredicciones;
       } else if (this.mqttService.lastTable === 'alerts') {
         if (this.selectedSensor === 'all') {
@@ -218,7 +232,7 @@ export class Board {
   }
   
   isAllSensorDisabled(): boolean {
-    return this.selectedTable === 'statistics' || this.selectedTable === 'predicciones';
+    return this.selectedTable === 'statistics' || this.selectedTable === 'predictions';
   }
 
 }

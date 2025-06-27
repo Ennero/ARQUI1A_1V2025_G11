@@ -2,7 +2,7 @@ import {
   Platform,
   coerceElement,
   coerceNumberProperty
-} from "./chunk-GAQGT6T2.js";
+} from "./chunk-66SPUTRW.js";
 import {
   BidiModule
 } from "./chunk-A4H5XLKS.js";
@@ -3162,6 +3162,7 @@ export {
   RIGHT_ARROW,
   DOWN_ARROW,
   A,
+  _getFocusedElementPierceShadowDom,
   _getEventTarget,
   normalizePassiveListenerOptions,
   FocusMonitor,
@@ -3170,7 +3171,10 @@ export {
   coerceArray,
   MediaMatcher,
   ObserversModule,
+  InteractivityChecker,
+  FocusTrapFactory,
   LiveAnnouncer,
+  A11yModule,
   _IdGenerator,
   hasModifierKey,
   ActiveDescendantKeyManager,
@@ -3178,4 +3182,4 @@ export {
   removeAriaReferencedId,
   MatCommonModule
 };
-//# sourceMappingURL=chunk-NXF2W2XW.js.map
+//# sourceMappingURL=chunk-VPUYP4SU.js.map

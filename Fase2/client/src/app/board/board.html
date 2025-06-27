@@ -9,7 +9,6 @@
                 <h1 class="dashboard-title">Historial de Datos calculados</h1>
             </div>
             <!-- Panel para la selección de datos-->
-            <!-- Panel para la selección de datos-->
             <div class="panel panel-segundo">
                 <mat-card class="subpanel">
                     <div class="subpanel-header">
@@ -48,10 +47,33 @@
                                 <th mat-header-cell *matHeaderCellDef> 
                                     {{ columnLabels[column] || (column | titlecase) }} 
                                 </th>
-                                <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>
+                                <td mat-cell *matCellDef="let element">
+                                    <!-- Si la columna es 'detalles' y la tabla es predicciones, muestra el botón -->
+                                    <ng-container *ngIf="column === 'detalles' && selectedTable === 'predictions'; else normalCell">
+                                        <button mat-button color="accent" (click)="openPredictionModal(element.exponential_smoothing_list)">
+                                            {{ element.expanded ? 'Ocultar' : 'Ver' }}
+                                        </button>
+                                    </ng-container>
+                                    <ng-template #normalCell>
+                                        {{ element[column] }}
+                                    </ng-template> 
+                                </td>
                             </ng-container>
                             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                            <!-- Fila expandible solo para predicciones -->
+                            <ng-container *ngIf="selectedTable === 'predictions'">
+                                <tr *ngFor="let row of dataSource">
+                                    <td [attr.colspan]="displayedColumns.length" *ngIf="row.expanded">
+                                        <div class="expansion-panel">
+                                            <strong>Suavizado Exponencial:</strong>
+                                            <span *ngFor="let val of row.suavizado_exponencial_lista; let i = index">
+                                                {{ val }}<span *ngIf="i < row.suavizado_exponencial_lista.length - 1">, </span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-container>
                         </table>
                     </div>
                 </mat-card>

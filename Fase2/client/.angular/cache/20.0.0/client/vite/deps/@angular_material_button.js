@@ -1,14 +1,17 @@
 import {
   MatRippleModule
-} from "./chunk-3TYDDQIV.js";
+} from "./chunk-GTUVNVI5.js";
 import {
   MAT_RIPPLE_GLOBAL_OPTIONS,
   RippleRenderer,
   _StructuralStylesLoader,
-  _animationsDisabled,
   defaultRippleAnimationConfig
-} from "./chunk-AEQSNDI6.js";
-import "./chunk-B3KBVNY7.js";
+} from "./chunk-MBQDRV37.js";
+import {
+  _animationsDisabled
+} from "./chunk-FS7DQ6MC.js";
+import "./chunk-DHOMQCRD.js";
+import "./chunk-QCETVJKM.js";
 import "./chunk-KAPXTIMC.js";
 import "./chunk-EOFW2REK.js";
 import {
@@ -16,10 +19,10 @@ import {
   MatCommonModule,
   _CdkPrivateStyleLoader,
   _getEventTarget
-} from "./chunk-NXF2W2XW.js";
+} from "./chunk-VPUYP4SU.js";
 import {
   Platform
-} from "./chunk-GAQGT6T2.js";
+} from "./chunk-66SPUTRW.js";
 import "./chunk-A4H5XLKS.js";
 import "./chunk-ILHHMO4K.js";
 import "./chunk-PSX7AJZG.js";
