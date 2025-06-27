@@ -1,7 +1,7 @@
 .global formatError
 
 .section .data
-    msg: .asciz "***** FORMATO DE ARCHIVO INCORRECTO *****\n"
+    msg: .asciz "\n\n***** FORMATO DE ARCHIVO INCORRECTO *****\n"
     msgEnd: // end of fileError
     .equ msgLen, msgEnd - msg // length
 

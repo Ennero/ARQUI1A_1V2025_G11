@@ -1,5 +1,6 @@
 .global readfile
-
+.extern itoa
+.extern printNum
 .extern formatError
 
 .section .data
@@ -15,6 +16,8 @@ fileError: .asciz "***** NO SE ENCONTRÓ EL ARCHIVO *****\n"
 fileErrorEnd: // end of fileError
 .equ fileErrorLen, fileErrorEnd - fileError // length
 
+mm: .asciz "\n\nmmmm\n\n"
+
 .section .bss
 fileName: .space 30
 //buffer: .skip 8192
@@ -25,6 +28,14 @@ readfile:
 
     stp fp, lr, [sp, #-16]!
     mov fp, sp
+
+    // Clean past garbage
+    mov x9, 0
+    ldr x1, =buffer
+    mov w5, 0
+    movz x10, 51200
+
+    bl cleanGarbage
 
     // Print welcome msg
     mov x0, #1
@@ -89,6 +100,16 @@ openFile:
     ldp fp, lr, [sp], #16
     ret
 
+cleanGarbage:
+    cmp x9, x10
+    b.eq endClean
+    strb w5, [x1], #1
+    add x9, x9, 1
+    b cleanGarbage
+
+endClean:
+    ret
+
 error:
     mov x0, #1          // file descriptor stdout
     ldr x1, =fileError  // direccion mensaje error
@@ -97,5 +118,8 @@ error:
     svc 0               // llamada al sistema
 
     mov x0, #-1          // Return 0 on error
+    b return
+
+return:
     ldp fp, lr, [sp], #16
     ret
