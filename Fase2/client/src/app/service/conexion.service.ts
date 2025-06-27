@@ -25,8 +25,8 @@ export class MqttService {
 
   // Array para almacenar los datos de la base de datos
   public dataLecturas: { id: number, date: string, time: string, _value: number }[] = [];
-  public dataEstadisticas: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
-  public dataPredicciones: { no: number, fecha: string, hora: string, type_data: string, valor: number }[] = [];
+  public dataEstadisticas: { id: number, date: string, time: string, mean: number, median: number, mode: number, minimum: number, maximum: number, variance: number , standard_deviation: number }[] = [];
+  public dataPredicciones: { id: number, date: string, time: string, moving_average: number, exponential_smoothing: number, exponential_smoothing_list: any[] }[] = [];
   public dataAlertas: { id: number, date: string, time: string, _value: string }[] = [];
 
   // Variable para almacenar el nombre de la última tabla consultada

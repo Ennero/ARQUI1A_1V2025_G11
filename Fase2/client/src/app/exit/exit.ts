@@ -23,6 +23,10 @@ export class Exit {
   modoManualTemperatura = false;
   modoManualIluminacion = false;
   modoManualAire = false;
+  modoManualLedRoja = false;
+  modoManualLedAmarillo = false;
+  modoManualLedVerde = false;
+  modoManualLedAzul = false;
 
   // Variables para los estados de los sensores
   temperaturaCritica = false;
@@ -151,7 +155,19 @@ export class Exit {
     } else if (actuador === 'buzzer') {
       this.modoManualAire = !this.modoManualAire; // Cambiar el estado del modo manual
       modo = this.modoManualAire ? 'manual' : 'automatic';
-    }
+    } else if (actuador === 'red_led') {
+      this.modoManualLedRoja = !this.modoManualLedRoja;
+      modo = this.modoManualLedRoja ? 'manual' : 'automatic';
+    } else if (actuador === 'yellow_led') {
+      this.modoManualLedAmarillo = !this.modoManualLedAmarillo
+      modo = this.modoManualLedAmarillo ? 'manual' : 'automatic';
+    } else if (actuador === 'blue_led') {
+      this.modoManualLedAzul = !this.modoManualLedAzul;
+      modo = this.modoManualLedAzul ? 'manual' : 'automatic';
+    } else if (actuador === 'green_led') {
+      this.modoManualLedVerde = !this.modoManualLedVerde;
+      modo = this.modoManualLedVerde ? 'manual' : 'automatic';
+    } 
 
     const message = JSON.stringify({ device_name: `${actuador}`, control: `${modo}` });
         this.mqttService.publish(topic, message);
@@ -175,7 +191,7 @@ export class Exit {
         this.statusLedAmarilla = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
         statusLed = this.statusLedAmarilla;
       }
-      const message = JSON.stringify({ device_name: `${led}`, status: `${statusLed}` });
+      const message = JSON.stringify({ device_name: `${led}`, status: `${statusLed ? "true" : ""}` });
 
       this.mqttService.publish(topic, message);
 

@@ -192,8 +192,17 @@
                             color="primary"
                             class="actuador-btn btn-rojo"
                             (click)="cambiarEstadoLed('red_led')"
+                            [disabled]="!modoManualLedRoja"
                             >
                             {{ !statusLedRoja ? 'Encender Led' : 'Apagar Led' }}
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            class="actuador-modo btn-cambiarModo-ventilacion"
+                            (click)="cambiarModo('red_led')"
+                            >
+                            Modo {{ modoManualLedRoja ? 'Manual' : 'Automático' }}
                         </button>
                         </div>
                 </mat-card>
@@ -207,8 +216,17 @@
                             color="primary"
                             class="actuador-btn btn-amarillo"
                             (click)="cambiarEstadoLed('yellow_led')"
+                            [disabled]="!modoManualLedAmarillo"
                             >
                             {{ !statusLedAmarilla ? 'Encender Led' : 'Apagar Led' }}
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            class="actuador-btn btn-amarillo"
+                            (click)="cambiarModo('yellow_led')"
+                            >
+                            Modo {{ modoManualLedAmarillo ? 'Manual' : 'Automático' }}
                         </button>
                         </div>
                 </mat-card>
@@ -224,8 +242,17 @@
                             color="primary"
                             class="actuador-btn btn-verde"
                             (click)="cambiarEstadoLed('green_led')"
+                            [disabled]="!modoManualLedVerde"
                             >
                             {{ !statusLedVerde ? 'Encender Led' : 'Apagar Led' }}
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            class="actuador-modo btn-cambiarModo-iluminacion"
+                            (click)="cambiarModo('green_led')"
+                            >
+                            Modo {{ modoManualLedVerde ? 'Manual' : 'Automático' }}
                         </button>
                         </div>
                 </mat-card>
@@ -239,8 +266,17 @@
                             color="primary"
                             class="actuador-btn btn-azul"
                             (click)="cambiarEstadoLed('blue_led')"
+                            [disabled]="!modoManualLedAzul"
                             >
                             {{ !statusLedAzul ? 'Encender Led' : 'Apagar Led' }}
+                        </button>
+                        <button
+                            mat-raised-button
+                            color="primary"
+                            class="actuador-modo btn-cambiarModo-buzzer"
+                            (click)="cambiarModo('blue_led')"
+                            >
+                            Modo {{ modoManualLedAzul ? 'Manual' : 'Automático' }}
                         </button>
                         </div>
                 </mat-card>

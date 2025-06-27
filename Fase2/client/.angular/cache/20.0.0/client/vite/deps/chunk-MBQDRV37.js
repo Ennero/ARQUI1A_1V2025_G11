@@ -1,17 +1,18 @@
 import {
-  MediaMatcher,
+  _animationsDisabled
+} from "./chunk-FS7DQ6MC.js";
+import {
   _CdkPrivateStyleLoader,
   _getEventTarget,
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader,
   normalizePassiveListenerOptions
-} from "./chunk-NXF2W2XW.js";
+} from "./chunk-VPUYP4SU.js";
 import {
   Platform,
   coerceElement
-} from "./chunk-GAQGT6T2.js";
+} from "./chunk-66SPUTRW.js";
 import {
-  ANIMATION_MODULE_TYPE,
   ChangeDetectionStrategy,
   Component,
   Directive,
@@ -19,47 +20,17 @@ import {
   InjectionToken,
   Injector,
   Input,
-  NgModule,
   NgZone,
   ViewEncapsulation,
   inject,
   setClassMetadata,
   ɵɵclassProp,
   ɵɵdefineComponent,
-  ɵɵdefineDirective,
-  ɵɵdefineInjector,
-  ɵɵdefineNgModule
+  ɵɵdefineDirective
 } from "./chunk-ZDZKNJTB.js";
 import {
   __spreadValues
 } from "./chunk-5LSHCRNN.js";
-
-// node_modules/@angular/cdk/fesm2022/layout.mjs
-var LayoutModule = class _LayoutModule {
-  static ɵfac = function LayoutModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _LayoutModule)();
-  };
-  static ɵmod = ɵɵdefineNgModule({
-    type: _LayoutModule
-  });
-  static ɵinj = ɵɵdefineInjector({});
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LayoutModule, [{
-    type: NgModule,
-    args: [{}]
-  }], null, null);
-})();
-
-// node_modules/@angular/material/fesm2022/animation-DfMFjxHu.mjs
-var MATERIAL_ANIMATIONS = new InjectionToken("MATERIAL_ANIMATIONS");
-function _animationsDisabled() {
-  if (inject(MATERIAL_ANIMATIONS, { optional: true })?.animationsDisabled || inject(ANIMATION_MODULE_TYPE, { optional: true }) === "NoopAnimations") {
-    return true;
-  }
-  const mediaMatcher = inject(MediaMatcher);
-  return mediaMatcher.matchMedia("(prefers-reduced-motion)").matches;
-}
 
 // node_modules/@angular/material/fesm2022/ripple-BYgV4oZC.mjs
 var RippleState;
@@ -666,11 +637,10 @@ var _StructuralStylesLoader = class __StructuralStylesLoader {
 })();
 
 export {
-  _animationsDisabled,
   defaultRippleAnimationConfig,
   RippleRenderer,
   MAT_RIPPLE_GLOBAL_OPTIONS,
   MatRipple,
   _StructuralStylesLoader
 };
-//# sourceMappingURL=chunk-AEQSNDI6.js.map
+//# sourceMappingURL=chunk-MBQDRV37.js.map

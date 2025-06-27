@@ -1318,8 +1318,8 @@ var handleArrows = (key) => {
   }
 };
 var handleEsc = (event, innerParams, dismissWith) => {
-  event.preventDefault();
   if (callIfFunction(innerParams.allowEscapeKey)) {
+    event.preventDefault();
     dismissWith(DismissReason.esc);
   }
 };
@@ -3060,7 +3060,7 @@ Object.keys(instanceMethods).forEach((key) => {
   };
 });
 SweetAlert.DismissReason = DismissReason;
-SweetAlert.version = "11.22.1";
+SweetAlert.version = "11.22.0";
 var Swal = SweetAlert;
 Swal.default = Swal;
 "undefined" != typeof document && function(e, t) {
@@ -3079,7 +3079,7 @@ export {
 
 sweetalert2/dist/sweetalert2.esm.all.js:
   (*!
-  * sweetalert2 v11.22.1
+  * sweetalert2 v11.22.0
   * Released under the MIT License.
   *)
 */

@@ -38,6 +38,11 @@ app.get('/siepa/collections/:collection', async (req, res) => {
                 return res.status(400).json({ error: "Measurement parameter is required for statistics collection." });
             }
             query.measurement = measurement;
+        } else if (collection === 'predictions') {
+            if (!measurement) {
+                return res.status(400).json({ error: "Measurement parameter is required for predictions collection." });
+            }
+            query.measurement = measurement;
         } else {
             return res.status(404).json({ error: "Unsupported collection." });
         }
