@@ -326,8 +326,10 @@ class SiepaG11App(object):
                         time.sleep(2)
 
                     self.display_lcd.clear()
-                    self.new_message_helper = False
                     DeviceManager().new_message_helper = False
+                    print("================================================================================================================")
+                    print(f"Display cleared after showing {current_mode} data.")
+                    print("================================================================================================================")
 
             except queue.Empty:
                 continue

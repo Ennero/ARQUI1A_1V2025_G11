@@ -231,6 +231,9 @@ class SiepaMqttClient(object):
                 
                 # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
                 if DeviceManager().display_lcd.show in ['predictions', 'statistics']:
+                    print("================================================================================================================")
+                    print(f"Display mode set to: {DeviceManager().display_lcd.show}")
+                    print("================================================================================================================")
                     DeviceManager().new_message_helper = True
 
                 # Respond to the MQTT topic with the result
