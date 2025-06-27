@@ -267,7 +267,8 @@ class SiepaG11App(object):
     def run_display(self):
         previous_line = ""
         current_line = ""
-        current_mode = self.display_lcd.show
+        previous_mode = None
+        device_manager = DeviceManager()
 
         while not self.stop_event.is_set():
             if self.pause_display_event.is_set():
@@ -275,14 +276,17 @@ class SiepaG11App(object):
                 continue
 
             try:
-                if current_mode != self.display_lcd.show:
-                    print(f"Display mode has changed: {current_mode} -> {self.display_lcd.show}")
-                    current_mode = self.display_lcd.show
+                current_mode = self.display_lcd.show
+
+                if previous_mode != current_mode:
+                    print(f"Display mode has changed: {previous_mode} -> {current_mode}")
+                    previous_mode = current_mode
 
                     with self.display_queue.mutex:
                         self.display_queue.queue.clear()
                     with self.alert_queue.mutex:
                         self.alert_queue.queue.clear()
+
                     self.last_display_message = None
                     self.last_alert_message = None
                     self.display_lcd.clear()
@@ -308,41 +312,27 @@ class SiepaG11App(object):
                     time.sleep(2)
 
                 elif current_mode in ['statistics', 'predictions']:
-                    print("================================================================================================================")
-                    print("if not DeviceManager().new_message_helper: return")
-                    print("================================================================================================================")
-                    if not DeviceManager().new_message_helper: return
-                    print("================================================================================================================")
-                    print("if not DeviceManager().new_message_helper: return DESPUESSSSS")
-                    print("================================================================================================================")
+                    if not device_manager.new_message_helper:
+                        continue
 
                     self.display_lcd.clear()
-                    
-                    if current_mode == 'statistics':
-                        data_dict = self.get_last_calculation_dict('statistics')
-                    else:
-                        data_dict = self.get_last_calculation_dict('predictions')
-                    print("================================================================================================================")
-                    print("data_dict")
-                    print(data_dict)
-                    print("================================================================================================================")
+                    data_dict = self.get_last_calculation_dict(current_mode)
 
                     for key, value in data_dict.items():
                         if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
                             break
+                        
                         self.display_lcd.clear()
                         self.display_lcd.write_centered(key, 1)
                         self.display_lcd.write_centered(str(value), 2)
                         time.sleep(2)
 
-                    self.display_lcd.clear()
-                    DeviceManager().new_message_helper = False
-                    print("================================================================================================================")
-                    print(f"Display cleared after showing {current_mode} data.")
-                    print("================================================================================================================")
+                self.display_lcd.clear()
+                device_manager.new_message_helper = False
 
             except queue.Empty:
                 continue
+
 
     def get_last_calculation_dict(self, collection):
         # Get the last document
@@ -368,6 +358,8 @@ class SiepaG11App(object):
         # Clean up unnecessary fields
         last_dict.pop('timestamp', None)
         last_dict.pop('_id', None)
+
+        print(f"Last {collection} data: {last_dict}")
 
         return last_dict
         

@@ -53,8 +53,8 @@ class SiepaMqttClient(object):
         def on_message(client, user_data, msg):
             topic = msg.topic
             payload_str = msg.payload.decode()
-            print(f"Received message on [{topic}]")
-            print(f"Payload: {payload_str}")
+            # print(f"Received message on [{topic}]")
+            # print(f"Payload: {payload_str}")
 
             # Intentar parsear JSON
             try:
@@ -230,18 +230,11 @@ class SiepaMqttClient(object):
                     print(f"Calculation result: {dict_result}")
                 
                 # After the calculation, we show the result in the display, if it is configured to show predictions or statistics
-                DeviceManager().new_message_helper = True
+                
                 if DeviceManager().display_lcd.show in ['predictions', 'statistics']:
-                    print("================================================================================================================")
-                    print(f"Display mode set to: {DeviceManager().display_lcd.show}")
-                    print("================================================================================================================")
-
+                    DeviceManager().new_message_helper = True
                 # Respond to the MQTT topic with the result
                 self._client.publish("fiusac/arqui1/g11/calculate/result", payload=json.dumps(dict_result, default=str), qos=1)
-
-
-            else:
-                print("No handler for this topic.")
 
         def on_subscribe(client, user_data, mid, granted_qos):
             print(f"Subscription acknowledged for MID: {mid}")
@@ -278,7 +271,8 @@ class SiepaMqttClient(object):
         result = self._client.publish(full_topic, payload=message, qos=qos)
 
         if result.rc == mqtt_client.MQTT_ERR_SUCCESS:
-            print(f"Published to {full_topic}: {message}")
+            # print(f"Published to {full_topic}: {message}")
+            pass
         else:
             print(f"Failed to publish to {full_topic}. Error code: {result.rc}")
 
