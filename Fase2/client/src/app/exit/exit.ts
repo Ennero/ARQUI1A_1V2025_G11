@@ -138,33 +138,6 @@ export class Exit {
     });
   }
 
-  cambiarModoManual(actuador: string) {
-    let modoManual = "manual";
-    const url = `http://172.20.10.2:5000/siepa/devices/control/${actuador}`;
-
-    if (actuador === 'fan') {
-      this.modoManualTemperatura = !this.modoManualTemperatura; // Cambiar el estado del modo manual
-      modoManual = this.modoManualTemperatura ? 'manual' : 'automatic';
-    } else if (actuador === 'lighting') {
-      this.modoManualIluminacion = !this.modoManualIluminacion; // Cambiar el estado del modo manual
-      modoManual = this.modoManualIluminacion ? 'manual' : 'automatic';
-    } else if (actuador === 'buzzer') {
-      this.modoManualAire = !this.modoManualAire; // Cambiar el estado del modo manual
-      modoManual = this.modoManualAire ? 'manual' : 'automatic';
-    }
-
-    this.http.put(url, { mode: modoManual }).subscribe({
-      next: (response) => {
-        console.log('Modo cambiado exitosamente:', response);
-        Swal.fire('Éxito', `El modo del sistema se ha cambiado a ${modoManual ? 'manual' : 'automatic'}.`, 'success');
-      },
-      error: (error) => {
-        console.error('Error al cambiar el modo:', error);
-        Swal.fire('Error', 'No se pudo cambiar el modo del sistema. Inténtelo de nuevo más tarde.', 'error');
-      }
-    });
-  }
-
   cambiarModo(actuador: string){
     const topic = `fiusac/arqui1/g11/device_mode`;
     let modo = "automatic";
@@ -209,40 +182,6 @@ export class Exit {
       Swal.fire('Éxito', `Comando publicado para el led ${led}.`, 'success');
   }
 
-  enviarComando(actuador: string) {
-    // Url del servidor al que se enviará el comando
-    const url = `http://172.20.10.2:5000/siepa/devices/${actuador}`; // Backend
-
-    let status = null;
-
-    if (actuador == 'buzzer') {
-      this.statusDeviceBuzzer = status = !this.statusDeviceBuzzer; // Cambiar el estado del buzzer
-    } else if (actuador == 'fan') {
-      this.statusDeviceFan = status = !this.statusDeviceFan; // Cambiar el estado del ventilador
-    } else if (actuador == 'lighting') {
-      this.statusDeviceLighting = status = !this.statusDeviceLighting; // Cambiar el estado de la iluminación
-    } else if (actuador == 'red_led'){
-      this.statusLedRoja = status = !this.statusLedRoja; // Cambiar el estado del led rojo
-    } else if (actuador == 'green_led'){
-      this.statusLedVerde = status = !this.statusLedVerde; // Cambiar el estado del led verde
-    } else if (actuador == 'blue_led'){
-      this.statusLedAzul = status = !this.statusLedAzul; // Cambiar el estado del led azul
-    } else if (actuador == 'yellow_led'){
-      this.statusLedAmarilla = status = !this.statusLedAmarilla; // Cambiar el estado del led amarillo
-    }
-
-    this.http.put(url, { status: status }).subscribe({
-      next: (response) => {
-        console.log('Comando enviado exitosamente:', response);
-        Swal.fire('Éxito', `El comando para el actuador ${actuador} se ha enviado correctamente.`, 'success');
-      },
-      error: (error) => {
-        console.error('Error al enviar el comando:', error);
-        Swal.fire('Error', 'No se pudo enviar el comando. Inténtelo de nuevo más tarde.', 'error');
-      }
-    });
-  }
-
   enviarMensajeActuador(actuador: string) {
     const topic = `fiusac/arqui1/g11/device_mode`;
     let message = 'Mensaje de prueba'; // Mensaje por defecto
@@ -279,40 +218,6 @@ export class Exit {
   }
   puedeEncenderIluminacion() {
     return this.modoManualIluminacion;
-  }
-
-  cargarEstadosDesdeBackend() {
-    const url = 'http://172.20.10.2:5000/siepa/devices/status'; // Cambia por tu endpoint real
-
-    this.http.get<any>(url).subscribe({
-      next: (data) => {
-        // Leds
-        this.statusLedRoja = data.temperature?.mode ?? false;
-        this.modoManualTemperatura = data.temperature?.control === 'manual';
-
-        this.statusLedAmarilla = data.humidity?.mode ?? false;
-
-        this.statusLedVerde = data.luminosity?.mode ?? false;
-        this.modoManualIluminacion = data.luminosity?.control === 'manual';
-
-        this.statusLedAzul = data.air_quality?.mode ?? false;
-        this.modoManualAire = data.air_quality?.control === 'manual';
-
-        // Actuadores principales
-        this.statusDeviceLighting = data.lighting_device?.mode ?? false;
-        // Si tienes modo manual para iluminación principal:
-        // this.modoManualIluminacion = data.lighting_device?.control === 'manual';
-
-        this.statusDeviceFan = data.fan_device?.mode ?? false;
-        // this.modoManualTemperatura = data.fan_device?.control === 'manual';
-
-        this.statusDeviceBuzzer = data.buzzer_device?.mode ?? false;
-        // this.modoManualAire = data.buzzer_device?.control === 'manual';
-      },
-      error: (err) => {
-        console.error('Error al cargar estados:', err);
-      }
-    });
   }
 
 }

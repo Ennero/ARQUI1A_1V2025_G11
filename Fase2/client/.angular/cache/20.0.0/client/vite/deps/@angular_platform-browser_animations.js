@@ -26,7 +26,7 @@ import {
   __spreadValues
 } from "./chunk-5LSHCRNN.js";
 
-// node_modules/@angular/animations/fesm2022/private_export-faY_wCkZ.mjs
+// node_modules/@angular/animations/fesm2022/private_export.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -273,7 +273,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// node_modules/@angular/animations/fesm2022/util-D9FfmVnv.mjs
+// node_modules/@angular/animations/fesm2022/util.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -4618,9 +4618,15 @@ export {
 };
 /*! Bundled license information:
 
-@angular/animations/fesm2022/private_export-faY_wCkZ.mjs:
-@angular/animations/fesm2022/util-D9FfmVnv.mjs:
+@angular/animations/fesm2022/private_export.mjs:
+@angular/animations/fesm2022/util.mjs:
 @angular/animations/fesm2022/browser.mjs:
+  (**
+   * @license Angular v20.0.5
+   * (c) 2010-2025 Google LLC. https://angular.io/
+   * License: MIT
+   *)
+
 @angular/platform-browser/fesm2022/animations.mjs:
   (**
    * @license Angular v20.0.0

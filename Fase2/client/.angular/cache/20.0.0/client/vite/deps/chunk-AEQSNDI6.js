@@ -5,11 +5,11 @@ import {
   isFakeMousedownFromScreenReader,
   isFakeTouchstartFromScreenReader,
   normalizePassiveListenerOptions
-} from "./chunk-VF4TONN2.js";
+} from "./chunk-NXF2W2XW.js";
 import {
   Platform,
   coerceElement
-} from "./chunk-66SPUTRW.js";
+} from "./chunk-GAQGT6T2.js";
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionStrategy,
@@ -673,4 +673,4 @@ export {
   MatRipple,
   _StructuralStylesLoader
 };
-//# sourceMappingURL=chunk-KWXCCW2S.js.map
+//# sourceMappingURL=chunk-AEQSNDI6.js.map
