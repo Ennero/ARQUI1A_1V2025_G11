@@ -308,7 +308,13 @@ class SiepaG11App(object):
                     time.sleep(2)
 
                 elif current_mode in ['statistics', 'predictions']:
+                    print("================================================================================================================")
+                    print("if not DeviceManager().new_message_helper: return")
+                    print("================================================================================================================")
                     if not DeviceManager().new_message_helper: return
+                    print("================================================================================================================")
+                    print("if not DeviceManager().new_message_helper: return DESPUESSSSS")
+                    print("================================================================================================================")
 
                     self.display_lcd.clear()
                     
@@ -316,6 +322,10 @@ class SiepaG11App(object):
                         data_dict = self.get_last_calculation_dict('statistics')
                     else:
                         data_dict = self.get_last_calculation_dict('predictions')
+                    print("================================================================================================================")
+                    print("data_dict")
+                    print(data_dict)
+                    print("================================================================================================================")
 
                     for key, value in data_dict.items():
                         if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
