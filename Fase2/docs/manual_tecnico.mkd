@@ -17,12 +17,21 @@
     - [Explicación de Cálculos Estadísticos y Modelos de Predicción](#explicación-de-cálculos-estadísticos-y-modelos-de-predicción)
       - [Estadísticas](#estadísticas)
       - [Modelos de Predicción](#modelos-de-predicción)
+    - [Integración de Python ↔ ARM64](#integración-de-python--arm64)
     - [Diagrama de Flujo de Integración Python ↔ ARM64](#diagrama-de-flujo-de-integración-python--arm64)
     - [Consideraciones de Arquitectura ARM64 y su Rendimiento](#consideraciones-de-arquitectura-arm64-y-su-rendimiento)
     - [Aplicación TUI en ARM64](#aplicación-tui-en-arm64)
+      - [Características principales:](#características-principales)
+      - [Flujo de uso típico:\*\*](#flujo-de-uso-típico)
+      - [Funciones implementadas en el TUI](#funciones-implementadas-en-el-tui)
     - [Capturas de Resultados](#capturas-de-resultados)
       - [Resultados en Pantalla LCD](#resultados-en-pantalla-lcd)
+        - [Display Mostrando Lectura de sensores](#display-mostrando-lectura-de-sensores)
+        - [Display Mostrando Cálculos Estadísticos](#display-mostrando-cálculos-estadísticos)
+        - [Display Mostrando Alertas](#display-mostrando-alertas)
       - [Resultados en Dashboard Web](#resultados-en-dashboard-web)
+      - [Dashboard con los Resultados de la temperatura](#dashboard-con-los-resultados-de-la-temperatura)
+      - [Dashboard con los Resultado de la Iluminación](#dashboard-con-los-resultado-de-la-iluminación)
       - [Resultados en Grafana](#resultados-en-grafana)
     - [Funcionamiento y Lógica Software/Hardware](#funcionamiento-y-lógica-softwarehardware)
     - [Presentación de Información - Dashboard Web, Grafana y LCD](#presentación-de-información---dashboard-web-grafana-y-lcd)
@@ -135,8 +144,6 @@ La arquitectura sigue el IoT Stack Framework, ahora expandido:
 ### Diagrama de Flujo de Arquitectura
 
 ![diagrama_arquitectura](./imgs/diagrama_arquitectura.png)
-
-**********************************************************************************************************************
 
 ### Descripción Detallada del Módulo Analítico
 
@@ -253,7 +260,7 @@ Por su parte, el archivo main.s en ARM64 funciona como un enrutador de operacion
 
 Por ejemplo con un argumento de 0 realiza la media en la etiqueta do_mean:
 
-```
+```assembly
 .text
 _start:
     mov x0, #0
@@ -291,7 +298,7 @@ Gracias a esta arquitectura híbrida, el proyecto SIEPA puede ejecutar funciones
 
 ### Diagrama de Flujo de Integración Python ↔ ARM64
 
-![Diagrama de flujo de integración](diagrama_arm_python.png)
+![Diagrama de flujo de integración](./imgs/diagrama_arm_python.png)
 
 ### Consideraciones de Arquitectura ARM64 y su Rendimiento
 
@@ -309,31 +316,186 @@ La aplicación de Interfaz de Usuario en Modo Texto (TUI) desarrollada en ARM64 
 
 #### Características principales:
 
-1. **Menú de Navegación Interactivo:**
-   - Al iniciar, la TUI muestra un menú principal donde el usuario puede cargar archivos de datos o salir de la aplicación.
-   - Tras cargar un archivo, se accede a un submenú con opciones para filtrar datos, limpiar filtros, seleccionar funciones estadísticas/predictivas y exportar resultados.
+**1. Menú de Navegación Interactivo:**
 
-2. **Carga de Datos Desde Archivo:**
-   - Permite cargar archivos de texto con datos numéricos (un número por línea, terminando con `$`).
-   - El sistema valida la carga y notifica al usuario si el archivo fue leído correctamente.
+* Al iniciar, la TUI muestra un menú principal donde el usuario puede cargar archivos de datos o salir.
+* Tras cargar un archivo, se accede a un submenú con más opciones.
 
-3. **Filtrado de Datos por Rango:**
-   - El usuario puede especificar un rango de líneas (por ejemplo, de la 100 a la 150) para aplicar los cálculos solo a ese subconjunto.
-   - El sistema valida los límites del rango y notifica si hay errores (fuera de rango, límites invertidos, etc.).
-   - Al aplicar el filtro, los cálculos y exportaciones posteriores solo consideran el subconjunto seleccionado.
+El núcleo de la TUI es un bucle que imprime el menú y espera la entrada del usuario. Esto se gestiona en la etiqueta `_start` y el bucle principal `do:`.
 
-4. **Limpieza de Filtros:**
-   - Opción para eliminar cualquier filtro aplicado y volver a trabajar con el conjunto completo de datos cargados.
-   - El sistema confirma la limpieza exitosa del filtro.
+```assembly
+_start:
+    // Imprimir mensaje de bienvenida
+    mov x0, #1
+    ldr x1, =welcome_msg
+    mov x2, len_welcome_msg
+    mov x8, #64
+    svc #0
 
-5. **Cálculos Estadísticos y Modelos de Predicción:**
-   - Menú dedicado para seleccionar y ejecutar funciones como mínimo, máximo, media, mediana, moda, desviación estándar, varianza, media móvil y suavizado exponencial.
-   - Opción para ejecutar todas las operaciones de una sola vez y mostrar los resultados secuencialmente.
-   - Los resultados se presentan de forma clara en pantalla.
+do:
+    // Imprimir el mensaje del menu principal
+    mov x0, #1
+    ldr x1, =msg
+    mov x2, len_msg
+    mov x8, #64
+    svc #0
 
-6. **Exportación de Resultados a XML:**
-   - Permite exportar los resultados de los cálculos (sobre el conjunto completo o filtrado) a un archivo XML.
-   - El sistema notifica al usuario cuando la exportación es exitosa.
+    // Leer la opción del usuario y guardarla en w6
+    bl read_opt
+    mov w6, w0
+
+    // Comparar la opción y saltar a la sección correspondiente
+    cmp w6, #1
+    b.eq read_file
+
+    cmp w6, #0
+    b.eq exit
+```
+
+**2. Carga de Datos Desde Archivo:**
+
+* Permite cargar archivos de texto con datos numéricos.
+* El sistema valida la carga y notifica al usuario.
+
+La opción `1` del menú salta a la sección `read_file`, que invoca la función externa `readfile` para leer el contenido y `numbers_array` para procesarlo en memoria.
+
+```assembly
+read_file:
+    // Llama a la función externa para leer el archivo.
+    bl readfile
+    
+    // Verifica si hubo un error al abrir el archivo.
+    cmp x0, #0
+    b.lt do // Si hay error, regresa al menú principal.
+
+    // Guarda los punteros y el tamaño del archivo leído.
+    mov x24, x1 // Guardar el número de bytes leídos.
+    mov x23, x0 // Guardar la dirección del buffer.
+
+    // Convierte el buffer de texto en un arreglo de números.
+    bl numbers_array
+    mov x17, x1 // Guardar el contador de números.
+    mov x22, x0 // Guardar la dirección del array de números.
+
+    // Imprime mensaje de éxito.
+    mov x0, #1
+    ldr x1, =msg_file_uploaded
+    mov x2, len_msg_file_uploaded
+    mov x8, #64
+    svc #0
+    
+    b do2 // Salta al submenú de análisis.
+```
+
+**3. Filtrado de Datos por Rango:**
+
+* El usuario puede especificar un rango de líneas para aplicar los cálculos solo a ese subconjunto.
+
+Dentro del submenú (`do2`), la opción `1` lleva a `choose_range`. Este bloque pide al usuario los límites inferior y superior, los valida y luego llama a `create_range_buffer` para crear un nuevo buffer solo con los datos seleccionados.
+
+```assembly
+choose_range:
+    // Pide y lee el límite inferior.
+    ldr x1, =msg_choose_lower_limit
+    // ... (código para imprimir y leer) ...
+    bl read_opt
+    mov w6, w0
+
+    // Valida que el límite esté dentro del rango de datos.
+    cmp w6, w17 
+    b.ge chose_lower_limit_error
+
+    // Pide y lee el límite superior y lo valida.
+    // ... (código similar para el límite superior) ...
+
+    // Si los límites son válidos, llama a la función para crear el buffer filtrado.
+    mov x0, x23 // Buffer original.
+    mov x1, x24 // Tamaño original.
+    mov x2, x15 // Límite inferior.
+    mov x3, x16 // Límite superior.
+    bl create_range_buffer
+    
+    // El nuevo buffer filtrado se guarda para futuros cálculos.
+    mov x18, x0 
+```
+
+**4. Limpieza de Filtros:**
+
+* Opción para eliminar cualquier filtro aplicado y volver a trabajar con el conjunto completo.
+
+La opción `2` del submenú salta a `clean_filter`, que simplemente restaura los punteros y contadores a los valores originales del archivo completo.
+
+```assembly
+clean_filter:
+    // Restablece los límites a 0.
+    mov w15, #0
+    mov w16, #0
+
+    // Restaura el puntero del buffer al original.
+    mov x18, x23
+
+    // Vuelve a procesar el buffer completo para obtener el array de números original.
+    bl numbers_array
+    mov x25, x0 // Guardar la dirección del array completo.
+    mov x28, x1 // Guardar el contador completo.
+
+    // Imprime mensaje de éxito.
+    // ...
+    b do2 // Vuelve al submenú.
+```
+
+**5. Cálculos Estadísticos y Modelos de Predicción:**
+
+* Menú dedicado para seleccionar y ejecutar las diferentes funciones de análisis.
+
+La opción `3` del submenú (`select_stats`) muestra otro menú con todas las funciones. Cada opción llama a la subrutina correspondiente. Por ejemplo, para calcular el valor mínimo:
+
+```assembly
+select_stats:
+    // Muestra el menú de funciones.
+    ldr x1, =msg_menu_stats
+    // ... (código para imprimir y leer opción) ...
+
+    cmp w6, #1 // Compara si la opción es 1 (Valor Mínimo).
+    b.eq min_value // Salta a la sección de cálculo del mínimo.
+    // ... (más comparaciones para las otras opciones) ...
+
+min_value:
+    // Imprime el texto "Valor mínimo calculado: ".
+    ldr x1, =msg_min_value
+    // ... (código para imprimir) ...
+
+    // Llama a la función externa 'minimum' que realiza el cálculo.
+    // El resultado se espera en x0.
+    bl minimum
+
+    // Convierte el resultado numérico a texto y lo imprime.
+    bl itoa
+    bl printNum
+
+    b select_stats // Vuelve al menú de estadísticas.
+```
+
+**6. Exportación de Resultados a XML:**
+
+* Permite exportar los resultados a un archivo XML.
+
+La opción `4` del submenú principal (`export_xml`) se encarga de llamar a la función externa `writeXML`, la cual contiene toda la lógica para generar el archivo.
+
+```assembly
+export_xml:
+    // Llama a la función externa que crea y escribe el archivo XML.
+    bl writeXML
+
+    // Notifica al usuario que la exportación fue exitosa.
+    mov x0, #1
+    ldr x1, =msg_export_xml_success
+    mov x2, len_msg_export_xml_success
+    mov x8, #64
+    svc #0
+
+    b do2 // Regresa al submenú.
+```
 
 #### Flujo de uso típico:**
 
@@ -380,13 +542,44 @@ Estas funciones permiten a la TUI realizar operaciones de entrada/salida, valida
 <!-- COMENTARIO: En esta sección, inserta las capturas de pantalla que evidencian el funcionamiento del sistema. -->
 
 #### Resultados en Pantalla LCD
-<!-- Inserte aquí la captura de la LCD. -->
+
+##### Display Mostrando Lectura de sensores
+
+![Primera lectura de sensores](imgs/sensors_reading1.jpg)
+
+![Segunda lecutra de sensores](imgs/sensors_readin.jpg)
+
+##### Display Mostrando Cálculos Estadísticos
+
+![estadísticas1](imgs/sttistics1.jpg)
+
+![estadísticas2](imgs/display_sta.jpg)
+
+##### Display Mostrando Alertas
+
+![Alerta de poca luz en display](imgs/alert1.jpg)
 
 #### Resultados en Dashboard Web
-<!-- Inserte aquí la captura del Dashboard. -->
+
+#### Dashboard con los Resultados de la temperatura
+
+![temp1](imgs/pre11.jpeg)
+
+![temp2](imgs/pre12.jpeg)
+
+![temp3](imgs/pre13.jpeg)
+
+#### Dashboard con los Resultado de la Iluminación
+
+![ilumina1](imgs/pre21.jpeg) 
+
+![ilumina2](imgs/pre22.jpeg)
+
+![ilumina3](imgs/pre23.jpeg)
 
 #### Resultados en Grafana
-<!-- Inserte aquí la captura de Grafana. -->
+
+![grafana](imgs/grafana.png)
 
 ### Funcionamiento y Lógica Software/Hardware
 
