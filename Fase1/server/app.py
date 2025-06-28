@@ -6,7 +6,6 @@ from sensors.bh1750 import BH1750
 from sensors.ultrasonic import Ultrasonic
 from config.db import SiepaDB
 from mqtt.client import SiepaMqttClient
-from utils.generic_device import GenericOutputDevice
 from utils.display import DisplayLCD
 from models.app_settings_model import AppSettings
 from models.device_manager import DeviceManager
@@ -16,9 +15,6 @@ import RPi.GPIO as GPIO
 import time
 import json
 import queue
-# from dotenv import load_dotenv
-# import os
-
 
 class SiepaG11App(object):
 
@@ -30,8 +26,6 @@ class SiepaG11App(object):
 
     def __init__(self):
         # GPIO.setmode(GPIO.BCM)
-        # Load environment variables
-        # load_dotenv()
 
         self.device_manager = DeviceManager()
 
@@ -47,11 +41,6 @@ class SiepaG11App(object):
         self.ultrasonic_sensor = Ultrasonic(trigger_pin=27, echo_pin=22, detection_range_cm=15.0)
         self.presence_helper = False
 
-        self.humidity_helper = False
-        self.temperature_helper = False
-        self.pressure_helper = False
-        self.air_quality_helper = False
-
         # Define output devices
         self.display_lcd = DisplayLCD()
         
@@ -64,8 +53,6 @@ class SiepaG11App(object):
         self.fan_device = self.device_manager.fan_device
         self.lighting_device = self.device_manager.lighting_device
 
-        # Define storage
-        self.storage = [] # We will implement MongoDB later
         self.display_queue = queue.Queue()
         self.alert_queue = queue.Queue()
 
@@ -115,9 +102,6 @@ class SiepaG11App(object):
                     proximity=self.ultrasonic_sensor.proximity
                 )
 
-                # Store data
-                self.storage.append(siepa_data)
-
                 # Publish to MQTT messages
                 self.mqtt_client.publish('temperature', json.dumps({'temperature': siepa_data.temperature}))
                 self.mqtt_client.publish('humidity', json.dumps({'humidity': siepa_data.humidity}))
@@ -146,16 +130,13 @@ class SiepaG11App(object):
                     # Turn on the fan devices
                     self.fan_device.turn_on_device()
                     self.show_priority_message("Alerta temp", 5)
-                    self.temperature_helper = True
                     #print("The fans are on.")
                 elif siepa_data.temperature < 28 and self.red_led.mode and self.fan_device.control == 'automatic':
-                    self.temperature_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.red_led, self.fan_device)).start()
                     # Turning off the fans in 5 seconds...
                 
                 # Yellow LED (humidity >= 70)
                 if siepa_data.humidity >= 70 and not self.yellow_led.mode and self.lighting_device.control == 'automatic':
-                    self.humidity_helper = True
                     self.yellow_led.turn_on_device()
 
                     self.mqtt_client.publish('humidity/danger', json.dumps({
@@ -164,7 +145,6 @@ class SiepaG11App(object):
                     self.show_priority_message("Alerta humedad", 5)
                 elif siepa_data.humidity < 70 and self.yellow_led.mode and self.lighting_device.control == 'automatic':
                     # self.yellow_led.turn_off_device()
-                    self.humidity_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.yellow_led, None)).start()
                 
                 # Green LED (luminosity <= 200)
@@ -183,7 +163,6 @@ class SiepaG11App(object):
                 
                 # Blue LED (air quality >= 1000)
                 if siepa_data.air_quality >= 700 and not self.blue_led.mode and self.blue_led.control == 'automatic':
-                    self.air_quality_helper = True
                     self.blue_led.turn_on_device()
                     self.mqtt_client.publish('air_quality/danger', json.dumps({
                         'message': 'Low air_quality detected! Turning on blue LED.'
@@ -192,7 +171,6 @@ class SiepaG11App(object):
                     self.show_priority_message("Alerta aire", 5)
                 elif siepa_data.air_quality < 700 and self.blue_led.mode and self.blue_led.control == 'automatic':
                     #self.blue_led.turn_off_device()
-                    self.air_quality_helper = False
                     Thread(target=self.turning_off_with_delay, args=(self.blue_led, self.buzzer_device)).start()
 
                 for alert in siepa_data.alert_messages():
@@ -210,12 +188,29 @@ class SiepaG11App(object):
     def run_display(self):
         previous_line = ""
         current_line = ""
+        current_mode = self.display_lcd.show  # Valor inicial
 
         while not self.stop_event.is_set():
             if self.pause_display_event.is_set():
-                time.sleep(0.1)  # Esperar a que termine el mensaje prioritario
+                time.sleep(0.1)
                 continue
+
             try:
+                # Detectar si se cambió el modo desde MQTT
+                if current_mode != self.display_lcd.show:
+                    print(f"Display mode has changed: {current_mode} -> {self.display_lcd.show}")
+                    current_mode = self.display_lcd.show
+
+                    # Limpiar colas
+                    with self.display_queue.mutex:
+                        self.display_queue.queue.clear()
+                    with self.alert_queue.mutex:
+                        self.alert_queue.queue.clear()
+                    self.last_display_message = None
+                    self.last_alert_message = None
+                    self.display_lcd.clear()
+
+                # Mostrar alertas si hay
                 if not self.alert_queue.empty():
                     new_line = self.alert_queue.get(timeout=1)
                     previous_line = current_line
@@ -226,17 +221,74 @@ class SiepaG11App(object):
                     time.sleep(5)
                     continue
 
-                new_line = self.display_queue.get(timeout=1)
-                previous_line = current_line
-                current_line = new_line
+                # Comportamiento por modo
+                if current_mode == 'readings':
+                    new_line = self.display_queue.get(timeout=1)
+                    previous_line = current_line
+                    current_line = new_line
 
-                self.display_lcd.clear()
-                self.display_lcd.write_centered(previous_line, 1)
-                self.display_lcd.write_centered(current_line, 2)
-                time.sleep(2)
+                    self.display_lcd.clear()
+                    self.display_lcd.write_centered(previous_line, 1)
+                    self.display_lcd.write_centered(current_line, 2)
+                    time.sleep(2)
+
+                elif current_mode in ['statistics', 'predictions']:
+                    # implement show or not
+                    if not self.new_message_helper: return
+
+                    self.display_lcd.clear()
+                    
+                    # Obtener el diccionario según el modo
+                    if current_mode == 'statistics':
+                        data_dict = self.get_statistics_dict()
+                    else:
+                        data_dict = self.get_predictions_dict()
+
+                    # Mostrar cada atributo con delay
+                    for key, value in data_dict.items():
+                        if self.pause_display_event.is_set() or current_mode != self.display_lcd.show:
+                            break  # Salir si cambió de modo o hay mensaje prioritario
+                        self.display_lcd.clear()
+                        self.display_lcd.write_centered(key, 1)
+                        self.display_lcd.write_centered(str(value), 2)
+                        time.sleep(1)
+
+                    self.new_message_helper = False
 
             except queue.Empty:
                 continue
+
+    def get_statistics_dict(self):
+        data = self.mongo_repo.get_last_n(n=30)
+        if not data:
+            return {"Info": "No data"}
+
+        # Calcular estadísticas (solo ejemplo)
+        avg_temp = sum(d["temperature"] for d in data) / len(data)
+        avg_hum = sum(d["humidity"] for d in data) / len(data)
+        avg_press = sum(d["pressure"] for d in data) / len(data)
+
+        return {
+            "Temp. Promedio": f"{avg_temp:.1f}°C",
+            "Humedad Prom.": f"{avg_hum:.1f}%",
+            "Presión Prom.": f"{avg_press:.1f} hPa"
+        }
+
+    def get_predictions_dict(self):
+        last = self.mongo_repo.get_last_n(n=1)
+        if not last:
+            return {"Info": "Sin datos"}
+
+        last_data = last[0]
+
+        # Simular predicción simple
+        return {
+            "Temp Pred.": f"{last_data['temperature'] + 0.4:.1f}°C",
+            "Humedad Pred.": f"{last_data['humidity'] + 1.0:.1f}%",
+            "Presión Pred.": f"{last_data['pressure'] - 0.5:.1f} hPa"
+        }
+
+
 
     def show_priority_message(self, msg: str, duration: int = 5):
         """Pausa el display, muestra un mensaje por unos segundos, limpia las colas y reanuda."""
@@ -265,7 +317,6 @@ class SiepaG11App(object):
     def start(self):
         """Start all threads"""
         if self.running:
-            #print("Application is already running")
             return
 
         self.running = True
@@ -283,12 +334,10 @@ class SiepaG11App(object):
         self.display_thread = Thread(target=self.run_display, daemon=True)
         self.display_thread.start()
 
-        #print("All threads started")
 
     def stop(self):
         """Stop all threads gracefully"""
         if not self.running:
-            #print("Application is not running")
             return
 
         self.running = False
@@ -311,8 +360,6 @@ class SiepaG11App(object):
         # Cleanup GPIO pins
         GPIO.cleanup()
 
-        #print("All threads stopped")
-
     def safe_put(self, q, msg, last_msg_attr):
         last_msg = getattr(self, last_msg_attr, None)
         if msg != last_msg:
@@ -323,8 +370,7 @@ class SiepaG11App(object):
         """Main application entry point"""
         self.display_lcd.write_centered("Bienvenido a", 1)
         self.display_lcd.write_centered("SIEPA - Grupo 11", 2)
-        #print("Starting SiepaG11App...")
-        time.sleep(4)  # Wait for 2 seconds before starting
+        time.sleep(5)  # Wait for 5 seconds before starting
         self.display_lcd.clear()
 
         try:
@@ -335,8 +381,7 @@ class SiepaG11App(object):
                 time.sleep(4)
                 
         except KeyboardInterrupt:
-            pass
-            #print("\nReceived keyboard interrupt, stopping...")
+            print("\nReceived keyboard interrupt, stopping...")
         finally:
             self.stop()
 

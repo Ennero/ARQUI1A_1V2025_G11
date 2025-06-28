@@ -1,0 +1,206 @@
+import { AfterViewInit, Component, OnInit, OnDestroy  } from '@angular/core';
+import { Header } from '../shared/header/header';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MqttService } from '../service/conexion.service';
+import { Subscription } from 'rxjs';
+import Chart from 'chart.js/auto';
+
+@Component({
+  selector: 'app-history',
+  standalone: true,
+  imports: [Header, MatCardModule, MatIconModule, CommonModule, MatTableModule],
+  templateUrl: './history.html',
+  styleUrls: ['./history.css']
+})
+
+export class History implements AfterViewInit, OnInit, OnDestroy{
+
+  // Definimos las columnas que se mostrarán en las tablas
+  displayedColumnsHumedad: string[] = ['no', 'humidity'];
+  displayedColumnsAirQuality: string[] = ['no', 'air_quality'];
+  displayedColumnsProximidad: string[] = ['no', 'proximidad'];
+  displayedColumnsIluminacion: string[] = ['no', 'iluminacion'];
+  displayedColumnsTemperatura: string[] = ['no', 'temperatura'];
+  displayedColumnsPresion: string[] = ['no', 'presion'];
+
+  constructor(private mqttService: MqttService) {}
+
+  // Acceder a los datos de los sensores a través del servicio MQTT
+  // Estos getters permiten acceder a los datos de los sensores desde la plantilla
+  get dataSourceHumedad() { return this.mqttService.dataHumedad; }
+  get dataSourceAirQuality() { return this.mqttService.dataAirQuality; }
+  get dataSourceProximidad() { return this.mqttService.dataProximidad; }
+  get dataSourceIluminacion() { return this.mqttService.dataIluminacion; }
+  get dataSourceTemperatura() { return this.mqttService.dataTemperatura; }
+  get dataSourcePresion() { return this.mqttService.dataPresion; }
+
+  get dataSourceHumedadGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataHumedad;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceAirQualityGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataAirQuality;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceProximidadGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataProximidad;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceIluminacionGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataIluminacion;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourceTemperaturaGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataTemperatura;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+  get dataSourcePresionGrafica() {
+    // Limitar la cantidad de datos a los últimos 20 registros
+    const arr = this.mqttService.dataPresion;
+    return arr.length > 20 ? arr.slice(-20) : arr;
+  }
+
+  private mqttSub!: Subscription;
+  // Objetivo de tipo Chart, un diccionario con el nombre como clave y el valor es un Chart
+  private charts: { [key: string]: Chart } = {};
+
+  ngOnInit(): void {
+    this.mqttSub = this.mqttService.message$.subscribe(({ topic, value }) => {
+      
+      // Extraer el tipo de sensor del topic
+      const sensor = topic.split('/').pop();
+      // Inicializar los valores de las fuentes de datos
+      switch (sensor) {
+        case 'humidity':
+          this.updateChart('humedadChart', this.dataSourceHumedadGrafica, 'humidity');
+          break;
+        case 'temperature':
+          this.updateChart('temperaturaChart', this.dataSourceTemperaturaGrafica, 'temperatura');
+          break;
+        case 'proximity':
+          this.updateChart('proximidadChart', this.dataSourceProximidadGrafica, 'proximidad');
+          break;
+        case 'air_quality':
+          this.updateChart('air_qualityChart', this.dataSourceAirQualityGrafica, 'air_quality');
+          break;
+        case 'luminosity':
+          this.updateChart('iluminacionChart', this.dataSourceIluminacionGrafica, 'iluminacion');
+          break;
+        case 'pressure':
+          this.updateChart('presionChart', this.dataSourcePresionGrafica, 'presion');
+          break;
+      }
+    })
+  } 
+
+  ngAfterViewInit() {
+    this.charts['proximidad'] = this.createChart('proximidadChart', 'Proximidad (m)', this.dataSourceProximidadGrafica, 'proximidad', '#8d6748');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('proximidadChart', this.dataSourceProximidadGrafica, 'proximidad');
+    this.charts['air_quality'] = this.createChart('air_qualityChart', 'CO2 (ppm)', this.dataSourceAirQualityGrafica, 'air_quality', '#a8e6a3');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('air_qualityChart', this.dataSourceAirQualityGrafica, 'air_quality');
+    this.charts['iluminacion'] = this.createChart('iluminacionChart', 'Iluminación (lux)', this.dataSourceIluminacionGrafica, 'iluminacion', '#22543d');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('iluminacionChart', this.dataSourceIluminacionGrafica, 'iluminacion');
+    this.charts['humidity'] = this.createChart('humedadChart', 'Humedad (%)', this.dataSourceHumedadGrafica, 'humidity', '#f5f3e7');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('humedadChart', this.dataSourceHumedadGrafica, 'humidity');
+    this.charts['temperatura'] = this.createChart('temperaturaChart', 'Temperatura (°C)', this.dataSourceTemperaturaGrafica, 'temperatura', '#8d6748');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('temperaturaChart', this.dataSourceTemperaturaGrafica, 'temperatura');
+    this.charts['presion'] = this.createChart('presionChart', 'Presion (hPa)', this.dataSourcePresionGrafica, 'presion', '#a8e6a3');
+    // Actualizar los datos de los gráficos con los datos iniciales
+    this.updateChart('presionChart', this.dataSourcePresionGrafica, 'presion');
+  }
+
+  // Actualizar el gráfico con los nuevos datos
+  updateChart(chartId: string, dataSource: any[], key: string) {
+    const chart = Chart.getChart(chartId);
+    if (chart) {
+      chart.data.labels = dataSource.map(d => d.no);
+      chart.data.datasets[0].data = dataSource.map(d => parseFloat(d[key]));
+      chart.update();
+    }
+  }
+
+  // Desconectar del broker al destruir el componente
+  ngOnDestroy(): void {
+    if (this.mqttSub) this.mqttSub.unsubscribe();
+  }
+
+  createChart(canvasId: string, label: string, dataSource: any[], key: string, color: string, type: 'bar' | 'line' = 'line'): Chart {
+    // Crear una nueva instancia de Chart.js
+    return new Chart(canvasId, {
+      type,
+      data: {
+        // Asignar las etiquetas de los datos, en este caso los números de los registros
+        labels: dataSource.map(d => d.no),
+        datasets: [{
+          label, // La etiqueta del dataset
+          data: dataSource.map(d => parseFloat(d[key])), // Los valores del dataset, convertidos a float
+          borderColor: color,
+          backgroundColor: (ctx: { chart: any; }) => {
+            const chart = ctx.chart;
+            const {ctx: canvas, chartArea} = chart;
+            if (!chartArea) return color;
+            // Degradado vertical
+            const gradient = canvas.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, color + 'BB'); // más opaco arriba
+            gradient.addColorStop(1, color + '11'); // más transparente abajo
+            return gradient;
+          },
+          pointBackgroundColor: color,
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.4, // curva suave
+          borderWidth: 3,
+        }]
+      },
+      options: {
+        responsive: true, // Hacer el gráfico responsivo
+        plugins: {
+          legend: {
+            display: true, // Mostrar la leyenda
+            labels: {
+              color: '#22543d',
+              font: { weight: 'bold', size: 14 }
+            }
+          },
+          tooltip: {
+            backgroundColor: '#0bab64',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: '#22543d',
+            borderWidth: 1,
+            padding: 12
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          },
+          y: {
+            grid: { color: '#e3e8ee' },
+            ticks: { color: '#22543d', font: { weight: 'bold' } }
+          }
+        },
+        animation: {
+          duration: 900,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  }
+}

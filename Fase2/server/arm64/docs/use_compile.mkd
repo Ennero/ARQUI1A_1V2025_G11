@@ -1,0 +1,22 @@
+# Use compile
+
+## x86
+
+Tener instalado qemu para
+[Debian/Ubuntu](https://luisespino.github.io/linux-handbook/Debian-Ubuntu/Assemble-AArch64/) o para
+[Arch](https://luisespino.github.io/linux-handbook/ArchLinux/Assemble-AArch64/)
+
+Y luego usar el siguiente comando en la consola en la posición del archivo:
+
+```bash
+bash compile.sh [archivo.s]
+```
+
+Está configurado para ensamblar varios archivos y linkearlos se se colocan más argumentos
+
+```bash
+bash compile.sh [archivo.s] [archivo2.s] ...
+```
+
+## x64
+Modifivar el archivo ```compile.sh``` eliminando el prefijo ```aarch64-linux-gnu-``` en donde aparezca en el archivo 

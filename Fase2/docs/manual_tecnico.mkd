@@ -1,0 +1,807 @@
+# Manual Técnico - Proyecto SIEPA (FASE 2)
+
+## Índice
+
+- [Manual Técnico - Proyecto SIEPA (FASE 2)](#manual-técnico---proyecto-siepa-fase-2)
+  - [Índice](#índice)
+  - [OBJETIVOS](#objetivos)
+    - [OBJETIVO GENERAL](#objetivo-general)
+    - [OBJETIVOS ESPECÍFICOS](#objetivos-específicos)
+  - [ALCANCES DEL SISTEMA (FASE 2)](#alcances-del-sistema-fase-2)
+  - [ESPECIFICACIONES TÉCNICAS (FASE 2)](#especificaciones-técnicas-fase-2)
+    - [Requisitos de Hardware](#requisitos-de-hardware)
+    - [Requisitos de Software](#requisitos-de-software)
+    - [Arquitectura del Sistema](#arquitectura-del-sistema)
+    - [Diagrama de Flujo de Arquitectura](#diagrama-de-flujo-de-arquitectura)
+    - [Descripción Detallada del Módulo Analítico](#descripción-detallada-del-módulo-analítico)
+    - [Explicación de Cálculos Estadísticos y Modelos de Predicción](#explicación-de-cálculos-estadísticos-y-modelos-de-predicción)
+      - [Estadísticas](#estadísticas)
+      - [Modelos de Predicción](#modelos-de-predicción)
+    - [Integración de Python ↔ ARM64](#integración-de-python--arm64)
+    - [Diagrama de Flujo de Integración Python ↔ ARM64](#diagrama-de-flujo-de-integración-python--arm64)
+    - [Consideraciones de Arquitectura ARM64 y su Rendimiento](#consideraciones-de-arquitectura-arm64-y-su-rendimiento)
+    - [Aplicación TUI en ARM64](#aplicación-tui-en-arm64)
+      - [Características principales:](#características-principales)
+      - [Flujo de uso típico:\*\*](#flujo-de-uso-típico)
+      - [Funciones implementadas en el TUI](#funciones-implementadas-en-el-tui)
+    - [Capturas de Resultados](#capturas-de-resultados)
+      - [Resultados en Pantalla LCD](#resultados-en-pantalla-lcd)
+        - [Display Mostrando Lectura de sensores](#display-mostrando-lectura-de-sensores)
+        - [Display Mostrando Cálculos Estadísticos](#display-mostrando-cálculos-estadísticos)
+        - [Display Mostrando Alertas](#display-mostrando-alertas)
+      - [Resultados en Dashboard Web](#resultados-en-dashboard-web)
+      - [Dashboard con los Resultados de la temperatura](#dashboard-con-los-resultados-de-la-temperatura)
+      - [Dashboard con los Resultado de la Iluminación](#dashboard-con-los-resultado-de-la-iluminación)
+      - [Resultados en Grafana](#resultados-en-grafana)
+    - [Funcionamiento y Lógica Software/Hardware](#funcionamiento-y-lógica-softwarehardware)
+    - [Presentación de Información - Dashboard Web, Grafana y LCD](#presentación-de-información---dashboard-web-grafana-y-lcd)
+    - [Protocolos de Comunicación](#protocolos-de-comunicación)
+    - [Diseño y Tecnologías Utilizadas](#diseño-y-tecnologías-utilizadas)
+  - [Interacción Software-Hardware](#interacción-software-hardware)
+    - [1. Lectura de Sensores](#1-lectura-de-sensores)
+    - [2. Control de actuadores y LCD](#2-control-de-actuadores-y-lcd)
+    - [3. Respuesta a Comandos MQTT](#3-respuesta-a-comandos-mqtt)
+  - [9. Mantenimiento y Futuras Modificaciones](#9-mantenimiento-y-futuras-modificaciones)
+  - [Costo del Prototipo](#costo-del-prototipo)
+
+## OBJETIVOS
+
+### OBJETIVO GENERAL
+
+Desarrollar un sistema IoT capaz de procesar, analizar y predecir datos ambientales, mediante la integración de cálculos estadísticos y modelos predictivos en lenguaje ensamblador ARM64, con almacenamiento en MongoDB y visualización avanzada en Grafana.
+
+### OBJETIVOS ESPECÍFICOS
+
+* Implementar funciones estadísticas y modelos de predicción simples en lenguaje ensamblador ARM64.
+
+* Integrar el código ARM64 con un orquestador principal en Python para el análisis de datos.
+
+* Almacenar datos históricos y resultados analíticos en una base de datos MongoDB Atlas.
+
+* Visualizar datos en tiempo real, históricos y resultados de predicciones en una pantalla LCD, un dashboard web y paneles de Grafana.
+
+
+## ALCANCES DEL SISTEMA (FASE 2)
+
+Este manual cubre la ampliación del proyecto SIEPA a su Fase 2. Se detalla:
+
+* **Adquisición y Almacenamiento de Datos:**
+
+  * Recolección de datos de sensores de temperatura, humedad, luz, presión y calidad del aire.
+
+  * Almacenamiento continuo y estructurado de las lecturas en una base de datos **MongoDB Atlas**.
+
+* **Procesamiento y Análisis Inteligente:**
+
+  * El sistema Python extrae subconjuntos de datos de MongoDB para su análisis.
+
+  * Ejecución de cálculos estadísticos (media, moda, mediana, varianza, etc.) y modelos de predicción (Media Móvil, Suavizado Exponencial) implementados en **lenguaje ensamblador ARM64**.
+
+  * Una **aplicación de terminal (TUI)** en ARM64 permite la interacción directa con las funciones de análisis, incluyendo carga de datos, filtrado y exportación de resultados a XML.
+
+* **Visualización Avanzada:**
+
+  * Los resultados de los análisis y predicciones se muestran en la **pantalla LCD**, en el **dashboard web** y en **Grafana**.
+
+  * Grafana se conecta a MongoDB para ofrecer visualizaciones históricas avanzadas, comparación de datos reales vs. predicciones y resúmenes analíticos.
+
+* **Integración y Orquestación:**
+
+  * Python actúa como el orquestador del sistema, gestionando el flujo de datos desde los sensores hacia MongoDB y desde MongoDB hacia el módulo de análisis en ARM64.
+
+
+
+
+## ESPECIFICACIONES TÉCNICAS (FASE 2)
+
+### Requisitos de Hardware
+
+* **Unidad Central de Procesamiento:** Raspberry Pi 4 (o similar con arquitectura ARM64).
+
+* **Sensores:** DHT11/DHT22, Fotoresistencia (LDR), HC-SR04/PIR, BMP280, MQ135.
+
+* **Actuadores y Dispositivos de Salida:** LEDs, Buzzer, Motor DC, Pantalla LCD I2C.
+
+* **Componentes Adicionales:** Protoboard, cables de conexión, resistencias, fuente de alimentación, tarjeta microSD.
+
+### Requisitos de Software
+
+ **Sistema Operativo en Raspberry Pi:** Raspberry Pi OS (64 bits).
+
+* **Lenguajes de Programación:**
+
+  * **Python:** Para orquestación, lectura de sensores, y comunicación.
+
+  * **Lenguaje Ensamblador ARM64:** Para el módulo de análisis y predicción.
+
+* **Base de Datos:** MongoDB Atlas.
+
+* **Visualización:** Grafana.
+
+* **Broker MQTT:** Mqttx, Mosquitto, o similar.
+
+* **Dashboard Web:** Frontend (HTML/CSS/JS) y Backend (Python/Node.js).
+
+* **Herramientas de Ensamblado (Toolchain):** `as` (ensamblador) y `ld` (enlazador) para aarch64-linux-gnu. **No se permite el uso de `gcc`**.
+
+* **Librerías Python:** `paho-mqtt`, `pymongo`, `RPi.GPIO`, `smbus`, librerías específicas de sensores (`adafruit_dht`, etc.).
+
+
+
+### Arquitectura del Sistema 
+La arquitectura sigue el IoT Stack Framework, ahora expandido:
+
+* **Capa de Percepción:** Sensores y actuadores conectados a la Raspberry Pi.
+
+* **Capa de Red:** Comunicación vía MQTT para la transmisión de datos.
+
+* **Capa de Procesamiento:** Módulo híbrido con Python como orquestador y ARM64 para el procesamiento numérico intensivo.
+
+* **Capa de Almacenamiento:** **MongoDB Atlas** actúa como la base de datos central para el histórico de sensores y los resultados de los análisis.
+
+* **Capa de Visualización:** Compuesta por la pantalla LCD, el Dashboard Web y **Grafana** para una visualización completa.
+
+### Diagrama de Flujo de Arquitectura
+
+![diagrama_arquitectura](./imgs/diagrama_arquitectura.png)
+
+### Descripción Detallada del Módulo Analítico
+
+El funcionamiento del módulo analítico sigue un flujo de trabajo orquestado por Python, diseñado para integrar eficientemente el procesamiento de bajo nivel en ARM64.
+
+1. **Recolección y Almacenamiento:** Un script de Python lee los datos de los sensores de forma periódica (ej. cada minuto) y los almacena inmediatamente en la colección `lecturas_sensores` de MongoDB Atlas.
+
+2. **Extracción de Datos:** Para realizar un análisis, el script principal de Python consulta la base de datos y extrae las últimas `n` muestras de un sensor específico (ej. los últimos 30 registros de temperatura).
+
+3. **Invocación del Código Ensamblador:** Los datos extraídos se pasan al ejecutable de ARM64. Esto se puede lograr de dos maneras:
+
+   * **Argumentos por `stdin`:** Python escribe los datos en el stream de entrada estándar del proceso de ARM64 (el usado para conectar con la base de datos).
+
+   * **Archivo Temporal:** Python guarda los datos en un archivo de texto temporal, y la ruta de este archivo se pasa como argumento al ejecutable.
+
+4. **Procesamiento en ARM64:** El programa en ensamblador, ejecutándose nativamente en la Raspberry Pi, lee los datos de entrada, realiza todos los cálculos estadísticos y de predicción requeridos, y los prepara para la salida.
+
+5. **Retorno de Resultados:** El ejecutable de ARM64 imprime los resultados en un formato legible en la salida estándar (`stdout`).
+
+6. **Lectura y Visualización:** El script de Python captura estos resultados, los procesa y los envía a las diferentes capas de visualización: se muestran en la pantalla LCD, se publican en el dashboard web y se almacenan en las colecciones `estadisticas_resultados` y `predicciones` en MongoDB para que Grafana pueda consumirlos.
+
+### Explicación de Cálculos Estadísticos y Modelos de Predicción
+
+Las siguientes funciones han sido implementadas directamente en **lenguaje ensamblador ARM64** para optimizar el rendimiento.
+
+#### Estadísticas
+
+* **Media:** El promedio aritmético del conjunto de datos.
+
+* **Mediana:** El valor central de los datos una vez que han sido ordenados.
+
+* **Moda:** El valor que aparece con mayor frecuencia en el conjunto de datos.
+
+* **Mínimo / Máximo:** Los valores más pequeño y más grande en el conjunto de datos.
+
+* **Desviación Estándar:** Una medida de la dispersión de los datos con respecto a la media.
+
+* **Varianza:** El cuadrado de la desviación estándar, representa la variabilidad del conjunto de datos.
+
+#### Modelos de Predicción
+
+* **Media Móvil (MA):** Un método de pronóstico que calcula el promedio de un número específico de los datos más recientes. Ayuda a suavizar las fluctuaciones a corto plazo.
+
+* **Suavizado Exponencial Simple (SES):** Un modelo de predicción que asigna pesos decrecientes exponencialmente a las observaciones más antiguas. Es útil para pronósticos a corto plazo sin una tendencia clara.
+
+### Integración de Python ↔ ARM64
+
+La integración de ARM64 para el uso de las funciones estadísticas y los modelos de predicción se realizó a través de la clase Calculator.
+Esta clase actúa como un intermediario entre Python y el ejecutable en ensamblador ARM64, permitiendo llamar a las operaciones de análisis de datos mediante subprocesos (subprocess.Popen).
+
+Cada método de la clase Calculator representa una función estadística o un modelo de predicción (media, mediana, moda, varianza, desviación estándar, máximo, mínimo, media móvil y suavizado exponencial). Para cada función, se crea un proceso independiente que ejecuta el binario ./ARM64/main con un argumento numérico que identifica la operación a realizar.
+
+El flujo básico consiste en:
+
+1. Preparación de datos:
+Python recibe un arreglo de números (por ejemplo, lecturas de sensores) y los convierte a un formato textual, donde cada número ocupa una línea y el carácter $ indica el final del archivo. Esto se hace con el método stringify_data, asegurando compatibilidad con el parser implementado en ARM64.
+
+2. Ejecución del módulo ARM64:
+Cada función de la clase Calculator ejecuta el binario de ARM64 pasando como argumento el identificador de la operación (por ejemplo, 0 para la media, 1 para la varianza, etc.). La comunicación de datos se realiza a través de la entrada estándar (stdin) y los resultados se leen desde la salida estándar (stdout).
+
+Ejemplo de una método para aplicar una función estadística:
+
+```python
+def get_mean(self, data):
+        mean_result = sbp.Popen(
+            ['./ARM64/main', '0'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = mean_result.communicate(input=data)
+        print("Mean: " + stdout, end='')
+        return int(stdout.strip())
+```
+
+3. Procesamiento de resultados:
+Los resultados obtenidos se convierten a enteros (o listas de enteros, como en el caso del suavizado exponencial) y se almacenan en los atributos last_stats y last_predictions para poder ser consultados posteriormente o enviados a MongoDB y a las interfaces de visualización.
+
+La manera en la que se obtiene los resultados por el método calculate_stats:
+
+```python
+def calculate_stats(self, data):
+        data = self.stringify_data(data)
+
+        self.last_stats = {
+            "mean": self.get_mean(data),
+            "median": self.get_median(data),
+            "mode": self.get_mode(data),
+            "minimum": self.get_minimum(data),
+            "maximum": self.get_maximum(data),
+            "variance": self.get_variance(data),
+            "standard_deviation": self.get_stdev(data)
+        }
+
+        return self.last_stats
+```
+Y el método calculate_predictions:
+
+```python
+def calculate_predictions(self, data):
+        data = self.stringify_data(data)
+
+        self.last_predictions = {
+            "moving_average": self.get_movil_mean(data),
+            "exponential_smoothing": self.get_exponential_smoothing(data)
+        }
+
+        return self.last_predictions
+```
+
+Por su parte, el archivo main.s en ARM64 funciona como un enrutador de operaciones, utilizando el argumento recibido (un número en ASCII) para decidir qué cálculo realizar. Este archivo define secciones separadas para cada estadística y modelo de predicción:
+
+Por ejemplo con un argumento de 0 realiza la media en la etiqueta do_mean:
+
+```assembly
+.text
+_start:
+    mov x0, #0
+    ldr x1, =buffer // Lee el stdin
+    mov x2, #8192
+    mov x8, #63
+    svc #0
+
+    mov x5, sp
+    ldr x2, [x5, #16] // Recibe el argumento, este caso 0 para realizar la media
+    ldrb w3, [x2]
+
+    ldr x0, =buffer 
+
+    cmp w3, #48
+    b.eq do_mean // Hace un branch con la hacia do_mean para realizar la media
+
+    ...
+
+do_mean: 
+    bl mean // Realiza la operacion de la media
+    bl itoa     
+    bl print // Imprime el resultado para recibirlo por stdout
+    b exit
+
+    ...
+exit: // Termina la ejecución del programa.
+    mov x0, #0
+    mov x8, #93
+    svc #0
+```
+Este diseño permite separar completamente la lógica numérica compleja (realizada en bajo nivel y optimizada) de la lógica de control y presentación (realizada en Python), logrando así un sistema modular, eficiente y fácil de mantener.
+
+Gracias a esta arquitectura híbrida, el proyecto SIEPA puede ejecutar funciones estadísticas y de predicción de forma extremadamente rápida y eficiente en la Raspberry Pi.
+
+### Diagrama de Flujo de Integración Python ↔ ARM64
+
+![Diagrama de flujo de integración](./imgs/diagrama_arm_python.png)
+
+### Consideraciones de Arquitectura ARM64 y su Rendimiento
+
+La elección de implementar el núcleo analítico en ensamblador ARM64 no es trivial y responde a varios objetivos del proyecto:
+
+* **Rendimiento Nativo:** Al escribir código directamente en ensamblador, se obtiene el máximo rendimiento posible del hardware de la Raspberry Pi, evitando las capas de abstracción de lenguajes de alto nivel.
+
+* **Optimización de Recursos:** Para un dispositivo IoT, la gestión eficiente de la memoria y la CPU es crucial. El código de bajo nivel permite un control granular sobre los recursos, lo cual es fundamental para sistemas embebidos.
+
+* **Restricción de Herramientas:** El uso obligatorio de `as` y `ld` en lugar de `gcc` fuerza al desarrollador a comprender el proceso de ensamblado y enlazado desde sus fundamentos, sin las facilidades que provee un compilador.
+
+### Aplicación TUI en ARM64
+
+La aplicación de Interfaz de Usuario en Modo Texto (TUI) desarrollada en ARM64 permite la interacción directa y eficiente con el módulo de análisis estadístico y de predicción. Su diseño modular y robusto, implementado íntegramente en ensamblador, ofrece una experiencia de usuario clara y control total sobre los datos a analizar.
+
+#### Características principales:
+
+**1. Menú de Navegación Interactivo:**
+
+* Al iniciar, la TUI muestra un menú principal donde el usuario puede cargar archivos de datos o salir.
+* Tras cargar un archivo, se accede a un submenú con más opciones.
+
+El núcleo de la TUI es un bucle que imprime el menú y espera la entrada del usuario. Esto se gestiona en la etiqueta `_start` y el bucle principal `do:`.
+
+```assembly
+_start:
+    // Imprimir mensaje de bienvenida
+    mov x0, #1
+    ldr x1, =welcome_msg
+    mov x2, len_welcome_msg
+    mov x8, #64
+    svc #0
+
+do:
+    // Imprimir el mensaje del menu principal
+    mov x0, #1
+    ldr x1, =msg
+    mov x2, len_msg
+    mov x8, #64
+    svc #0
+
+    // Leer la opción del usuario y guardarla en w6
+    bl read_opt
+    mov w6, w0
+
+    // Comparar la opción y saltar a la sección correspondiente
+    cmp w6, #1
+    b.eq read_file
+
+    cmp w6, #0
+    b.eq exit
+```
+
+**2. Carga de Datos Desde Archivo:**
+
+* Permite cargar archivos de texto con datos numéricos.
+* El sistema valida la carga y notifica al usuario.
+
+La opción `1` del menú salta a la sección `read_file`, que invoca la función externa `readfile` para leer el contenido y `numbers_array` para procesarlo en memoria.
+
+```assembly
+read_file:
+    // Llama a la función externa para leer el archivo.
+    bl readfile
+    
+    // Verifica si hubo un error al abrir el archivo.
+    cmp x0, #0
+    b.lt do // Si hay error, regresa al menú principal.
+
+    // Guarda los punteros y el tamaño del archivo leído.
+    mov x24, x1 // Guardar el número de bytes leídos.
+    mov x23, x0 // Guardar la dirección del buffer.
+
+    // Convierte el buffer de texto en un arreglo de números.
+    bl numbers_array
+    mov x17, x1 // Guardar el contador de números.
+    mov x22, x0 // Guardar la dirección del array de números.
+
+    // Imprime mensaje de éxito.
+    mov x0, #1
+    ldr x1, =msg_file_uploaded
+    mov x2, len_msg_file_uploaded
+    mov x8, #64
+    svc #0
+    
+    b do2 // Salta al submenú de análisis.
+```
+
+**3. Filtrado de Datos por Rango:**
+
+* El usuario puede especificar un rango de líneas para aplicar los cálculos solo a ese subconjunto.
+
+Dentro del submenú (`do2`), la opción `1` lleva a `choose_range`. Este bloque pide al usuario los límites inferior y superior, los valida y luego llama a `create_range_buffer` para crear un nuevo buffer solo con los datos seleccionados.
+
+```assembly
+choose_range:
+    // Pide y lee el límite inferior.
+    ldr x1, =msg_choose_lower_limit
+    // ... (código para imprimir y leer) ...
+    bl read_opt
+    mov w6, w0
+
+    // Valida que el límite esté dentro del rango de datos.
+    cmp w6, w17 
+    b.ge chose_lower_limit_error
+
+    // Pide y lee el límite superior y lo valida.
+    // ... (código similar para el límite superior) ...
+
+    // Si los límites son válidos, llama a la función para crear el buffer filtrado.
+    mov x0, x23 // Buffer original.
+    mov x1, x24 // Tamaño original.
+    mov x2, x15 // Límite inferior.
+    mov x3, x16 // Límite superior.
+    bl create_range_buffer
+    
+    // El nuevo buffer filtrado se guarda para futuros cálculos.
+    mov x18, x0 
+```
+
+**4. Limpieza de Filtros:**
+
+* Opción para eliminar cualquier filtro aplicado y volver a trabajar con el conjunto completo.
+
+La opción `2` del submenú salta a `clean_filter`, que simplemente restaura los punteros y contadores a los valores originales del archivo completo.
+
+```assembly
+clean_filter:
+    // Restablece los límites a 0.
+    mov w15, #0
+    mov w16, #0
+
+    // Restaura el puntero del buffer al original.
+    mov x18, x23
+
+    // Vuelve a procesar el buffer completo para obtener el array de números original.
+    bl numbers_array
+    mov x25, x0 // Guardar la dirección del array completo.
+    mov x28, x1 // Guardar el contador completo.
+
+    // Imprime mensaje de éxito.
+    // ...
+    b do2 // Vuelve al submenú.
+```
+
+**5. Cálculos Estadísticos y Modelos de Predicción:**
+
+* Menú dedicado para seleccionar y ejecutar las diferentes funciones de análisis.
+
+La opción `3` del submenú (`select_stats`) muestra otro menú con todas las funciones. Cada opción llama a la subrutina correspondiente. Por ejemplo, para calcular el valor mínimo:
+
+```assembly
+select_stats:
+    // Muestra el menú de funciones.
+    ldr x1, =msg_menu_stats
+    // ... (código para imprimir y leer opción) ...
+
+    cmp w6, #1 // Compara si la opción es 1 (Valor Mínimo).
+    b.eq min_value // Salta a la sección de cálculo del mínimo.
+    // ... (más comparaciones para las otras opciones) ...
+
+min_value:
+    // Imprime el texto "Valor mínimo calculado: ".
+    ldr x1, =msg_min_value
+    // ... (código para imprimir) ...
+
+    // Llama a la función externa 'minimum' que realiza el cálculo.
+    // El resultado se espera en x0.
+    bl minimum
+
+    // Convierte el resultado numérico a texto y lo imprime.
+    bl itoa
+    bl printNum
+
+    b select_stats // Vuelve al menú de estadísticas.
+```
+
+**6. Exportación de Resultados a XML:**
+
+* Permite exportar los resultados a un archivo XML.
+
+La opción `4` del submenú principal (`export_xml`) se encarga de llamar a la función externa `writeXML`, la cual contiene toda la lógica para generar el archivo.
+
+```assembly
+export_xml:
+    // Llama a la función externa que crea y escribe el archivo XML.
+    bl writeXML
+
+    // Notifica al usuario que la exportación fue exitosa.
+    mov x0, #1
+    ldr x1, =msg_export_xml_success
+    mov x2, len_msg_export_xml_success
+    mov x8, #64
+    svc #0
+
+    b do2 // Regresa al submenú.
+```
+
+#### Flujo de uso típico:**
+
+1. El usuario inicia la TUI y selecciona "Leer Archivo de Datos".
+2. Tras la carga exitosa, puede:
+   - Filtrar el rango de datos a analizar.
+   - Limpiar el filtro para volver al conjunto completo.
+   - Seleccionar y ejecutar funciones estadísticas o de predicción.
+   - Exportar los resultados a XML.
+3. El usuario puede regresar al menú principal o salir en cualquier momento.
+
+Esta aplicación TUI, gracias a su implementación en ensamblador ARM64, garantiza máxima eficiencia y control sobre los datos, facilitando la interacción directa con el núcleo analítico del sistema.
+
+#### Funciones implementadas en el TUI
+
+A continuación se describen brevemente las funciones auxiliares y estadísticas implementadas en ensamblador ARM64 utilizadas por la TUI para el procesamiento, manejo y exportación de datos:
+
+- **bubble_sort:** Ordena un arreglo de números enteros en orden ascendente. Es fundamental para el cálculo de la mediana.
+- **convert:** Convierte un número a su representación en texto y lo inserta en una estructura XML, facilitando la exportación de resultados.
+- **create_range_buffer:** Extrae un rango específico de líneas de un buffer de texto, permitiendo filtrar subconjuntos de datos para análisis.
+- **exp_smooth:** Calcula el suavizado exponencial simple sobre una serie de datos, útil para predicción de series temporales.
+- **exp_smoothXML:** Igual que `exp_smooth`, pero formatea los resultados para su exportación en XML.
+- **formatError:** Verifica el formato del archivo de entrada y muestra un mensaje de error si detecta datos inválidos.
+- **itoa:** Convierte un número entero a su representación en texto ASCII (string), para mostrar o exportar resultados.
+- **maximum:** Encuentra el valor máximo en un conjunto de datos numéricos.
+- **mean:** Calcula la media (promedio) de los datos.
+- **median:** Calcula la mediana, el valor central tras ordenar los datos.
+- **minimum:** Encuentra el valor mínimo en un conjunto de datos numéricos.
+- **mode:** Calcula la moda, el valor que más se repite en el conjunto de datos.
+- **numbers_array / numbers_array2:** Convierte un buffer de texto con números en un arreglo de enteros para su procesamiento.
+- **print:** Imprime cadenas de texto en la salida estándar (pantalla).
+- **print_num / printNum:** Imprime un número entero en la salida estándar, con formato adecuado.
+- **read_opt:** Lee una opción numérica ingresada por el usuario desde la entrada estándar.
+- **readfile:** Lee el contenido de un archivo de texto, lo valida y lo carga en memoria para su análisis.
+- **stdev:** Calcula la desviación estándar de los datos, a partir de la varianza.
+- **sub_var:** Calcula la sumatoria de las diferencias al cuadrado respecto a la media (parte del cálculo de varianza y desviación estándar).
+- **sum:** Suma todos los valores de un conjunto de datos.
+- **variance:** Calcula la varianza, es decir, la dispersión de los datos respecto a la media.
+- **writeXML:** Genera y escribe un archivo XML con los resultados estadísticos y de predicción calculados.
+
+Estas funciones permiten a la TUI realizar operaciones de entrada/salida, validación, filtrado, análisis estadístico y exportación de resultados de manera eficiente y optimizada directamente en ARM64.
+
+### Capturas de Resultados
+<!-- COMENTARIO: En esta sección, inserta las capturas de pantalla que evidencian el funcionamiento del sistema. -->
+
+#### Resultados en Pantalla LCD
+
+##### Display Mostrando Lectura de sensores
+
+![Primera lectura de sensores](imgs/sensors_reading1.jpg)
+
+![Segunda lecutra de sensores](imgs/sensors_readin.jpg)
+
+##### Display Mostrando Cálculos Estadísticos
+
+![estadísticas1](imgs/sttistics1.jpg)
+
+![estadísticas2](imgs/display_sta.jpg)
+
+##### Display Mostrando Alertas
+
+![Alerta de poca luz en display](imgs/alert1.jpg)
+
+#### Resultados en Dashboard Web
+
+#### Dashboard con los Resultados de la temperatura
+
+![temp1](imgs/pre11.jpeg)
+
+![temp2](imgs/pre12.jpeg)
+
+![temp3](imgs/pre13.jpeg)
+
+#### Dashboard con los Resultado de la Iluminación
+
+![ilumina1](imgs/pre21.jpeg) 
+
+![ilumina2](imgs/pre22.jpeg)
+
+![ilumina3](imgs/pre23.jpeg)
+
+#### Resultados en Grafana
+
+![grafana](imgs/grafana.png)
+
+### Funcionamiento y Lógica Software/Hardware
+
+1. **Inicialización:** Al arrancar el script Python, se crean instancias de cada sensor, actuador y cliente de comunicación. Todo se gestiona desde la clase principal `SiepaG11App`.
+
+2.  **Ciclo de Lectura y Almacenamiento:** Un hilo (`sensor_thread`) se encarga de leer periódicamente los sensores y enviar los datos directamente a MongoDB.
+
+3.  **Procesamiento en Raspberry Pi:**
+   * Los valores se comparan con umbrales predefinidos para activar o desactivar alertas y actuadores.
+   * Periódicamente o bajo demanda, se invoca el módulo analítico de ARM64 como se describió anteriormente.
+
+4.  **Publicación MQTT:** Los datos de cada sensor se publican en tópicos MQTT específicos para que el dashboard los pueda consumir en tiempo real.
+
+### Presentación de Información - Dashboard Web, Grafana y LCD
+
+1.  **Dashboard Web:** Se conecta al broker MQTT para la visualización en tiempo real y el control remoto. Ahora también incluye ventanas adicionales para mostrar los datos calculados por el módulo ARM64 y los datos históricos extraídos de la base de datos (mínimo 20 datos).
+
+2. **Grafana:** Se configura como la herramienta principal para el análisis histórico. Se conecta a MongoDB como fuente de datos y muestra paneles personalizados con series de tiempo, comparativas de predicciones y resúmenes analíticos.
+
+3. **Pantalla LCD:** Alterna entre mostrar los valores actuales de los sensores, los resultados estadísticos (media, varianza, etc.) y las predicciones (media móvil, SES), según se solicite desde el dashboard.
+
+### Protocolos de Comunicación
+
+* **Comunicación a Nivel de Hardware (Sensores/Actuadores ↔ Raspberry Pi):**
+    * Comunicación directa a través de los pines GPIO.
+    * Protocolos de bajo nivel específicos para cada componente:
+        * **Digital (Simple):** Para LEDs, Buzzer, etc.
+        * **One-Wire:** Usado por sensores como el DHT11/22.
+        * **I2C:** Utilizado por sensores como BMP280, BH1750 y la pantalla LCD.
+        * **Analógico a Digital (vía ADC):** Se usa un conversor ADC externo (PCF8591) para leer la señal analógica del sensor MQ135.
+
+* **Comunicación de Datos (Flujo Principal):**
+    * **Raspberry Pi → MongoDB Atlas:** El script principal de Python utiliza un driver (ej. `pymongo`) para establecer una conexión segura sobre TCP/IP con la base de datos en la nube. A través de esta conexión, se envían y almacenan todas las lecturas de los sensores y los resultados de los análisis para su persistencia.
+    * **MongoDB Atlas → Dashboard Web / Grafana:** Tanto el dashboard (para vistas históricas) como Grafana se conectan directamente a MongoDB para consultar los datos almacenados y generar las visualizaciones y reportes correspondientes.
+
+* **Comunicación de Control y Tiempo Real (MQTT):**
+    * Aunque el flujo principal de datos es hacia MongoDB, el protocolo MQTT se mantiene para funcionalidades de control y actualizaciones en tiempo real que no requieren persistencia inmediata en la base de datos.
+    * **Dashboard Web → Raspberry Pi:** El dashboard publica mensajes en tópicos MQTT de control (ej. `siepa/control/ventilador`) para enviar comandos remotos.
+    * **Raspberry Pi ← Dashboard Web:** El script en la Raspberry Pi está suscrito a estos tópicos para recibir y ejecutar los comandos de forma instantánea.
+
+### Diseño y Tecnologías Utilizadas
+
+* **Raspberry Pi:** Elegida como unidad central por su versatilidad, capacidad de cómputo, conectividad de red y amplio soporte de la comunidad.
+
+* **Python (en Raspberry Pi):** Seleccionado por su facilidad de uso y la gran cantidad de librerías para interactuar con hardware y protocolos de red.
+
+* **Lenguaje Ensamblador ARM64:** Utilizado para el núcleo de procesamiento de datos para maximizar el rendimiento y cumplir con los objetivos del curso.
+
+* **MongoDB Atlas:** Seleccionado como base de datos NoSQL en la nube, ofreciendo escalabilidad, flexibilidad y fácil integración.
+
+* **Grafana:** Herramienta líder para la visualización de datos de series de tiempo, ideal para crear paneles de monitoreo avanzados.
+
+* **MQTT (Message Queuing Telemetry Transport):** Protocolo estándar para IoT, ligero y eficiente, que permite una comunicación desacoplada y escalable.
+
+* **Dashboard Web:** Proporciona una interfaz gráfica accesible desde cualquier navegador para el monitoreo y control.
+
+* **Sensores Específicos:**
+    * **DHT11/22:** Comunes y económicos para temperatura y humedad.
+    * **BH1750:** Elegido por su salida digital directa en lux vía I2C, lo que resulta en mediciones de iluminación precisas.
+    * **HC-SR04:** Popular para detección de presencia/distancia.
+    * **BMP280:** Proporciona mediciones precisas de presión barométrica.
+    * **MQ135:** Sensor de gases para monitorear la calidad del aire, usado en conjunto con un ADC.
+
+## Interacción Software-Hardware
+
+A continuación, se presentan fragmentos de código que ilustran la interacción clave entre el software y el hardware en el proyecto.
+
+### 1. Lectura de Sensores
+
+El sistema encapsula la lógica de cada sensor en su propia clase para mantener el código organizado. En la clase principal, se crean instancias de estos sensores.
+
+```python
+# --- Dentro de la clase SiepaG11App, método __init__ ---
+
+# Se crea una instancia para cada sensor, indicando los pines o interfaces que utiliza.
+# Por ejemplo, el DHT11 se conecta al pin D17.
+self.dht_sensor = DHT(board.D17, "DHT11")
+
+# El sensor de presión utiliza el bus I2C (indicado por la librería 'board').
+self.bmp_sensor = BMP(board.D4) # El pin es referencial para la librería de Adafruit.
+
+# El sensor de calidad de aire (analógico) se conecta al canal 0 del ADC PCF8591.
+self.mq_sensor = MQ135(PCF8591(), channel=0)
+
+# El sensor ultrasónico utiliza dos pines GPIO: uno de trigger y otro de echo.
+self.ultrasonic_sensor = Ultrasonic(trigger_pin=board.D18, echo_pin=board.D27)
+```
+La lectura se realiza de forma cíclica dentro de un hilo para no bloquear el resto del programa
+```python
+# --- Dentro de la clase SiepaG11App, método run_sensor_tasks ---
+
+# En un bucle infinito, se llama al método 'read()' de cada objeto sensor.
+# Este método encapsula la lógica específica para obtener los datos.
+dht_data = self.dht_sensor.read()
+bmp_data = self.bmp_sensor.read()
+mq_data = self.mq_sensor.read()
+ultrasonic_data = self.ultrasonic_sensor.read()
+
+# Luego, los datos se publican en tópicos MQTT específicos.
+self.mqtt_client.publish('temperature', json.dumps({'temperature': dht_data['temperature']}))
+self.mqtt_client.publish('humidity', json.dumps({'humidity': dht_data['humidity']}))
+```
+
+
+
+### 2. Control de actuadores y LCD
+
+Los actuadores (LEDs, ventilador, buzzer) se gestionan a través de una clase genérica que simplifica su control.
+
+```python
+# --- Clase GenericOutputDevice ---
+
+# El método 'turn_on_device' establece el pin GPIO correspondiente en estado ALTO (3.3V).
+def turn_on_device(self):
+    GPIO.output(self._pin, GPIO.HIGH)
+    self._mode = True
+
+# El método 'turn_off_device' establece el pin en estado BAJO (0V).
+def turn_off_device(self):
+    GPIO.output(self._pin, GPIO.LOW)
+    self._mode = False
+```
+
+La lógica de control automático se ejecuta en el mismo bucle de lectura de sensores, comparando los valores obtenidos con umbrales predefinidos.
+
+```python
+
+# --- Dentro de la clase SiepaG11App, método run_sensor_tasks ---
+
+# Ejemplo de control automático del ventilador y el LED de alerta de temperatura.
+# Si la temperatura supera los 28°C, se enciende el ventilador y el LED rojo.
+if siepa_data.temperature >= 28:
+    if not self.red_led.mode:
+        self.red_led.turn_on_device()
+    if self.fan_device.control == 'automatic' and not self.fan_device.mode:
+        self.fan_device.turn_on_device()
+# Si la temperatura es inferior, se apagan.
+elif siepa_data.temperature < 28:
+    if self.red_led.mode:
+        self.red_led.turn_off_device()
+    if self.fan_device.control == 'automatic' and self.fan_device.mode:
+        self.fan_device.turn_off_device()
+
+```
+La pantalla LCD se controla a través de la clase DisplayLCD, que permite mostrar texto de forma cíclica.
+
+```python
+# --- Dentro de la clase DisplayLCD ---
+
+# Método para mostrar datos en la pantalla, rotando la información cada 'delay' segundos.
+def scroll_data(self, seipa_data, delay=2):
+    lines = [
+        f"Temp: {seipa_data.temperature:.1f} C",
+        f"Humedad: {seipa_data.humidity:.1f} %",
+        f"Presion: {seipa_data.pressure:.1f} hPa",
+        f"CO2: {seipa_data.air_quality:.1f} ppm",
+        f"Lux: {seipa_data.iluminity:.1f} lux"
+    ]
+    # Lógica para mostrar las líneas en la pantalla...
+```
+
+### 3. Respuesta a Comandos MQTT
+
+El cliente MQTT se suscribe a nuevos tópicos para controlar qué información se muestra en la LCD.
+
+```python
+# --- Dentro de la función on_message del cliente MQTT ---
+
+def on_message(client, user_data, msg):
+    print(f"Mensaje recibido en [{msg.topic}]: {msg.payload.decode()}")
+    
+    # Nueva lógica para cambiar el modo de la LCD
+    if msg.topic == 'siepa/lcd/mode':
+        mode = msg.payload.decode()
+        if mode == 'realtime':
+            # Lógica para que la LCD muestre datos de sensores
+        elif mode == 'analytics':
+            # Lógica para que la LCD muestre datos analíticos
+    
+    # Lógica existente para controlar actuadores...
+```
+
+## 9. Mantenimiento y Futuras Modificaciones
+
+* **Mantenimiento:**
+  * Actualización regular del sistema operativo y librerías en la Raspberry Pi.
+  * Verificación periódica del funcionamiento de los sensores y su calibración.
+  * Monitorización del broker MQTT, el servidor del dashboard, la instancia de Grafana y la base de datos MongoDB.
+  * Revisión de logs para detectar errores.
+
+* **Futuras Modificaciones:**
+  * Implementar modelos de predicción más complejos (ej. ARIMA).
+  * Añadir más tipos de sensores o actuadores.
+  * Mejorar la seguridad del sistema en todas las capas.
+  * Optimización del código ARM64.
+  * Crear un sistema de alertas más robusto en Grafana.
+
+## Costo del Prototipo
+
+| Ítem | Cantidad | Precio unitario | Costo total | 
+|---|---:|---:|---:|
+| Ventilador 5 V | 4 | Q 29.00 | Q 116.00 |
+| Sensor de presión BMP280 | 2 | Q 23.50** | Q 47.00 |
+| Módulo sensor de humedad DHT11 | 1 | Q 27.00 | Q 27.00 |
+| Adaptador HDMI a micro-HDMI | 1 | Q 20.00 | Q 20.00 |
+| Sensor de calidad de aire MQ135 | 1 | Q 31.00 | Q 31.00 |
+| Cables Dupont macho-hembra (30 cm y 20 cm) | 22 | Q 1.00* | Q 22.00 |
+| Cables Dupont hembra-hembra 20 cm | 10 | Q 0.75* | Q 7.50 |
+| Cables Dupont hembra-hembra adicionales | - | - | Q 14.00 |
+| Canaleta de 2 m | 1 | Q 12.00 | Q 12.00 |
+| Sierra con arco de 10'' | 1 | Q 34.00 | Q 34.00 |
+| Pegamento para PVC | 1 | Q 27.00 | Q 27.00 |
+| Codos varios para PVC | 1 | Q 35.25 | Q 35.25 |
+| Tubo de PVC de ½ pulgada (4 metros) | 1 | Q 15.64 | Q 15.64 |
+| Módulo conversor analógico-digital (ADC) | 1 | Q 35.00 | Q 35.00 |
+| Módulo iluminación de intensidad BH1750 | 1 | Q 30.00 | Q 30.00 |
+| Spray de pintura blanca | 1 | Q 25.00 | Q 25.00 |
+| Pintura blanca y café + pinceles | - | - | Q 70.00 |
+| Paletas pequeñas | - | - | Q 6.50 |
+| Paletas y nylon adicionales | - | - | Q 38.00 |
+| Luces LED de alta intensidad | 4 | Q 12.00 | Q 48.00 |
+| **Total general** | | | **Q 660.89** |
+
+
+

@@ -1,0 +1,22 @@
+<h2 mat-dialog-title class="modal-title">Suavizado Exponencial</h2>
+<mat-dialog-content class="modal-content">
+  <div *ngIf="data && data.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let val of data; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ val }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="!data || data.length === 0" class="no-data">
+    No hay datos para mostrar.
+  </div>
+</mat-dialog-content>

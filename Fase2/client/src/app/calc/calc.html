@@ -1,0 +1,111 @@
+<app-header></app-header>
+<div class="dashboard-bg">
+    <div class="dashboard-container">
+        <h1 class="dashboard-title">Procesamiento de Datos</h1>
+        <mat-card class="panel panel-top">
+            <!-- Panel Superior logo y título-->
+            <div class="dashboard-top-panel">
+                <img src="assets/actuadores.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Datos estadisticos y Predicciones</h1>
+            </div>
+            <!-- Panel para la selección de datos-->
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-header">
+                        <h3><i class="bi bi-cpu"></i> Selecciona el tipo de sensor</h3>
+                    </div>
+                    <div class="select-row">
+                        <mat-form-field appearance="fill" class="sensor-select">
+                            <mat-select [(ngModel)]="selectedSensor">
+                                <mat-option *ngFor="let sensor of sensorTypes" [value]="sensor.value">
+                                    {{sensor.viewValue}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <button mat-raised-button color="primary" class="sensor-btn" (click)="onSend()" [disabled]="!selectedSensor">
+                            Enviar selección
+                        </button>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="dashboard-top">
+                <img src="assets/estadistica.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Datos estadisticos</h1>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-activity"></i> Media</h3>
+                        <div class="subpanel-dato">{{ displayValue(averageValue) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-bar-chart-steps"></i> Mediana</h3>
+                        <div class="subpanel-dato">{{ displayValue(medianValue) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-clipboard-data-fill"></i> Moda</h3>
+                        <div class="subpanel-dato">{{ displayValue(modeValue) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Min</h3>
+                        <div class="subpanel-dato">{{ displayValue(minimum) }}</div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-graph-down"></i> Max</h3>
+                        <div class="subpanel-dato">{{ displayValue(maximum) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-pie-chart"></i> Desviación Estándar</h3>
+                        <div class="subpanel-dato">{{ displayValue(standardDeviationValue) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-pie-chart-fill"></i> Varianza</h3>
+                        <div class="subpanel-dato">{{ displayValue(varianceValue) }}</div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="dashboard-top">
+                <img src="assets/estadistico.png" alt="logo" class="dashboard-logo">
+                <h1 class="dashboard-title">Modelos de predicción</h1>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-graph-up-arrow"></i> Media Móvil</h3>
+                        <div class="subpanel-dato">{{ displayValue(movingAverageValue) }}</div>
+                    </div>
+                </mat-card>
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-graph-up"></i> Suavizado Exponencial</h3>
+                        <div class="subpanel-dato">{{ displayValue(exponentialSmoothingValue) }}</div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="panel panel-segundo">
+                <mat-card class="subpanel">
+                    <div class="subpanel-data">
+                        <h3 class="subpanel-title"><i class="bi bi-bar-chart-fill"></i> Gráfica del Suavizado Exponencial</h3>
+                        <mat-card class="subpanel-graph">
+                            <canvas id="suavizadoChart"></canvas>
+                        </mat-card>
+                    </div>
+                </mat-card>
+            </div>
+        </mat-card>
+    </div>
+</div>

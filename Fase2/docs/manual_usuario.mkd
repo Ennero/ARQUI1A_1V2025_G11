@@ -1,0 +1,164 @@
+# **Manual de Usuario - Proyecto SIEPA (Fase 1)**
+
+## **Índice**
+
+- [**Manual de Usuario - Proyecto SIEPA (Fase 1)**](#manual-de-usuario---proyecto-siepa-fase-1)
+  - [**Índice**](#índice)
+  - [**Objetivos**](#objetivos)
+    - [**Objetivo General**](#objetivo-general)
+    - [**Objetivos Específicos**](#objetivos-específicos)
+  - [**Introducción**](#introducción)
+  - [**Requisitos del Sistema**](#requisitos-del-sistema)
+  - [**Guía de Uso del Sistema**](#guía-de-uso-del-sistema)
+    - [**1. Puesta en Marcha y Conexión**](#1-puesta-en-marcha-y-conexión)
+    - [**2. Acceso al Dashboard (Login)**](#2-acceso-al-dashboard-login)
+    - [**3. Explorando el Dashboard Web**](#3-explorando-el-dashboard-web)
+      - [**Pestaña de Gráficas**](#pestaña-de-gráficas)
+      - [**Pestaña de Historial de Actividades**](#pestaña-de-historial-de-actividades)
+      - [**Pestaña de Controladores**](#pestaña-de-controladores)
+        - [**Indicadores LED de Advertencia**](#indicadores-led-de-advertencia)
+        - [**Actuadores del Sistema**](#actuadores-del-sistema)
+      - [**Alertas del Sistema**](#alertas-del-sistema)
+    - [**4. Interpretación de los Indicadores Físicos del Prototipo**](#4-interpretación-de-los-indicadores-físicos-del-prototipo)
+      - [**Pantalla LCD**](#pantalla-lcd)
+      - [**LED de Alerta**](#led-de-alerta)
+      - [**Actuadores Físicos (Respuesta Automática)**](#actuadores-físicos-respuesta-automática)
+  - [**Flujo de Uso Típico (Ejemplo Práctico)**](#flujo-de-uso-típico-ejemplo-práctico)
+
+## **Objetivos**
+
+### **Objetivo General**
+
+* Proporcionar una guía clara y detallada sobre el funcionamiento y el modo de uso del Sistema Inteligente de Evaluación y Predicción Ambiental (SIEPA).
+
+### **Objetivos Específicos**
+
+* Facilitar la comprensión de la interacción entre el usuario (a través del Dashboard Web) y el prototipo físico (maqueta con Raspberry Pi, sensores y actuadores).
+* Detallar las funciones del dashboard, los indicadores del prototipo y el método de control remoto del sistema.
+* Resolver posibles dudas sobre la operativa del sistema y el significado de las alertas visuales y sonoras.
+
+## **Introducción**
+
+Bienvenido al manual de usuario del sistema SIEPA. Este documento le guiará a través de los procedimientos necesarios para utilizar este sistema de monitoreo ambiental para un vivero o jardín automatizado. El sistema le permite interactuar con un prototipo físico que incluye sensores, luces indicadoras (LED), actuadores (ventilador, zumbador) y una pantalla LCD, todo gestionado y visualizado desde un Dashboard Web accesible desde un navegador.
+
+## **Requisitos del Sistema**
+
+Para operar el sistema SIEPA, se requiere lo siguiente:
+
+* **Prototipo Físico SIEPA:** El dispositivo completo que incluye la maqueta, la Raspberry Pi, los sensores (temperatura, humedad, luz, presión, etc.), los LED indicadores, el ventilador, el zumbador y la pantalla LCD.
+* **Dispositivo de Usuario:** Un ordenador, tableta o teléfono móvil con un navegador web moderno.
+    * **Navegadores Compatibles:** Google Chrome, Mozilla Firefox, Safari o Microsoft Edge en sus versiones actualizadas.
+* **Conexión de Red Local:** Tanto el dispositivo de usuario como el prototipo SIEPA deben estar conectados a la misma red local (WiFi o Ethernet) para establecer la comunicación.
+* **Credenciales de Acceso:** Usuario y contraseña proporcionados por el administrador del sistema para el acceso al dashboard.
+
+## **Guía de Uso del Sistema**
+
+### **1. Puesta en Marcha y Conexión**
+
+* **Encender el Prototipo:** Asegúrese de que el prototipo físico SIEPA esté conectado a una fuente de alimentación y encendido. Al iniciar, la pantalla LCD mostrará un mensaje de bienvenida, tal como "Bienvenido a SIEPA".
+* **Conectar a la Red:** Verifique que su ordenador o dispositivo móvil esté conectado a la misma red WiFi que la Raspberry Pi del prototipo.
+* **Acceder al Dashboard Web:** Abra su navegador web y acceda a la dirección IP o el enlace proporcionado para el Dashboard del sistema SIEPA.
+
+### **2. Acceso al Dashboard (Login)**
+
+Se presentará una pantalla de inicio de sesión. Ingrese las credenciales de administrador para acceder al panel de control principal. El sistema está protegido por un mecanismo de autenticación para asegurar que únicamente el personal autorizado pueda acceder.
+
+![Inicio de sesión](imgs/Inicio_sesion.png)
+
+Si se ingresan credenciales incorrectas, el sistema mostrará una notificación emergente de error.
+
+![Inicio de sesión equivocado](imgs/Inicio_malo.png)
+
+Al ingresar los datos correctos, será redirigido a la ventana principal del sistema.
+
+### **3. Explorando el Dashboard Web**
+
+Una vez autenticado, tendrá acceso a todas las funcionalidades del sistema. El dashboard se divide en varias secciones clave:
+
+![Dashboard Principal](imgs/principal.png)
+
+#### **Pestaña de Gráficas**
+
+En esta sección se muestra un panel con las lecturas actuales de los sensores y gráficas que representan los últimos 20 datos recibidos en tiempo real, cuyos valores se actualizan constantemente.
+
+![Panel Datos](imgs/datos.png)
+
+![Panel Gráficas](imgs/grafica1.png)
+
+#### **Pestaña de Historial de Actividades**
+
+Esta sección cumple una función similar a la de Gráficas, pero incluye además una tabla con el historial completo de los datos recibidos. Las gráficas, al igual que en la sección anterior, muestran los últimos 20 registros y se actualizan dinámicamente.
+
+![Panel History](imgs/history.png)
+
+#### **Pestaña de Controladores**
+
+Esta pestaña contiene dos módulos principales:
+
+##### **Indicadores LED de Advertencia**
+Estos indicadores LED se activan cuando los datos recibidos alcanzan niveles críticos; por ejemplo, si la temperatura es muy alta o la iluminación es insuficiente.
+
+![Panel led de Advertencia](imgs/led.png)
+
+Al hacer clic en el ícono de peligro ("danger"), se desplegará una ventana modal con información detallada sobre la alerta.
+
+![Peligro información](imgs/modal.png)
+
+##### **Actuadores del Sistema**
+En este apartado se encuentra un interruptor que permite alternar entre el **modo automático** y el **modo manual** para el funcionamiento de los actuadores.
+
+![Actuadores del sistema](imgs/actudores.png)
+
+* **Modo Automático:** El sistema gestionará los actuadores de forma autónoma basándose en las lecturas de los sensores, sin necesidad de intervención desde la interfaz.
+* **Modo Manual:** Una vez activado, se podrán controlar los actuadores directamente desde los botones de la interfaz. Estos botones se habilitarán cuando los datos correspondientes sean críticos.
+
+![Actuadores del sistema](imgs/actuadores1.png)
+
+#### **Alertas del Sistema**
+Cuando los datos alcancen niveles críticos, el sistema generará notificaciones emergentes. Estas alertas, que tienen una duración predeterminada de 5 segundos, instan al usuario a revisar los datos o a activar los actuadores correspondientes. La notificación puede cerrarse manualmente haciendo clic en el botón "X".
+
+![Notificaciones](imgs/notificacion.png)
+
+### **4. Interpretación de los Indicadores Físicos del Prototipo**
+
+El prototipo físico proporciona información instantánea a través de sus componentes visuales y sonoros:
+
+#### **Pantalla LCD**
+
+* **Información Rotativa:** Durante el funcionamiento normal, la pantalla LCD muestra de forma secuencial los valores actuales de cada sensor.
+* **Mensajes de Alerta:** Si se detecta una condición crítica, la pantalla mostrará un mensaje de alerta con mayor prioridad.
+
+#### **LED de Alerta**
+
+Cada LED de color indica un tipo de alerta específica:
+
+* **LED Rojo:** Se enciende cuando la **temperatura es demasiado alta**.
+* **LED Amarillo:** Se enciende cuando la **humedad está fuera del rango ideal** (demasiado alta o baja).
+* **LED Verde:** Se enciende para indicar una **iluminación anormal** (generalmente, demasiado baja).
+* **LED Azul:** Se enciende cuando la **calidad del aire es deficiente**.
+
+#### **Actuadores Físicos (Respuesta Automática)**
+
+Además del control manual, el sistema puede reaccionar de forma autónoma:
+
+* **Ventilador (Motor DC):** Se activará automáticamente si la temperatura supera el umbral crítico.
+* **Zumbador (Buzzer):** Sonará automáticamente si el sensor de calidad del aire detecta niveles peligrosos.
+* **Luz Adicional:** Puede configurarse para que se encienda automáticamente si la luz natural es insuficiente.
+
+## **Flujo de Uso Típico (Ejemplo Práctico)**
+
+A modo de ejemplo, considere el siguiente escenario: en un día caluroso, la temperatura dentro del vivero aumenta a niveles peligrosos.
+
+1.  **Detección:** El sensor de temperatura (DHT11) detecta que se ha superado el umbral preestablecido (ej., 30°C).
+2.  **Respuesta Local Automática:**
+    * El **LED Rojo** del prototipo se enciende de inmediato.
+    * El **Ventilador (motor DC)** se activa para hacer circular el aire y reducir la temperatura.
+    * La **Pantalla LCD** muestra el mensaje "ALERTA: TEMP ALTA!".
+3.  **Comunicación y Visualización Remota:**
+    * La Raspberry Pi envía el nuevo valor de temperatura y el estado de alerta al **Broker MQTT**.
+    * El **Dashboard Web**, que está suscrito a estos datos, recibe la información instantáneamente.
+    * En el panel del dashboard, el medidor de temperatura se mostrará en color rojo y el indicador del ventilador señalará que está "Activo".
+4.  **Intervención del Usuario (Opcional):**
+    * Al observar la alerta en el dashboard, el usuario decide apagar el ventilador manualmente por un momento.
+    * Navega a la sección "Pestaña de Controladores" y pulsa el botón para **desactivar el ventilador**.
+    * El comando se transmite a través del protocolo MQTT hasta la Raspberry Pi, y el ventilador físico se detiene, aunque el LED rojo y la alerta de temperatura permanecerán activos hasta que la condición mejore.

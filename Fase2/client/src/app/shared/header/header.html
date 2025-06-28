@@ -1,0 +1,39 @@
+<mat-toolbar color="primary" class="navbar">
+    <div class="navbar-left">
+        <img src="assets/logo.png" alt="logo" class="logo">
+        <span class="title">El futuro del cuidado de plantas</span>
+    </div>
+    <span class="spacer"></span>
+    <nav mat-tab-nav-bar class="navbar-right">
+        <a mat-tab-link
+            routerLink="/dashboard"
+            routerLinkActive #rla1="routerLinkActive">
+            <i class="bi bi-bar-chart"></i>
+            Gráficas
+        </a>
+        <a mat-tab-link
+            routerLink="/history"
+            routerLinkActive #rla2="routerLinkActive">
+            <i class="bi bi-clock-history"></i>
+            Historial de Actividades
+        </a>
+        <a mat-tab-link
+            routerLink="/exit"
+            routerLinkActive #rla3="routerLinkActive">
+            <i class="bi bi-box-arrow-right"></i>
+            Dispositivos de Salida
+        </a>
+        <a mat-tab-link
+            routerLink="/calc"
+            routerLinkActive #rla4="routerLinkActive">
+            <i class="bi bi-calculator"></i>
+            Datos Sensores
+        </a>
+        <a mat-tab-link
+            routerLink="/board"
+            routerLinkActive #rla5="routerLinkActive">
+            <i class="bi bi-layout-text-sidebar-reverse"></i>
+            Tablas
+        </a>
+    </nav>
+</mat-toolbar>

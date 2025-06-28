@@ -1,0 +1,470 @@
+.dashboard-bg {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #f5f3e7 60%, #a8e6a3 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 50px;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  width: 1200px;
+  gap: 28px;
+  margin-bottom: 40px;
+  align-items: stretch;
+}
+
+.dashboard-top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
+  padding: 18px 28px;
+}
+
+.dashboard-top-panel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
+  padding: 18px 28px;
+  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
+}
+
+.dashboard-logo {
+  height: 48px;
+  width: 48px;
+  border-radius: 8px;
+  background: #f5f3e7;
+  box-shadow: 0 1px 4px rgba(34,84,61,0.10);
+}
+
+.dashboard-title {
+  text-align: center;
+  color: #22543d;
+  margin-bottom: 0;
+  margin-top: 12px;
+  font-size: 2.3rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, #22543d 40%, #8d6748 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.panel {
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
+  background: #fff;
+  padding: 24px 28px;
+  margin: 8px;
+}
+
+.panel-bottom {
+  background: linear-gradient(120deg, #a8e6a3 60%, #f5f3e7 100%);
+  border-bottom: 2px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.panel-segundo, .panel-tercero {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.subpanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #e6f9e6;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(34,84,61,0.10);
+  padding: 22px 24px 18px 24px;
+  min-width: 0;
+  gap: 12px;
+  margin: 8px 0;
+  transition: box-shadow 0.3s;
+}
+
+.subpanel:hover {
+  box-shadow: 0 8px 24px 2px #a8e6a355, 0 2px 8px rgba(34,84,61,0.10);
+}
+
+.subpanel-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.subpanel-header h3 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #22543d;
+  margin: 0;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #22543d 60%, #8d6748 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.led {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--led-color, #bbb);
+  box-shadow: 0 0 8px 2px rgba(0,0,0,0.10);
+  border: 2.5px solid #fff;
+  transition: box-shadow 0.3s, background 0.3s, opacity 0.3s;
+  opacity: 0.5;
+}
+
+.led.on {
+  opacity: 1;
+  box-shadow: 0 0 32px 10px var(--led-color, #bbb), 0 0 2px 1px #fff;
+  background: var(--led-color, #bbb);
+}
+
+.alert-btn {
+  margin-left: auto;
+  animation: alertPop 0.4s;
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 12px 2px #e5393555;
+  border: none;
+  outline: none;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s, background 0.3s;
+  animation: alertBlink 1s infinite alternate;
+}
+
+.alert-btn:hover {
+  box-shadow: 0 0 24px 6px #e53935aa;
+  background: linear-gradient(90deg, #ffd600 60%, #e53935 100%);
+}
+
+.alert-btn .mat-icon {
+  color: #fff;
+  filter: drop-shadow(0 0 2px #e53935);
+}
+
+@keyframes alertPop {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.dato {
+  font-size: 1.13rem;
+  color: #22543d;
+  margin-top: 2px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow: 0 1px 6px #a8e6a322;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+
+/* Estilos para los actuadores */
+.actuador-panel {
+  background: #fafdff;
+  border: 2px solid #a8e6a3;
+  box-shadow: 0 2px 12px #a8e6a322;
+  min-width: 260px;
+  align-items: stretch;
+}
+
+.actuador-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.actuador-icon {
+  filter: drop-shadow(0 0 2px #a8e6a3);
+}
+
+.actuador-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Estilo base para todos los botones de actuador */
+.actuador-btn {
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 10px 28px;
+  box-shadow: 0 2px 8px #a8e6a322;
+  border: none;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+/* Botón para el ventilador (colores cálidos: rojo-naranja-amarillo) */
+.actuador-btn.btn-ventilador {
+  background: linear-gradient(90deg, #e53935 0%, #ffb300 60%, #ffd600 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #e5393544;
+}
+.actuador-btn.btn-ventilador:hover,
+.actuador-btn.btn-ventilador:focus {
+  background: linear-gradient(90deg, #ffd600 0%, #e53935 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #ffd60044;
+}
+
+/* Botón para la iluminación (azul-verde) */
+.actuador-btn.btn-iluminacion {
+  background: linear-gradient(90deg, #3bb78f 0%, #0bab64 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #3bb78f44;
+}
+.actuador-btn.btn-iluminacion:hover,
+.actuador-btn.btn-iluminacion:focus {
+  background: linear-gradient(90deg, #0bab64 0%, #3bb78f 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #0bab6444;
+}
+
+/* Botón para el buzzer (azul-morado) */
+.actuador-btn.btn-buzzer {
+  background: linear-gradient(90deg, #3bb7e0 0%, #6a82fb 60%, #a259c6 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #6a82fb44;
+}
+.actuador-btn.btn-buzzer:hover,
+.actuador-btn.btn-buzzer:focus {
+  background: linear-gradient(90deg, #a259c6 0%, #3bb7e0 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #a259c644;
+}
+
+/* Botón para la iluminación (verde intenso) */
+.actuador-btn.btn-iluminacion {
+  background: linear-gradient(90deg, #43a047 0%, #3bb78f 60%, #0bab64 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px #43a04744;
+}
+.actuador-btn.btn-iluminacion:hover,
+.actuador-btn.btn-iluminacion:focus {
+  background: linear-gradient(90deg, #0bab64 0%, #43a047 100%);
+  color: #fff;
+  box-shadow: 0 4px 18px #0bab6444;
+}
+
+/* Mensaje de peligro para iluminación (verde) */
+.actuador-alert.iluminacion {
+  background: linear-gradient(90deg, #43a047 60%, #3bb78f 100%);
+  color: #fff;
+}
+
+.actuador-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 1.08rem;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-top: 4px;
+  animation: alertBlink 1s infinite alternate; /* Cambia aquí la animación */
+}
+
+.actuador-alert.danger {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+}
+
+.actuador-alert.quality {
+  background: linear-gradient(90deg, #3bb7e0 0%, #6a82fb 60%, #a259c6 100%);
+  color: #fff;
+}
+
+.actuador-btn:disabled,
+.actuador-btn[disabled] {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  filter: grayscale(0.4) brightness(1.1);
+  background: #e0e0e0 !important;
+  color: #888 !important;
+  border: none !important;
+  transition: none !important;
+  pointer-events: none;
+}
+
+@keyframes alertBlink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.modo-toggle {
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: #22543d !important;
+  text-shadow: 0 2px 8px #a8e6a355, 0 1px 0 #fff8;
+  padding: 5px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #a8e6a3 0%, #f5f3e7 100%);
+  box-shadow: 0 2px 12px #a8e6a322;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  margin-left: 18px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.actuador-modo{
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 14px;
+  border-radius: 6px;
+  min-width: unset;
+  height: 32px;
+  line-height: 1.1;
+  margin-left: 10px;
+  margin-right: 0;
+  box-shadow: 0 1px 4px #a8e6a322;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+/* Ventilador: rojo */
+.btn-cambiarModo-ventilacion {
+  background: linear-gradient(90deg, #e53935 60%, #ffd600 100%);
+  color: #fff;
+  border: none;
+}
+.btn-cambiarModo-ventilacion:hover,
+.btn-cambiarModo-ventilacion:focus {
+  background: linear-gradient(90deg, #ffd600 0%, #e53935 100%);
+  color: #fff;
+}
+
+/* Buzzer: azul */
+.btn-cambiarModo-buzzer {
+  background: linear-gradient(90deg, #3bb7e0 0%, #6a82fb 100%);
+  color: #fff;
+  border: none;
+}
+.btn-cambiarModo-buzzer:hover,
+.btn-cambiarModo-buzzer:focus {
+  background: linear-gradient(90deg, #6a82fb 0%, #3bb7e0 100%);
+  color: #fff;
+}
+
+/* Iluminación: verde */
+.btn-cambiarModo-iluminacion {
+  background: linear-gradient(90deg, #43a047 60%, #a8e6a3 100%);
+  color: #fff;
+  border: none;
+}
+.btn-cambiarModo-iluminacion:hover,
+.btn-cambiarModo-iluminacion:focus {
+  background: linear-gradient(90deg, #a8e6a3 0%, #43a047 100%);
+  color: #fff;
+}
+/* Botón Led Roja */
+.actuador-btn.btn-rojo {
+  background: linear-gradient(90deg, #e53935 0%, #ff5252 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px #e5393544;
+  border: none;
+  font-size: 1.4rem;
+  padding: 6px 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.actuador-btn.btn-rojo:hover,
+.actuador-btn.btn-rojo:focus {
+  background: linear-gradient(90deg, #ff5252 0%, #e53935 100%);
+  color: #fff;
+}
+
+/* Botón Led Amarilla */
+.actuador-btn.btn-amarillo {
+  background: linear-gradient(90deg, #ffd600 0%, #fff176 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px #ffd60044;
+  border: none;
+  font-size: 0.9rem;
+  padding: 6px 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.actuador-btn.btn-amarillo:hover,
+.actuador-btn.btn-amarillo:focus {
+  background: linear-gradient(90deg, #fff176 0%, #ffd600 100%);
+  color: #222;
+}
+
+/* Botón Led Verde */
+.actuador-btn.btn-verde {
+  background: linear-gradient(90deg, #43a047 0%, #a8e6a3 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px #43a04744;
+  border: none;
+  font-size: 1.2rem;
+  padding: 6px 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.actuador-btn.btn-verde:hover,
+.actuador-btn.btn-verde:focus {
+  background: linear-gradient(90deg, #a8e6a3 0%, #43a047 100%);
+  color: #fff;
+}
+
+/* Botón Led Azul */
+.actuador-btn.btn-azul {
+  background: linear-gradient(90deg, #1e88e5 0%, #6a82fb 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px #1e88e544;
+  border: none;
+  font-size: 1.2rem;
+  padding: 6px 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.actuador-btn.btn-azul:hover,
+.actuador-btn.btn-azul:focus {
+  background: linear-gradient(90deg, #6a82fb 0%, #1e88e5 100%);
+  color: #fff;
+}
+
+/* ...existing code... */
+
