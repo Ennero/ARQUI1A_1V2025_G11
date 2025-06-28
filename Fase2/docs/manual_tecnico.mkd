@@ -182,6 +182,113 @@ Las siguientes funciones han sido implementadas directamente en **lenguaje ensam
 
 * **Suavizado Exponencial Simple (SES):** Un modelo de predicción que asigna pesos decrecientes exponencialmente a las observaciones más antiguas. Es útil para pronósticos a corto plazo sin una tendencia clara.
 
+### Integración de Python ↔ ARM64
+
+La integración de ARM64 para el uso de las funciones estadísticas y los modelos de predicción se realizó a través de la clase Calculator.
+Esta clase actúa como un intermediario entre Python y el ejecutable en ensamblador ARM64, permitiendo llamar a las operaciones de análisis de datos mediante subprocesos (subprocess.Popen).
+
+Cada método de la clase Calculator representa una función estadística o un modelo de predicción (media, mediana, moda, varianza, desviación estándar, máximo, mínimo, media móvil y suavizado exponencial). Para cada función, se crea un proceso independiente que ejecuta el binario ./ARM64/main con un argumento numérico que identifica la operación a realizar.
+
+El flujo básico consiste en:
+
+1. Preparación de datos:
+Python recibe un arreglo de números (por ejemplo, lecturas de sensores) y los convierte a un formato textual, donde cada número ocupa una línea y el carácter $ indica el final del archivo. Esto se hace con el método stringify_data, asegurando compatibilidad con el parser implementado en ARM64.
+
+2. Ejecución del módulo ARM64:
+Cada función de la clase Calculator ejecuta el binario de ARM64 pasando como argumento el identificador de la operación (por ejemplo, 0 para la media, 1 para la varianza, etc.). La comunicación de datos se realiza a través de la entrada estándar (stdin) y los resultados se leen desde la salida estándar (stdout).
+
+Ejemplo de una método para aplicar una función estadística:
+
+```python
+def get_mean(self, data):
+        mean_result = sbp.Popen(
+            ['./ARM64/main', '0'],
+            stdin=sbp.PIPE,
+            stdout=sbp.PIPE,
+            stderr=sbp.PIPE,
+            text=True
+        )
+
+        stdout, stderr = mean_result.communicate(input=data)
+        print("Mean: " + stdout, end='')
+        return int(stdout.strip())
+```
+
+3. Procesamiento de resultados:
+Los resultados obtenidos se convierten a enteros (o listas de enteros, como en el caso del suavizado exponencial) y se almacenan en los atributos last_stats y last_predictions para poder ser consultados posteriormente o enviados a MongoDB y a las interfaces de visualización.
+
+La manera en la que se obtiene los resultados por el método calculate_stats:
+
+```python
+def calculate_stats(self, data):
+        data = self.stringify_data(data)
+
+        self.last_stats = {
+            "mean": self.get_mean(data),
+            "median": self.get_median(data),
+            "mode": self.get_mode(data),
+            "minimum": self.get_minimum(data),
+            "maximum": self.get_maximum(data),
+            "variance": self.get_variance(data),
+            "standard_deviation": self.get_stdev(data)
+        }
+
+        return self.last_stats
+```
+Y el método calculate_predictions:
+
+```python
+def calculate_predictions(self, data):
+        data = self.stringify_data(data)
+
+        self.last_predictions = {
+            "moving_average": self.get_movil_mean(data),
+            "exponential_smoothing": self.get_exponential_smoothing(data)
+        }
+
+        return self.last_predictions
+```
+
+Por su parte, el archivo main.s en ARM64 funciona como un enrutador de operaciones, utilizando el argumento recibido (un número en ASCII) para decidir qué cálculo realizar. Este archivo define secciones separadas para cada estadística y modelo de predicción:
+
+Por ejemplo con un argumento de 0 realiza la media en la etiqueta do_mean:
+
+```
+.text
+_start:
+    mov x0, #0
+    ldr x1, =buffer // Lee el stdin
+    mov x2, #8192
+    mov x8, #63
+    svc #0
+
+    mov x5, sp
+    ldr x2, [x5, #16] // Recibe el argumento, este caso 0 para realizar la media
+    ldrb w3, [x2]
+
+    ldr x0, =buffer 
+
+    cmp w3, #48
+    b.eq do_mean // Hace un branch con la hacia do_mean para realizar la media
+
+    ...
+
+do_mean: 
+    bl mean // Realiza la operacion de la media
+    bl itoa     
+    bl print // Imprime el resultado para recibirlo por stdout
+    b exit
+
+    ...
+exit: // Termina la ejecución del programa.
+    mov x0, #0
+    mov x8, #93
+    svc #0
+```
+Este diseño permite separar completamente la lógica numérica compleja (realizada en bajo nivel y optimizada) de la lógica de control y presentación (realizada en Python), logrando así un sistema modular, eficiente y fácil de mantener.
+
+Gracias a esta arquitectura híbrida, el proyecto SIEPA puede ejecutar funciones estadísticas y de predicción de forma extremadamente rápida y eficiente en la Raspberry Pi.
+
 ### Diagrama de Flujo de Integración Python ↔ ARM64
 
 ![Diagrama de flujo de integración](diagrama_arm_python.png)
@@ -205,6 +312,7 @@ Para complementar el sistema, se desarrolló una aplicación de interfaz de usua
 1. **Menú de Navegación:** La aplicación presenta un menú numérico para acceder a las funciones de análisis (media, moda, etc.) y otras utilidades.
 
 2. **Carga de Datos:** Permite cargar datos desde un archivo de texto. El formato esperado es un número por línea, con un carácter `$` para indicar el final del archivo.
+Ejemplo de archivo:
 
 3. **Filtrado de Datos:** El usuario puede especificar un rango de líneas (ej., de la 100 a la 150) para que los cálculos se apliquen solo a ese subconjunto de datos.
 
