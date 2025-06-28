@@ -1,8 +1,8 @@
-# **Manual de Usuario - Proyecto SIEPA (Fase 1)**
+# **Manual de Usuario - Proyecto SIEPA (Fase 2)**
 
 ## **Índice**
 
-- [**Manual de Usuario - Proyecto SIEPA (Fase 1)**](#manual-de-usuario---proyecto-siepa-fase-1)
+- [**Manual de Usuario - Proyecto SIEPA (Fase 2)**](#manual-de-usuario---proyecto-siepa-fase-2)
   - [**Índice**](#índice)
   - [**Objetivos**](#objetivos)
     - [**Objetivo General**](#objetivo-general)
