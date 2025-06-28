@@ -305,21 +305,76 @@ La elección de implementar el núcleo analítico en ensamblador ARM64 no es tri
 
 ### Aplicación TUI en ARM64
 
-Para complementar el sistema, se desarrolló una aplicación de interfaz de usuario en modo texto (TUI) en ARM64 que permite la interacción directa con el módulo de análisis.
+La aplicación de Interfaz de Usuario en Modo Texto (TUI) desarrollada en ARM64 permite la interacción directa y eficiente con el módulo de análisis estadístico y de predicción. Su diseño modular y robusto, implementado íntegramente en ensamblador, ofrece una experiencia de usuario clara y control total sobre los datos a analizar.
 
-**Requerimientos funcionales:**
+#### Características principales:
 
-1. **Menú de Navegación:** La aplicación presenta un menú numérico para acceder a las funciones de análisis (media, moda, etc.) y otras utilidades.
+1. **Menú de Navegación Interactivo:**
+   - Al iniciar, la TUI muestra un menú principal donde el usuario puede cargar archivos de datos o salir de la aplicación.
+   - Tras cargar un archivo, se accede a un submenú con opciones para filtrar datos, limpiar filtros, seleccionar funciones estadísticas/predictivas y exportar resultados.
 
-2. **Carga de Datos:** Permite cargar datos desde un archivo de texto. El formato esperado es un número por línea, con un carácter `$` para indicar el final del archivo.
-Ejemplo de archivo:
+2. **Carga de Datos Desde Archivo:**
+   - Permite cargar archivos de texto con datos numéricos (un número por línea, terminando con `$`).
+   - El sistema valida la carga y notifica al usuario si el archivo fue leído correctamente.
 
-3. **Filtrado de Datos:** El usuario puede especificar un rango de líneas (ej., de la 100 a la 150) para que los cálculos se apliquen solo a ese subconjunto de datos.
+3. **Filtrado de Datos por Rango:**
+   - El usuario puede especificar un rango de líneas (por ejemplo, de la 100 a la 150) para aplicar los cálculos solo a ese subconjunto.
+   - El sistema valida los límites del rango y notifica si hay errores (fuera de rango, límites invertidos, etc.).
+   - Al aplicar el filtro, los cálculos y exportaciones posteriores solo consideran el subconjunto seleccionado.
 
-4. **Limpieza de Filtro:** Una opción permite eliminar cualquier filtro aplicado, volviendo a utilizar el conjunto completo de datos.
+4. **Limpieza de Filtros:**
+   - Opción para eliminar cualquier filtro aplicado y volver a trabajar con el conjunto completo de datos cargados.
+   - El sistema confirma la limpieza exitosa del filtro.
 
-5. **Exportación a XML:** La aplicación puede generar un archivo XML con los resultados de todos los cálculos. Este archivo contiene los datos completos o solo los datos filtrados, según el estado actual.
+5. **Cálculos Estadísticos y Modelos de Predicción:**
+   - Menú dedicado para seleccionar y ejecutar funciones como mínimo, máximo, media, mediana, moda, desviación estándar, varianza, media móvil y suavizado exponencial.
+   - Opción para ejecutar todas las operaciones de una sola vez y mostrar los resultados secuencialmente.
+   - Los resultados se presentan de forma clara en pantalla.
 
+6. **Exportación de Resultados a XML:**
+   - Permite exportar los resultados de los cálculos (sobre el conjunto completo o filtrado) a un archivo XML.
+   - El sistema notifica al usuario cuando la exportación es exitosa.
+
+#### Flujo de uso típico:**
+
+1. El usuario inicia la TUI y selecciona "Leer Archivo de Datos".
+2. Tras la carga exitosa, puede:
+   - Filtrar el rango de datos a analizar.
+   - Limpiar el filtro para volver al conjunto completo.
+   - Seleccionar y ejecutar funciones estadísticas o de predicción.
+   - Exportar los resultados a XML.
+3. El usuario puede regresar al menú principal o salir en cualquier momento.
+
+Esta aplicación TUI, gracias a su implementación en ensamblador ARM64, garantiza máxima eficiencia y control sobre los datos, facilitando la interacción directa con el núcleo analítico del sistema.
+
+#### Funciones implementadas en el TUI
+
+A continuación se describen brevemente las funciones auxiliares y estadísticas implementadas en ensamblador ARM64 utilizadas por la TUI para el procesamiento, manejo y exportación de datos:
+
+- **bubble_sort:** Ordena un arreglo de números enteros en orden ascendente. Es fundamental para el cálculo de la mediana.
+- **convert:** Convierte un número a su representación en texto y lo inserta en una estructura XML, facilitando la exportación de resultados.
+- **create_range_buffer:** Extrae un rango específico de líneas de un buffer de texto, permitiendo filtrar subconjuntos de datos para análisis.
+- **exp_smooth:** Calcula el suavizado exponencial simple sobre una serie de datos, útil para predicción de series temporales.
+- **exp_smoothXML:** Igual que `exp_smooth`, pero formatea los resultados para su exportación en XML.
+- **formatError:** Verifica el formato del archivo de entrada y muestra un mensaje de error si detecta datos inválidos.
+- **itoa:** Convierte un número entero a su representación en texto ASCII (string), para mostrar o exportar resultados.
+- **maximum:** Encuentra el valor máximo en un conjunto de datos numéricos.
+- **mean:** Calcula la media (promedio) de los datos.
+- **median:** Calcula la mediana, el valor central tras ordenar los datos.
+- **minimum:** Encuentra el valor mínimo en un conjunto de datos numéricos.
+- **mode:** Calcula la moda, el valor que más se repite en el conjunto de datos.
+- **numbers_array / numbers_array2:** Convierte un buffer de texto con números en un arreglo de enteros para su procesamiento.
+- **print:** Imprime cadenas de texto en la salida estándar (pantalla).
+- **print_num / printNum:** Imprime un número entero en la salida estándar, con formato adecuado.
+- **read_opt:** Lee una opción numérica ingresada por el usuario desde la entrada estándar.
+- **readfile:** Lee el contenido de un archivo de texto, lo valida y lo carga en memoria para su análisis.
+- **stdev:** Calcula la desviación estándar de los datos, a partir de la varianza.
+- **sub_var:** Calcula la sumatoria de las diferencias al cuadrado respecto a la media (parte del cálculo de varianza y desviación estándar).
+- **sum:** Suma todos los valores de un conjunto de datos.
+- **variance:** Calcula la varianza, es decir, la dispersión de los datos respecto a la media.
+- **writeXML:** Genera y escribe un archivo XML con los resultados estadísticos y de predicción calculados.
+
+Estas funciones permiten a la TUI realizar operaciones de entrada/salida, validación, filtrado, análisis estadístico y exportación de resultados de manera eficiente y optimizada directamente en ARM64.
 
 ### Capturas de Resultados
 <!-- COMENTARIO: En esta sección, inserta las capturas de pantalla que evidencian el funcionamiento del sistema. -->
