@@ -1,62 +1,15 @@
-# Gitignore Unificado y Ordenado
-# ------------------------------
-# Este archivo especifica los archivos y carpetas que Git debe ignorar intencionalmente.
-# Unificar las reglas en este archivo raíz es la mejor práctica para la gestión de proyectos.
-
-### Archivos de Sistema Operativo ###
-# Archivos generados por macOS y Windows para vistas previas, etc.
-.DS_Store
-Thumbs.db
-
-### Dependencias ###
-# La carpeta node_modules es la más importante a ignorar. Se puede regenerar con 'npm install'.
-# La barra al final asegura que ignore carpetas, no archivos con el mismo nombre.
+# Node & NPM
 node_modules/
-
-### Logs ###
-# Archivos de log generados por gestores de paquetes y herramientas de testing.
 npm-debug.log*
+yarn-debug.log*
 yarn-error.log*
-libpeerconnection.log
-testem.log
-
-### Archivos de Build y Salida Compilada ###
-# Carpetas y archivos generados durante el proceso de compilación (build).
-/dist
-/tmp
-/out-tsc
-/bazel-out
-/coverage
-
-### Archivos de Entorno ###
-# Estos archivos contienen claves de API, contraseñas y otros secretos.
-# NUNCA deben ser subidos al repositorio. Cada desarrollador crea los suyos.
+lerna-debug.log*
+.pnpm-debug.log*
+dist/
+build/
 .env
 .env.local
-
-### Caché de Herramientas y Frameworks ###
-.angular/cache
-.sass-cache/
-connect.lock
-/typings
-
-### Configuración de Editores de Código e IDEs ###
-# Ignora archivos de configuración específicos del usuario para varios editores.
-
-# Visual Studio Code
-# Ignora toda la carpeta .vscode excepto los archivos que se quieren compartir con el equipo.
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history/
-
-# Otros editores (JetBrains, Eclipse, etc.)
+.DS_Store
+Thumbs.db
+.vscode/
 .idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
