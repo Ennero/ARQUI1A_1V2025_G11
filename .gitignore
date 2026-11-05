@@ -13,3 +13,28 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local configuration (commit examples, never personal values).
+.env
+.env.*
+!.env.example
+!.env.*.example
+!**/.env.example
+!**/.env.*.example
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Generated artifacts for this repository.
+coverage/
+.next/
+.angular/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+db.sqlite3
+db.sqlite3-*

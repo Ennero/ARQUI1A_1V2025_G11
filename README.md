@@ -1,68 +1,61 @@
-<div align="center">
+# Monitoreo de sensores con Angular, Python y MQTT
 
-# 🏛️ Computer Architecture & IoT Sensor Monitoring with Angular (ARQUI1)
+Proyecto de Arquitectura de Computadoras 1 organizado en Fase1 y Fase2. Combina adquisición de sensores, servicios Python, comunicación MQTT y paneles Angular; Fase2 añade una API Express para MongoDB y código ARM64.
 
-**Sistema de monitoreo de sensores con microcontroladores, backend en Python y panel de control web en Angular.**
+## Requisitos
 
-[![Language](https://img.shields.io/badge/Language-TypeScript,%20Angular,%20Python,%20MongoDB-blue?style=for-the-badge)](https://github.com/Ennero/ARQUI1A_1V2025_G11)
-[![Course](https://img.shields.io/badge/Course-Arquitectura%20de%20Computadoras%201-003366?style=for-the-badge)](https://ingenieria.usac.edu.gt/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+Node.js compatible con Angular 20, Python según requirements.txt de cada fase, broker MQTT, MongoDB y el hardware descrito en los manuales. Los controladores GPIO/I2C requieren la plataforma física prevista.
 
-</div>
+## Ejecución
 
----
+Los comandos parten de la raíz del repositorio, salvo donde se indica otra terminal.
 
+```bash
+# Panel de Fase1
+cd Fase1/client
+npm ci
+npm start
 
-## 📌 Descripción General
+# Otra terminal, desde la raíz y en el equipo de sensores:
+cd Fase1/server
+python -m pip install -r requirements.txt
+python main.py
 
-Este repositorio contiene la implementación y entrega de **🏛️ Computer Architecture & IoT Sensor Monitoring with Angular (ARQUI1)**, desarrollado en el curso de **Arquitectura de Computadoras 1** en la Universidad de San Carlos de Guatemala.
-
-- **Objetivo:** Sistema de monitoreo de sensores con microcontroladores, backend en Python y panel de control web en Angular.
-- **Stack Principal:** `TypeScript, Angular, Python, MongoDB`.
-- **Área:** Ciencias de la Computación, Algoritmos y Desarrollo de Software.
-
----
-
-## 🚀 Características y Componentes
-
-- Implementación modular y buenas prácticas de codificación.
-- Manejo estructurado de datos, control de flujo y validaciones.
-- Documentación y scripts de soporte para compilación o ejecución.
-
----
-
-## 📦 Estructura del Proyecto
-
-```
-ARQUI1A_1V2025_G11/
-├── src/ o archivos de código fuente
-├── docs/ (si aplica)
-├── .gitignore
-├── LICENSE
-└── README.md
+# API adicional de Fase2, desde la raíz:
+cd Fase2/server/api
+npm ci
+npm run dev
 ```
 
----
+## Recorrido de demostración
 
-## ⚙️ Requisitos y Ejecución
+Abrir la URL que muestra Angular (habitualmente http://localhost:4200). Configurar broker, base de datos y sensores en los archivos config de la fase elegida antes de iniciar el servidor. Fase2/client tiene su propio npm ci y npm start; no ejecutar ambos paneles en el mismo puerto simultáneamente.
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Ennero/ARQUI1A_1V2025_G11.git
-   cd ARQUI1A_1V2025_G11
-   ```
-2. Ejecutar según el entorno (`TypeScript, Angular, Python, MongoDB`):
-   - Consultar los scripts o archivos principales del proyecto para parámetros específicos.
+## Organización
 
----
+Carpetas de la entrega: [`Fase1/`](Fase1/), [`Fase2/`](Fase2/).
 
-## 📄 Licencia
+## Documentación por fase
 
-Este proyecto está bajo la Licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+- [Manual técnico Fase1](Fase1/docs/manual_tecnico.mkd).
+- [Manual de usuario Fase1](Fase1/docs/manual_usuario.mkd).
+- [Configuración del servidor Fase1](Fase1/server/docs/setup.md).
+- [Manual técnico Fase2](Fase2/docs/manual_tecnico.mkd).
+- [Manual de usuario Fase2](Fase2/docs/manual_usuario.mkd).
+- [Configuración del servidor Fase2](Fase2/server/docs/setup.md).
 
----
+## Alcance y límites
 
-## 👨‍💻 Autor
+La adquisición de datos reales depende del hardware y de servicios externos al proceso web. No se incluyen cachés Angular ni instalaciones de dependencias. Revisar la configuración de la fase seleccionada; no mezclar sus componentes.
 
-- **Enner Mendizabal** - [@Ennero](https://github.com/Ennero)  
-- *Facultad de Ingeniería, Universidad de San Carlos de Guatemala.*
+## Contexto y licencia
+
+Trabajo académico o de aprendizaje conservado en el portafolio de [Enner Mendizabal](https://github.com/Ennero). Los créditos de los trabajos en grupo se conservan en sus entregas y manuales.
+
+Consultar [LICENSE](LICENSE) para la licencia de la raíz. Las dependencias y los componentes con avisos o licencias propios conservan sus condiciones.
+
+### Licencias declaradas por componente
+
+La licencia de la raíz no sustituye las declaraciones de estos manifiestos:
+
+- `Fase2/server/api/package.json`: `ISC`.
